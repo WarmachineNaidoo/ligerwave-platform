@@ -1,16 +1,14 @@
 services:
   api:
-    build: .
+    build: platform
     ports: ["8000:8000"]
-    env_file: .env
+    env_file: platform/.env
     environment:
       - ENVIRONMENT=development
-    volumes:
-      - .:/app
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
   retention:
-    build: .
-    env_file: .env
+    build: platform
+    env_file: platform/.env
     command: python -c "import time; from app.services.retention import purge_old_events; [purge_old_events() or time.sleep(86400) for _ in iter(int,1)]"
     restart: unless-stopped

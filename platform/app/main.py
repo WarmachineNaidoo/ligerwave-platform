@@ -56,10 +56,10 @@ app.include_router(subscriptions.router)
 app.include_router(export.router)
 app.include_router(webhooks.router)
 
-static_dir = os.path.join(os.path.dirname(__file__), "static")
-if os.path.isdir(static_dir):
-    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
-
 @app.get("/health")
 async def health():
     return {"status": "ok", "environment": settings.environment}
+
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.isdir(static_dir):
+    app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
