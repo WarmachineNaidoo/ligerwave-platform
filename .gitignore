@@ -16,3 +16,22 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Other projects in workspace (not part of ligerwave-platform)
+attnvalue/
+attnvalue-v2/
+claw-code/
+godot/
+hermes-workspace/
+jungle_game/
+lowcarbon-site/
+markdown/
+rust/
+stable-diffusion/
+tinygame/
+react-query/
+remotion/
+**/node_modules/
+**/target/
+**/.terraform/
+*.exe
