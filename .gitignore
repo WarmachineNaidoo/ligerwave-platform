@@ -17,6 +17,20 @@ build/
 .DS_Store
 Thumbs.db
 
+# Claw tool
+.claw/
+
+# Git submodules in workspace
+RuView/
+ligerwave/
+
+# Unrelated files
+openrouter_key.txt
+start-hermes.sh
+test-chat.sh
+docs/
+attnvalue-specification.md
+
 # Other projects in workspace (not part of ligerwave-platform)
 attnvalue/
 attnvalue-v2/
