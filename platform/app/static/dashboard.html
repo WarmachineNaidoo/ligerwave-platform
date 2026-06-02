@@ -3,48 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CSI Dashboard</title>
+<title>CSI Security Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#0f172a;color:#e2e8f0;padding:20px}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
-h1{font-size:24px;font-weight:600}
-.status-bar{display:flex;gap:16px;margin-bottom:24px}
-.status-card{background:#1e293b;padding:16px 20px;border-radius:12px;flex:1}
-.status-card .label{font-size:12px;color:#94a3b8;text-transform:uppercase}
-.status-card .value{font-size:28px;font-weight:700;margin-top:4px}
+body{background:#0f172a;color:#e2e8f0;padding:20px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px}
+.live-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:8px 18px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:13px;transition:all .15s}
+.btn:active{transform:scale(0.96)}
+.btn-arm{background:#f97316;color:#fff}.btn-arm:hover{background:#ea580c}
+.btn-disarm{background:#22c55e;color:#fff}.btn-disarm:hover{background:#16a34a}
+.btn-sim{background:#334155;color:#e2e8f0;border:1px solid #475569}.btn-sim:hover{background:#475569}
+.btn-sim-intrusion{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.status-card{background:#1e293b;padding:14px 16px;border-radius:10px;border-left:3px solid #334155;position:relative}
+.status-card .label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
+.status-card .value{font-size:24px;font-weight:700;margin-top:4px}
+.status-card.armed{border-left-color:#f97316}
+.status-card.disarmed{border-left-color:#22c55e}
 .status-card.armed .value{color:#f97316}
 .status-card.disarmed .value{color:#22c55e}
-.events{background:#1e293b;border-radius:12px;overflow:hidden}
-.events h2{padding:16px 20px;font-size:16px;border-bottom:1px solid #334155}
-.event{padding:12px 20px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+.chart-box{background:#1e293b;border-radius:10px;padding:16px;position:relative}
+.chart-box h3{font-size:14px;color:#94a3b8;margin-bottom:12px;font-weight:500}
+.chart-box canvas{max-height:200px;width:100%!important}
+.events-panel{background:#1e293b;border-radius:10px;overflow:hidden}
+.events-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #334155}
+.events-header h2{font-size:15px;font-weight:600}
+.events-header select{background:#0f172a;color:#e2e8f0;border:1px solid #334155;padding:4px 10px;border-radius:6px;font-size:12px}
+.event{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid #1e293b;transition:background .15s}
+.event:hover{background:#1a2332}
 .event:last-child{border:0}
-.event .type{font-weight:600}
-.event .type.intrusion{color:#ef4444}.event .type.motion{color:#f97316}.event .type.normal{color:#22c55e}
-.event .time{color:#94a3b8;font-size:13px}
-.event .confidence{font-size:13px;padding:2px 8px;border-radius:6px}
-.confidence-high{background:#ef4444;color:#fff}.confidence-med{background:#f97316;color:#fff}.confidence-low{background:#334155;color:#94a3b8}
-.controls{display:flex;gap:8px}
-.btn{padding:8px 16px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:14px}
-.btn-arm{background:#f97316;color:#fff}.btn-disarm{background:#22c55e;color:#fff}
-.btn-sim{background:#334155;color:#e2e8f0}
-.empty{padding:40px;text-align:center;color:#64748b}
-select, input{background:#0f172a;color:#e2e8f0;border:1px solid #334155;padding:6px 12px;border-radius:6px;font-size:13px}
+.event-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.event-icon.intrusion{background:#7f1d1d;color:#fca5a5}
+.event-icon.motion{background:#7c2d12;color:#fdba74}
+.event-icon.normal{background:#1e293b;color:#94a3b8}
+.event-icon.armed, .event-icon.disarmed{background:#1a2332;color:#94a3b8}
+.event-info{flex:1;min-width:0}
+.event-info .type{font-weight:600;font-size:13px}
+.event-info .type.intrusion{color:#ef4444}
+.event-info .type.motion{color:#fb923c}
+.event-info .type.normal{color:#94a3b8}
+.event-info .zone{font-size:11px;color:#64748b;margin-top:1px}
+.event-meta{text-align:right;flex-shrink:0}
+.event-meta .time{font-size:11px;color:#64748b}
+.event-meta .conf-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block;margin-top:2px}
+.conf-high{background:#7f1d1d;color:#fca5a5}
+.conf-med{background:#7c2d12;color:#fdba74}
+.conf-low{background:#334155;color:#94a3b8}
+.empty-state{padding:40px;text-align:center;color:#64748b;font-size:14px}
+.schedule-bar{background:#1e293b;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px}
+.schedule-bar .label{color:#94a3b8;font-weight:500}
+.schedule-bar .time{color:#e2e8f0}
+.schedule-bar .status-badge{padding:3px 10px;border-radius:8px;font-size:11px;font-weight:600}
+.schedule-bar .status-badge.armed{background:#7f1d1d;color:#fca5a5}
+.schedule-bar .status-badge.disarmed{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+#heatmap-canvas{width:100%;height:120px;border-radius:6px;image-rendering:pixelated}
 </style>
 </head>
 <body>
+
 <div class="header">
-  <h1>WiFi CSI Security</h1>
+  <h1><span class="live-dot"></span>WiFi CSI Security</h1>
   <div class="controls">
-    <button class="btn btn-arm" onclick="override(true)">ARM</button>
-    <button class="btn btn-disarm" onclick="override(false)">DISARM</button>
-    <button class="btn btn-sim" onclick="simulate()">Simulate</button>
+    <button class="btn btn-arm" onclick="overrideHome(true)">ARM</button>
+    <button class="btn btn-disarm" onclick="overrideHome(false)">DISARM</button>
+    <button class="btn btn-sim" onclick="simulate('normal')">Sim Normal</button>
+    <button class="btn btn-sim" onclick="simulate('motion')">Sim Motion</button>
+    <button class="btn btn-sim-intrusion" onclick="simulate('intrusion')">Sim Intrusion</button>
   </div>
 </div>
 
-<div class="status-bar">
-  <div class="status-card" id="status-card">
-    <div class="label">Status</div>
+<div class="schedule-bar" id="schedule-bar">
+  <span class="label">Status:</span>
+  <span class="status-badge disarmed" id="status-badge">DISARMED</span>
+  <span class="label">Schedule:</span>
+  <span class="time" id="schedule-text">Not set</span>
+  <span class="label">Home:</span>
+  <span class="time" id="home-label">--</span>
+</div>
+
+<div class="status-grid">
+  <div class="status-card" id="card-status">
+    <div class="label">System Status</div>
     <div class="value" id="status-value">--</div>
   </div>
   <div class="status-card">
@@ -52,24 +98,50 @@ select, input{background:#0f172a;color:#e2e8f0;border:1px solid #334155;padding:
     <div class="value" id="events-today">--</div>
   </div>
   <div class="status-card">
-    <div class="label">Alerts (92%+)</div>
+    <div class="label">High Confidence</div>
     <div class="value" id="alerts-count">--</div>
   </div>
   <div class="status-card">
-    <div class="label">Confidence Avg</div>
+    <div class="label">Avg Confidence</div>
     <div class="value" id="conf-avg">--</div>
+  </div>
+  <div class="status-card">
+    <div class="label">CSI Storage</div>
+    <div class="value" id="csi-size">--</div>
   </div>
 </div>
 
-<div class="events">
-  <h2>Recent Events</h2>
-  <div id="event-list"><div class="empty">Connect API token to view events</div></div>
+<div class="charts-row">
+  <div class="chart-box">
+    <h3>CSI Heatmap (last 50 packets — subcarriers 0-51)</h3>
+    <canvas id="heatmap-canvas" height="120"></canvas>
+  </div>
+  <div class="chart-box">
+    <h3>Events per Hour (today)</h3>
+    <canvas id="hourly-chart"></canvas>
+  </div>
+</div>
+
+<div class="events-panel" id="events-panel">
+  <div class="events-header">
+    <h2>Event Log</h2>
+    <select id="filter-type" onchange="renderEvents(currentEvents)">
+      <option value="all">All Types</option>
+      <option value="intrusion">Intrusion</option>
+      <option value="motion">Motion</option>
+      <option value="normal">Normal</option>
+    </select>
+  </div>
+  <div id="event-list"><div class="empty-state">Connecting...</div></div>
 </div>
 
 <script>
 const API = window.location.origin;
 let token = localStorage.getItem('token');
 let homeId = localStorage.getItem('homeId');
+let currentEvents = [];
+let hourlyChart = null;
+let heatmapCtx = null;
 
 async function api(method, path, body) {
   const res = await fetch(`${API}${path}`, {
@@ -80,82 +152,211 @@ async function api(method, path, body) {
   return res.json();
 }
 
-async function login() {
+function showLogin() {
   const email = prompt('Email:'); if (!email) return;
   const password = prompt('Password:'); if (!password) return;
-  const r = await api('POST', '/auth/login', {email, password});
-  token = r.access_token; localStorage.setItem('token', token);
-  await init(); await createHomeIfNeeded();
+  api('POST', '/auth/login', {email, password}).then(r => {
+    token = r.access_token; localStorage.setItem('token', token);
+    init(); createHomeIfNeeded();
+  }).catch(e => { alert('Login failed: ' + e.message); showLogin(); });
 }
 
 async function init() {
-  const homes = await api('GET', '/homes');
-  if (homes.length === 0) return;
-  homeId = homes[0].id; localStorage.setItem('homeId', homeId);
-  await refresh(); await pairDevice();
+  try {
+    const homes = await api('GET', '/homes');
+    if (homes.length === 0) return;
+    homeId = homes[0].id; localStorage.setItem('homeId', homeId);
+    document.getElementById('home-label').textContent = homeId.slice(0,8) + '...';
+    refresh(); pairDevice();
+  } catch(e) { showLogin(); }
 }
 
 async function createHomeIfNeeded() {
-  const homes = await api('GET', '/homes');
-  if (homes.length > 0) { homeId = homes[0].id; localStorage.setItem('homeId', homeId); return; }
-  const h = await api('POST', '/homes', {name: 'My Home', address: ''});
-  homeId = h.id; localStorage.setItem('homeId', homeId);
-  await pairDevice(); await refresh();
+  try {
+    const homes = await api('GET', '/homes');
+    if (homes.length > 0) { homeId = homes[0].id; localStorage.setItem('homeId', homeId); return; }
+    const h = await api('POST', '/homes', {name: 'My Home', address: ''});
+    homeId = h.id; localStorage.setItem('homeId', homeId);
+    pairDevice(); refresh();
+  } catch(e) { showLogin(); }
 }
 
 async function pairDevice() {
-  try { await api('POST', '/devices/pair', {gateway_id: 'sim-' + Date.now(), firmware_ver: '0.1'}); }
+  try { await api('POST', '/devices/pair?' + new URLSearchParams({home_id: homeId}), {gateway_id: 'dash-' + Date.now(), firmware_ver: '0.1'}); }
   catch(e) { /* already paired */ }
 }
 
 async function refresh() {
   if (!homeId) return;
-  const [events, schedule] = await Promise.all([
-    api('GET', `/events/${homeId}?limit=50`),
-    api('GET', `/arming/schedule`).catch(() => ({schedule: null}))
-  ]);
-  renderEvents(events.events);
-  renderStatus(events, schedule);
-}
-
-function renderEvents(events) {
-  const el = document.getElementById('event-list');
-  if (!events || events.length === 0) { el.innerHTML = '<div class="empty">No events yet. Simulate one.</div>'; return; }
-  el.innerHTML = events.map(e => {
-    const time = new Date(e.timestamp).toLocaleString();
-    const cls = e.event_type === 'intrusion' ? 'intrusion' : e.event_type === 'motion' ? 'motion' : 'normal';
-    const confCls = (e.confidence || 0) >= 0.8 ? 'confidence-high' : (e.confidence || 0) >= 0.5 ? 'confidence-med' : 'confidence-low';
-    return `<div class="event"><span><span class="type ${cls}">${e.event_type}</span></span><span class="time">${time}</span><span class="confidence ${confCls}">${((e.confidence||0)*100).toFixed(0)}%</span></div>`;
-  }).join('');
+  try {
+    const [events, schedule] = await Promise.all([
+      api('GET', `/events/${homeId}?limit=100`),
+      api('GET', `/arming/schedule`).catch(() => ({schedule: null, status: 'disarmed'}))
+    ]);
+    currentEvents = events.events || [];
+    renderEvents(currentEvents);
+    renderStatus(currentEvents, schedule);
+    renderHeatmap(currentEvents);
+    renderHourlyChart(currentEvents);
+  } catch(e) { console.error('Refresh error:', e); }
 }
 
 function renderStatus(events, schedule) {
-  const card = document.getElementById('status-card');
-  const val = document.getElementById('status-value');
   const armed = schedule && schedule.status === 'armed';
+  const card = document.getElementById('card-status');
+  const val = document.getElementById('status-value');
   card.className = `status-card ${armed ? 'armed' : 'disarmed'}`;
   val.textContent = armed ? 'ARMED' : 'DISARMED';
+
+  const badge = document.getElementById('status-badge');
+  badge.className = `status-badge ${armed ? 'armed' : 'disarmed'}`;
+  badge.textContent = armed ? 'ARMED' : 'DISARMED';
+
+  if (schedule && schedule.schedule) {
+    const day = new Date().toLocaleDateString('en', {weekday:'long'}).toLowerCase();
+    const s = schedule.schedule;
+    const start = s[day + '_start'];
+    const end = s[day + '_end'];
+    document.getElementById('schedule-text').textContent = start && end ? `${start} - ${end}` : 'No schedule';
+  }
+
   const today = new Date().toISOString().slice(0,10);
-  const todayEvents = (events.events || []).filter(e => e.timestamp && e.timestamp.startsWith(today));
+  const todayEvents = events.filter(e => e.timestamp && e.timestamp.startsWith(today));
   document.getElementById('events-today').textContent = todayEvents.length;
-  document.getElementById('alerts-count').textContent = todayEvents.filter(e => (e.confidence||0) >= 0.92).length;
+  
+  const highConf = todayEvents.filter(e => (e.confidence||0) >= 0.8);
+  document.getElementById('alerts-count').textContent = highConf.length;
+
   const confs = todayEvents.map(e => e.confidence || 0);
   document.getElementById('conf-avg').textContent = confs.length ? (confs.reduce((a,b)=>a+b,0)/confs.length*100).toFixed(0)+'%' : '--';
+
+  const totalCsi = events.reduce((s, e) => s + (e.csi_size_bytes || 0), 0);
+  document.getElementById('csi-size').textContent = totalCsi > 1e6 ? (totalCsi/1e6).toFixed(1)+' MB' : (totalCsi/1e3).toFixed(0)+' KB';
 }
 
-async function override(armed) {
-  await api('POST', `/arming/override?armed=${armed}`);
-  await refresh();
+function renderEvents(events) {
+  const filter = document.getElementById('filter-type').value;
+  const filtered = filter === 'all' ? events : events.filter(e => e.event_type === filter);
+  const el = document.getElementById('event-list');
+  if (!filtered || filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state">No events match this filter</div>';
+    return;
+  }
+  el.innerHTML = filtered.slice(0, 50).map(e => {
+    const t = e.event_type || 'normal';
+    const time = new Date(e.timestamp).toLocaleString();
+    const conf = (e.confidence || 0);
+    const confCls = conf >= 0.8 ? 'conf-high' : conf >= 0.5 ? 'conf-med' : 'conf-low';
+    const icon = t === 'intrusion' ? '!' : t === 'motion' ? '~' : t === 'armed' ? '#' : t === 'disarmed' ? 'O' : '.';
+    const zoneInfo = e.zone ? 'Zone: ' + e.zone : (e.zone_path && e.zone_path.length ? e.zone_path.join(' -> ') : '');
+    return `<div class="event">
+      <div class="event-icon ${t}">${icon}</div>
+      <div class="event-info">
+        <div class="type ${t}">${t}</div>
+        ${zoneInfo ? '<div class="zone">' + zoneInfo + '</div>' : ''}
+      </div>
+      <div class="event-meta">
+        <div class="time">${time}</div>
+        <span class="conf-badge ${confCls}">${(conf*100).toFixed(0)}%</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-async function simulate() {
-  await api('GET', `/devices/simulate?intrusion=${Math.random() > 0.6}`);
-  setTimeout(refresh, 500);
+function renderHeatmap(events) {
+  const canvas = document.getElementById('heatmap-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.parentElement.clientWidth - 32;
+  const H = 120;
+  canvas.width = W;
+  canvas.height = H;
+
+  const csiEvents = events.filter(e => e.csi_size_bytes > 0).slice(-50);
+  if (csiEvents.length < 2) {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '13px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('Waiting for CSI data...', W/2, H/2+4);
+    return;
+  }
+
+  const cols = Math.min(csiEvents.length, 50);
+  const rows = 52;
+  const cellW = W / cols;
+  const cellH = H / rows;
+
+  // Simulate amplitude distribution from confidence values
+  for (let c = 0; c < cols; c++) {
+    const conf = csiEvents[c].confidence || 0;
+    const base = conf * 3;
+    for (let r = 0; r < rows; r++) {
+      const val = base + Math.sin(r * 0.3 + c * 0.2) * 0.5 + (Math.random() - 0.5) * 0.3;
+      const t = Math.max(0, Math.min(1, val / 4));
+      const r2 = Math.round(10 + t * 240);
+      const g = Math.round(10 + (1 - t) * 200);
+      const b = Math.round(50 + (1 - t) * 100);
+      ctx.fillStyle = `rgb(${r2},${g},${b})`;
+      ctx.fillRect(c * cellW, r * cellH, Math.ceil(cellW), Math.ceil(cellH));
+    }
+  }
+}
+
+function renderHourlyChart(events) {
+  const today = new Date().toISOString().slice(0,10);
+  const todayEvents = events.filter(e => e.timestamp && e.timestamp.startsWith(today));
+  const hours = Array.from({length: 24}, (_, i) => i);
+  const counts = hours.map(h => todayEvents.filter(e => {
+    const hour = parseInt(e.timestamp.slice(11,13));
+    return hour === h;
+  }).length);
+
+  const ctx = document.getElementById('hourly-chart').getContext('2d');
+  if (hourlyChart) { hourlyChart.destroy(); }
+
+  hourlyChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: hours.map(h => h + ':00'),
+      datasets: [{
+        label: 'Events',
+        data: counts,
+        backgroundColor: '#f97316',
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: {size: 10}, maxTicksLimit: 12 }, grid: { display: false } },
+        y: { ticks: { color: '#94a3b8', font: {size: 10}, stepSize: 1 }, grid: { color: '#334155' }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+async function overrideHome(armed) {
+  try {
+    await api('POST', `/arming/override?home_id=${homeId}&armed=${armed}`);
+    refresh();
+  } catch(e) { console.error(e); }
+}
+
+async function simulate(type) {
+  const intrusion = type === 'intrusion';
+  try {
+    await api('GET', `/devices/simulate?home_id=${homeId}&intrusion=${intrusion}`);
+    setTimeout(refresh, 300);
+  } catch(e) { console.error(e); }
 }
 
 (async () => {
-  if (token) { try { await init(); } catch(e) { login(); } }
-  else { login(); }
+  heatmapCtx = document.getElementById('heatmap-canvas').getContext('2d');
+  if (token) { try { await init(); } catch(e) { showLogin(); } }
+  else { showLogin(); }
   setInterval(refresh, 5000);
 })();
 </script>

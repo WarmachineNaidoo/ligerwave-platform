@@ -60,6 +60,11 @@ app.include_router(webhooks.router)
 async def health():
     return {"status": "ok", "environment": settings.environment}
 
+import shutil
 static_dir = os.path.join(os.path.dirname(__file__), "static")
+dashboard_path = os.path.join(static_dir, "dashboard.html")
+index_path = os.path.join(static_dir, "index.html")
+if os.path.isfile(dashboard_path) and not os.path.isfile(index_path):
+    shutil.copy2(dashboard_path, index_path)
 if os.path.isdir(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
