@@ -50,4 +50,4 @@ async def export_report(
     months: int = Query(1, ge=1, le=12),
 ):
     buf = generate_report(home_id, months)
-    return StreamingResponse(buf, media_type="text/plain", headers={"Content-Disposition": f"attachment; filename=report_{home_id[:8]}.txt"})
+    return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename=security_report_{home_id[:8]}.pdf"})

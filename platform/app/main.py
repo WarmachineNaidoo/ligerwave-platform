@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from app.config import settings
-from app.routers import auth, homes, devices, events, api_keys, arming, subscriptions, export, webhooks
+from app.routers import auth, homes, devices, events, api_keys, arming, subscriptions, export, webhooks, agent
 import time, os
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -55,6 +55,7 @@ app.include_router(arming.router)
 app.include_router(subscriptions.router)
 app.include_router(export.router)
 app.include_router(webhooks.router)
+app.include_router(agent.router)
 
 @app.get("/health")
 async def health():

@@ -76,6 +76,7 @@ h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px}
     <button class="btn btn-sim" onclick="simulate('normal')">Sim Normal</button>
     <button class="btn btn-sim" onclick="simulate('motion')">Sim Motion</button>
     <button class="btn btn-sim-intrusion" onclick="simulate('intrusion')">Sim Intrusion</button>
+    <button class="btn btn-sim" onclick="downloadReport()">Download Report</button>
   </div>
 </div>
 
@@ -343,6 +344,11 @@ async function overrideHome(armed) {
     await api('POST', `/arming/override?home_id=${homeId}&armed=${armed}`);
     refresh();
   } catch(e) { console.error(e); }
+}
+
+async function downloadReport() {
+  if (!homeId) return;
+  window.open(`${API}/export/${homeId}/report?months=1`, '_blank');
 }
 
 async function simulate(type) {
