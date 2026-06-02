@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog — Low Carbon Energy</title>
+    <meta name="description" content="Insights and updates on utility-scale renewable energy project development, climate mitigation, and the just energy transition across Africa.">
+    <meta property="og:title" content="Blog — Low Carbon Energy">
+    <meta property="og:description" content="Insights on utility-scale renewable energy development, climate mitigation, and the just energy transition in Africa.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.lowcarbon.co.za/blog/">
+    <meta property="og:image" content="/assets/images/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
+    <nav class="navbar scrolled" id="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <svg class="logo-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M20 8C20 8 14 16 14 22C14 25.3 16.7 28 20 28C23.3 28 26 25.3 26 22C26 16 20 8 20 8Z" fill="currentColor" opacity="0.3"/><path d="M20 12L20 24" stroke="currentColor" stroke-width="1.5"/><path d="M14 20L26 20" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span class="logo-text">Low Carbon <em>Energy</em></span>
+            </a>
+            <div class="nav-toggle" id="navToggle">
+                <span></span><span></span><span></span>
+            </div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="/#mission" class="nav-link">Mission</a></li>
+                <li><a href="/#technology" class="nav-link">Technology</a></li>
+                <li><a href="/#approach" class="nav-link">Approach</a></li>
+                <li><a href="/#team" class="nav-link">Team</a></li>
+                <li><a href="/#contact" class="nav-link">Contact</a></li>
+                <li><a href="/blog/" class="nav-link nav-link-accent">Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="blog-hero" id="hero">
+        <div class="hero-gradient"></div>
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">Insights</span>
+                <h1>Blog & Updates</h1>
+                <p class="section-desc">Perspectives on renewable energy development, climate finance, and the transition to a low-carbon economy in Africa.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <div class="blog-list" id="blogList">
+                <a href="/blog/solar-sa.html" class="blog-card reveal">
+                    <div class="blog-meta">
+                        <span>March 15, 2026</span>
+                        <span class="blog-tag">Solar</span>
+                        <span class="blog-tag">South Africa</span>
+                    </div>
+                    <h3>The Future of Utility-Scale Solar in South Africa</h3>
+                    <p>South Africa's solar photovoltaic potential is among the best in the world, with average direct normal irradiation exceeding 2,200 kWh/m²/year in the Northern Cape. With declining LCOE and grid infrastructure improvements, utility-scale solar is poised for exponential growth.</p>
+                    <span class="blog-read-more">Read Article →</span>
+                </a>
+
+                <a href="/blog/bess-africa.html" class="blog-card reveal">
+                    <div class="blog-meta">
+                        <span>February 28, 2026</span>
+                        <span class="blog-tag">Storage</span>
+                        <span class="blog-tag">Technology</span>
+                    </div>
+                    <h3>Battery Energy Storage: The Missing Link in Africa's Energy Transition</h3>
+                    <p>BESS technology is evolving at a remarkable pace. From grid stabilization and frequency regulation to energy arbitrage and renewable firming, battery storage is rapidly becoming the cornerstone of a reliable, resilient renewable energy system across the continent.</p>
+                    <span class="blog-read-more">Read Article →</span>
+                </a>
+
+                <a href="/blog/ai-birds.html" class="blog-card reveal">
+                    <div class="blog-meta">
+                        <span>February 10, 2026</span>
+                        <span class="blog-tag">AI</span>
+                        <span class="blog-tag">Biodiversity</span>
+                    </div>
+                    <h3>How AI Is Protecting Birds Near Wind Farms</h3>
+                    <p>Radar, thermal cameras, satellite communication, and cloud-hosted machine learning are combining to create real-time bird detection systems that prevent turbine collisions while maximizing energy production. This is our approach to bird and bat mitigation research.</p>
+                    <span class="blog-read-more">Read Article →</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <svg class="logo-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M20 8C20 8 14 16 14 22C14 25.3 16.7 28 20 28C23.3 28 26 25.3 26 22C26 16 20 8 20 8Z" fill="currentColor" opacity="0.3"/><path d="M20 12L20 24" stroke="currentColor" stroke-width="1.5"/><path d="M14 20L26 20" stroke="currentColor" stroke-width="1.5"/></svg>
+                        Low Carbon Energy
+                    </a>
+                    <p>Developing utility-scale renewable energy projects for a low-carbon future.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/#mission">Mission</a></li>
+                        <li><a href="/#technology">Technology</a></li>
+                        <li><a href="/#approach">Approach</a></li>
+                        <li><a href="/blog/">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:info@lowcarbon.co.za">info@lowcarbon.co.za</a></li>
+                        <li><a href="/#contact">Contact Form</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Low Carbon Energy. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
+    <div class="noise-overlay"></div>
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script type="module" src="/js/three-scene.js"></script>
+</body>
+</html>

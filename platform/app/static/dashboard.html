@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSI Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0f172a;color:#e2e8f0;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+h1{font-size:24px;font-weight:600}
+.status-bar{display:flex;gap:16px;margin-bottom:24px}
+.status-card{background:#1e293b;padding:16px 20px;border-radius:12px;flex:1}
+.status-card .label{font-size:12px;color:#94a3b8;text-transform:uppercase}
+.status-card .value{font-size:28px;font-weight:700;margin-top:4px}
+.status-card.armed .value{color:#f97316}
+.status-card.disarmed .value{color:#22c55e}
+.events{background:#1e293b;border-radius:12px;overflow:hidden}
+.events h2{padding:16px 20px;font-size:16px;border-bottom:1px solid #334155}
+.event{padding:12px 20px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.event:last-child{border:0}
+.event .type{font-weight:600}
+.event .type.intrusion{color:#ef4444}.event .type.motion{color:#f97316}.event .type.normal{color:#22c55e}
+.event .time{color:#94a3b8;font-size:13px}
+.event .confidence{font-size:13px;padding:2px 8px;border-radius:6px}
+.confidence-high{background:#ef4444;color:#fff}.confidence-med{background:#f97316;color:#fff}.confidence-low{background:#334155;color:#94a3b8}
+.controls{display:flex;gap:8px}
+.btn{padding:8px 16px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:14px}
+.btn-arm{background:#f97316;color:#fff}.btn-disarm{background:#22c55e;color:#fff}
+.btn-sim{background:#334155;color:#e2e8f0}
+.empty{padding:40px;text-align:center;color:#64748b}
+select, input{background:#0f172a;color:#e2e8f0;border:1px solid #334155;padding:6px 12px;border-radius:6px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>WiFi CSI Security</h1>
+  <div class="controls">
+    <button class="btn btn-arm" onclick="override(true)">ARM</button>
+    <button class="btn btn-disarm" onclick="override(false)">DISARM</button>
+    <button class="btn btn-sim" onclick="simulate()">Simulate</button>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="status-card" id="status-card">
+    <div class="label">Status</div>
+    <div class="value" id="status-value">--</div>
+  </div>
+  <div class="status-card">
+    <div class="label">Events Today</div>
+    <div class="value" id="events-today">--</div>
+  </div>
+  <div class="status-card">
+    <div class="label">Alerts (92%+)</div>
+    <div class="value" id="alerts-count">--</div>
+  </div>
+  <div class="status-card">
+    <div class="label">Confidence Avg</div>
+    <div class="value" id="conf-avg">--</div>
+  </div>
+</div>
+
+<div class="events">
+  <h2>Recent Events</h2>
+  <div id="event-list"><div class="empty">Connect API token to view events</div></div>
+</div>
+
+<script>
+const API = window.location.origin;
+let token = localStorage.getItem('token');
+let homeId = localStorage.getItem('homeId');
+
+async function api(method, path, body) {
+  const res = await fetch(`${API}${path}`, {
+    method, headers: {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+async function login() {
+  const email = prompt('Email:'); if (!email) return;
+  const password = prompt('Password:'); if (!password) return;
+  const r = await api('POST', '/auth/login', {email, password});
+  token = r.access_token; localStorage.setItem('token', token);
+  await init(); await createHomeIfNeeded();
+}
+
+async function init() {
+  const homes = await api('GET', '/homes');
+  if (homes.length === 0) return;
+  homeId = homes[0].id; localStorage.setItem('homeId', homeId);
+  await refresh(); await pairDevice();
+}
+
+async function createHomeIfNeeded() {
+  const homes = await api('GET', '/homes');
+  if (homes.length > 0) { homeId = homes[0].id; localStorage.setItem('homeId', homeId); return; }
+  const h = await api('POST', '/homes', {name: 'My Home', address: ''});
+  homeId = h.id; localStorage.setItem('homeId', homeId);
+  await pairDevice(); await refresh();
+}
+
+async function pairDevice() {
+  try { await api('POST', '/devices/pair', {gateway_id: 'sim-' + Date.now(), firmware_ver: '0.1'}); }
+  catch(e) { /* already paired */ }
+}
+
+async function refresh() {
+  if (!homeId) return;
+  const [events, schedule] = await Promise.all([
+    api('GET', `/events/${homeId}?limit=50`),
+    api('GET', `/arming/schedule`).catch(() => ({schedule: null}))
+  ]);
+  renderEvents(events.events);
+  renderStatus(events, schedule);
+}
+
+function renderEvents(events) {
+  const el = document.getElementById('event-list');
+  if (!events || events.length === 0) { el.innerHTML = '<div class="empty">No events yet. Simulate one.</div>'; return; }
+  el.innerHTML = events.map(e => {
+    const time = new Date(e.timestamp).toLocaleString();
+    const cls = e.event_type === 'intrusion' ? 'intrusion' : e.event_type === 'motion' ? 'motion' : 'normal';
+    const confCls = (e.confidence || 0) >= 0.8 ? 'confidence-high' : (e.confidence || 0) >= 0.5 ? 'confidence-med' : 'confidence-low';
+    return `<div class="event"><span><span class="type ${cls}">${e.event_type}</span></span><span class="time">${time}</span><span class="confidence ${confCls}">${((e.confidence||0)*100).toFixed(0)}%</span></div>`;
+  }).join('');
+}
+
+function renderStatus(events, schedule) {
+  const card = document.getElementById('status-card');
+  const val = document.getElementById('status-value');
+  const armed = schedule && schedule.status === 'armed';
+  card.className = `status-card ${armed ? 'armed' : 'disarmed'}`;
+  val.textContent = armed ? 'ARMED' : 'DISARMED';
+  const today = new Date().toISOString().slice(0,10);
+  const todayEvents = (events.events || []).filter(e => e.timestamp && e.timestamp.startsWith(today));
+  document.getElementById('events-today').textContent = todayEvents.length;
+  document.getElementById('alerts-count').textContent = todayEvents.filter(e => (e.confidence||0) >= 0.92).length;
+  const confs = todayEvents.map(e => e.confidence || 0);
+  document.getElementById('conf-avg').textContent = confs.length ? (confs.reduce((a,b)=>a+b,0)/confs.length*100).toFixed(0)+'%' : '--';
+}
+
+async function override(armed) {
+  await api('POST', `/arming/override?armed=${armed}`);
+  await refresh();
+}
+
+async function simulate() {
+  await api('GET', `/devices/simulate?intrusion=${Math.random() > 0.6}`);
+  setTimeout(refresh, 500);
+}
+
+(async () => {
+  if (token) { try { await init(); } catch(e) { login(); } }
+  else { login(); }
+  setInterval(refresh, 5000);
+})();
+</script>
+</body>
+</html>

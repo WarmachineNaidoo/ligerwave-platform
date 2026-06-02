@@ -1,0 +1,30 @@
+RewriteEngine On
+
+# Redirect www to non-www (or vice versa — choose one)
+# RewriteCond %{HTTP_HOST} ^www\.lowcarbon\.co\.za [NC]
+# RewriteRule ^(.*)$ https://lowcarbon.co.za/$1 [L,R=301]
+
+# HTTPS redirect (uncomment when live)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Custom 404
+ErrorDocument 404 /404.html
+
+# Cache static assets
+<FilesMatch "\.(svg|css|js|woff2|png|jpg|webp)$">
+    Header set Cache-Control "max-age=31536000, public"
+</FilesMatch>
+
+# HTML — shorter cache
+<FilesMatch "\.(html)$">
+    Header set Cache-Control "max-age=3600, public"
+</FilesMatch>
+
+# Compression
+AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml
+
+# Security headers
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"

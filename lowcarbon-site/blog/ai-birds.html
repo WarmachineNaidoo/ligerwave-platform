@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AI Is Protecting Birds Near Wind Farms — Low Carbon Energy</title>
+    <meta name="description" content="Radar, thermal cameras, satellite communication, and cloud-hosted machine learning combine to create real-time bird detection systems that prevent turbine collisions.">
+    <meta property="og:title" content="How AI Is Protecting Birds Near Wind Farms">
+    <meta property="og:description" content="Radar, thermal cameras, and ML combine to create real-time bird detection that prevents turbine collisions while maximising energy production.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://www.lowcarbon.co.za/blog/ai-birds.html">
+    <meta property="og:image" content="/assets/images/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.171.0/build/three.module.js" } }
+    </script>
+</head>
+<body>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
+    <nav class="navbar scrolled">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <svg class="logo-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M20 8C20 8 14 16 14 22C14 25.3 16.7 28 20 28C23.3 28 26 25.3 26 22C26 16 20 8 20 8Z" fill="currentColor" opacity="0.3"/><path d="M20 12L20 24" stroke="currentColor" stroke-width="1.5"/><path d="M14 20L26 20" stroke="currentColor" stroke-width="1.5"/></svg>
+                <span class="logo-text">Low Carbon <em>Energy</em></span>
+            </a>
+            <ul class="nav-links" style="display:flex;position:static;opacity:1;pointer-events:all;flex-direction:row;background:none;backdrop-filter:none;">
+                <li><a href="/blog/" class="nav-link nav-link-accent">&larr; Back to Blog</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="section" style="padding-top: 140px;">
+        <div class="container">
+            <article class="blog-post">
+                <a href="/blog/" class="back-link">&larr; Back to Blog</a>
+                <h1>How AI Is Protecting Birds Near Wind Farms</h1>
+                <div class="blog-meta">
+                    <span>February 10, 2026</span>
+                    <span class="blog-tag">AI</span>
+                    <span class="blog-tag">Biodiversity</span>
+                </div>
+
+                <p>Wind energy is one of the fastest-growing sources of renewable electricity worldwide, and for good reason: it is clean, increasingly cost-competitive, and capable of deployment at utility scale. However, the rapid expansion of wind farms has brought an important environmental challenge into sharp focus: the impact of turbine collisions on bird and bat populations. At Low Carbon Energy, we believe that addressing this challenge is not merely a regulatory requirement — it is an ethical imperative and a technological opportunity.</p>
+
+                <p>A growing body of research indicates that while bird mortality from wind turbines is significantly lower than from other anthropogenic causes such as building collisions, power lines, and domestic cats, the impact on certain vulnerable species — particularly raptors, migratory birds, and endangered endemics — can be meaningful at the population level. This has led to increasing regulatory scrutiny, longer permitting timelines, and in some cases, restrictions on turbine placement and operation.</p>
+
+                <h2>Traditional Mitigation Approaches</h2>
+                <p>Historically, wind farm developers have relied on several approaches to mitigate bird and bat impacts:</p>
+
+                <ul>
+                    <li><strong>Pre-construction surveys:</strong> Extensive environmental impact assessments (EIAs) identify sensitive habitats and migration corridors, allowing developers to site turbines away from high-risk areas.</li>
+                    <li><strong>Operational curtailment:</strong> Turbines are slowed or stopped during periods of high bird activity, such as migration seasons or at dawn and dusk when bats are most active.</li>
+                    <li><strong>Post-construction monitoring:</strong> Trained observers conduct carcass searches to quantify mortality and inform adaptive management strategies.</li>
+                </ul>
+
+                <p>While these approaches have value, they are fundamentally reactive. Pre-construction surveys provide a static snapshot rather than real-time awareness. Carcass searches are labour-intensive and subject to significant detection bias. And blanket curtailment — stopping turbines based on time of day or season — unnecessarily sacrifices energy production during periods when no birds are actually present.</p>
+
+                <h2>The AI-Powered Alternative</h2>
+                <p>Recent advances in artificial intelligence, sensor technology, and edge computing are enabling a new paradigm: real-time, species-specific bird detection and targeted turbine curtailment. At Low Carbon Energy, our research programme — developed in collaboration with academic and technology partners — integrates four key technologies:</p>
+
+                <ul>
+                    <li><strong>Radar arrays:</strong> Small-scale, solid-state radar systems provide wide-area detection of approaching birds at ranges of up to 3 kilometres, tracking flight paths, altitude, and speed with high precision.</li>
+                    <li><strong>Thermal cameras:</strong> High-resolution thermal imaging enables 24/7 detection regardless of lighting conditions, identifying birds by their thermal signature against the sky or terrain background.</li>
+                    <li><strong>Edge AI inference:</strong> On-site edge computing nodes process sensor data in real time using deep learning models — specifically, lightweight convolutional neural networks optimised for embedded deployment — to classify detected objects by species, size, and behavioural pattern.</li>
+                    <li><strong>Satellite communication:</strong> For remote wind farms with limited terrestrial connectivity, satellite links transmit detection data to cloud-hosted inference models and enable remote system monitoring and model updating.</li>
+                </ul>
+
+                <blockquote>"Our goal is to create a system that can distinguish between an endangered Cape Vulture and a common Pied Crow — and make a curtailment decision in less than two seconds. This level of precision is only possible with modern AI."</blockquote>
+
+                <h2>How the System Works</h2>
+                <p>The detection and mitigation system operates in a continuous, automated loop. Radar and thermal cameras provide persistent surveillance of the airspace around each turbine or cluster of turbines. Sensor data is streamed to an edge inference node, where a trained neural network classifies each detected object and estimates its trajectory. If the system determines that a protected species is on a collision course with an operating turbine, it sends a curtailment signal — typically to pitch the blades to feathered position — within 1-2 seconds of initial detection.</p>
+
+                <p>Critically, the system is designed to minimise unnecessary curtailment. By distinguishing between species and assessing actual collision risk rather than applying blanket rules, the AI system can reduce energy losses by 60-80% compared to time-of-day curtailment approaches while maintaining or improving protective outcomes for birds. The system also logs all detections and decisions, providing a rich dataset for ongoing model improvement and regulatory reporting.</p>
+
+                <h2>The Road Ahead</h2>
+                <p>Our bird and bat mitigation research is ongoing, and we are actively piloting sensor and AI systems at partner wind farm sites. The next phase of development includes integration with wider ecosystem monitoring — using the same sensor infrastructure to track other biodiversity indicators and feeding data into conservation planning tools.</p>
+
+                <p>We believe that AI-powered environmental mitigation represents a genuine win-win for wind energy development: it enables projects to proceed in areas that might otherwise be restricted, reduces permitting timelines and costs, and most importantly, protects the biodiversity that our projects are ultimately intended to help preserve. A wind farm that coexists with its surrounding ecosystem is not just better for the environment — it is a better investment, a better neighbour, and a better contribution to the just energy transition.</p>
+
+                <hr>
+
+                <p><em>To learn more about our bird and bat mitigation research or discuss partnership opportunities, <a href="mailto:info@lowcarbon.co.za" style="color: var(--green-400);">reach out to our technology team</a>.</em></p>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <a href="/" class="logo">
+                        <svg class="logo-icon" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M20 8C20 8 14 16 14 22C14 25.3 16.7 28 20 28C23.3 28 26 25.3 26 22C26 16 20 8 20 8Z" fill="currentColor" opacity="0.3"/><path d="M20 12L20 24" stroke="currentColor" stroke-width="1.5"/><path d="M14 20L26 20" stroke="currentColor" stroke-width="1.5"/></svg>
+                        Low Carbon Energy
+                    </a>
+                    <p>Developing utility-scale renewable energy projects for a low-carbon future.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/#mission">Mission</a></li>
+                        <li><a href="/#technology">Technology</a></li>
+                        <li><a href="/#approach">Approach</a></li>
+                        <li><a href="/blog/">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li><a href="mailto:info@lowcarbon.co.za">info@lowcarbon.co.za</a></li>
+                        <li><a href="/#contact">Contact Form</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; 2026 Low Carbon Energy. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
+    <div class="noise-overlay"></div>
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 4L12 20M12 4L6 10M12 4L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>

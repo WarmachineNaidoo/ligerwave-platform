@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://www.lowcarbon.co.za/sitemap.xml

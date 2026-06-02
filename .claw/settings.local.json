@@ -1,0 +1,7 @@
+{
+    "model":  "openai/granite4.1:3b",
+    "aliases":  {
+                    "default":  "openai/granite4.1:3b",
+                    "quick":  "openai/granite4.1:3b"
+                }
+}

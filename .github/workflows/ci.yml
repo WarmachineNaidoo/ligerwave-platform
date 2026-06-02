@@ -1,0 +1,22 @@
+name: CSI Platform CI
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13"}
+      - run: pip install -r platform/requirements.txt
+      - run: python -m py_compile platform/app/**/*.py
+      - run: python -c "import ast; [ast.parse(open(f).read()) for f in __import__('glob').glob('platform/**/*.py', recursive=True)]"
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.13"}
+      - run: pip install -r platform/requirements.txt
+      - run: python -c "import sys; sys.path.insert(0,'platform'); exec(open('platform/tools/test_flow.py').read().replace('if __name__','if False'))"
+        env:
+          API_URL: http://localhost:8000

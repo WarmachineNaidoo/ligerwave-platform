@@ -1,8 +1,3 @@
-# Only platform code and docs
-platform/
-research/
-AGENTS.md
-
 # Python
 __pycache__/
 *.pyc

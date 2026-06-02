@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+    <rect width="1200" height="630" fill="#070d0a"/>
+    <circle cx="600" cy="315" r="200" fill="#0f2e1d" opacity="0.5"/>
+    <circle cx="600" cy="315" r="120" fill="#164529" opacity="0.4"/>
+    <path d="M600 180 L620 280 L720 300 L640 360 L660 460 L600 400 L540 460 L560 360 L480 300 L580 280 Z" fill="#2a8a4f" opacity="0.15"/>
+    <text x="600" y="290" text-anchor="middle" font-family="Georgia,serif" font-size="52" font-weight="600" fill="#ffffff">Low Carbon Energy</text>
+    <text x="600" y="340" text-anchor="middle" font-family="Inter,sans-serif" font-size="20" fill="#6dd499">Powering a Low-Carbon Future</text>
+</svg>

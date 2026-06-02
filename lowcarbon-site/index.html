@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Low Carbon Energy — Assembly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+* { margin:0; padding:0; box-sizing:border-box }
+html { scroll-behavior:smooth }
+body { font-family:'Inter',system-ui,sans-serif; font-weight:300; background:#fff; color:#3c3c3c; overflow-x:hidden }
+canvas#c { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:0 }
+nav { position:fixed; top:0; left:0; right:0; z-index:100; height:64px; display:flex; justify-content:space-between; align-items:center; padding:0 48px; background:#fff; border-bottom:1px solid #e6e6e6 }
+.logo { font-size:20px; font-weight:700; color:#262626; letter-spacing:-.5px }
+.logo span { color:#82b440 }
+.nav-links { display:flex; gap:28px; list-style:none }
+.nav-links a { font-size:14px; font-weight:400; color:#6b6b6b; text-decoration:none }
+.nav-links a:hover { color:#82b440 }
+#p { position:fixed; top:64px; left:0; height:2px; background:#82b440; z-index:101; width:0% }
+.w { position:relative; z-index:1; pointer-events:none; min-height:600vh }
+.w > * { pointer-events:auto }
+
+#hero { min-height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; background:rgba(26,33,41,.75) }
+#hero .b { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#82b440; margin-bottom:20px }
+#hero h1 { font-size:clamp(48px,8vw,80px); font-weight:700; line-height:1.05; color:#fff }
+#hero h1 .h { color:#82b440 }
+#hero p { font-size:16px; font-weight:300; color:rgba(255,255,255,.7); max-width:420px; margin:20px auto 0; line-height:1.55 }
+.sh { position:absolute; bottom:36px; left:50%; transform:translateX(-50%); font-size:12px; color:rgba(255,255,255,.4); letter-spacing:.5px; animation:b 2s ease-in-out infinite }
+@keyframes b { 0%,100% { transform:translateX(-50%) translateY(0) } 50% { transform:translateX(-50%) translateY(8px) } }
+
+.st { min-height:100vh; display:flex; align-items:center; padding:80px 64px }
+.st .cd { background:#fff; padding:40px 36px; max-width:460px; border:1px solid #e6e6e6 }
+.st.r { justify-content:flex-end }
+.st .l { font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#82b440; margin-bottom:10px }
+.st .cd h2 { font-size:clamp(22px,3vw,32px); font-weight:700; line-height:1.1; margin-bottom:10px; color:#262626 }
+.st .cd p { font-size:15px; font-weight:300; color:#3c3c3c; line-height:1.55 }
+
+#team { min-height:70vh; display:flex; align-items:center; padding:60px 64px; justify-content:center }
+#team .cd { background:#fff; padding:40px 36px; max-width:640px; border:1px solid #e6e6e6; text-align:center; width:100% }
+.tg { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:20px; border:1px solid #e6e6e6 }
+.ti { padding:20px 12px; border-right:1px solid #e6e6e6 }
+.ti:last-child { border-right:none }
+.ti .av { width:36px; height:36px; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:#82b440 }
+.ti h4 { font-size:13px; font-weight:700; color:#262626 }
+.ti p { font-size:12px; font-weight:300; color:#6b6b6b; margin-top:2px }
+
+footer { position:relative; z-index:1; padding:32px 48px; text-align:center; font-size:14px; font-weight:300; color:#6b6b6b; background:#f7f7f7; border-top:1px solid #e6e6e6 }
+
+@media (max-width:900px) {
+  nav { padding:0 24px }
+  .st { padding:60px 24px }
+  .st .cd { padding:28px 24px }
+  #team { padding:40px 24px }
+  .tg { grid-template-columns:repeat(2,1fr) }
+  .ti:nth-child(2) { border-right:none }
+}
+</style>
+</head>
+<body>
+
+<canvas id="c"></canvas>
+
+<nav>
+  <div class="logo">Low<span>Carbon</span></div>
+  <ul class="nav-links">
+    <li><a href="#w">Wind</a></li>
+    <li><a href="#s">Solar</a></li>
+    <li><a href="#g">Geo</a></li>
+    <li><a href="#t">Team</a></li>
+  </ul>
+</nav>
+<div id="p"></div>
+
+<div class="w">
+  <section id="hero">
+    <div>
+      <div class="b">Low Carbon Energy</div>
+      <h1>Assembling<br><span class="h">the Future</span></h1>
+      <p>Scroll to see clean energy technologies build themselves — from mountain peak to ocean depth.</p>
+    </div>
+    <div class="sh">Scroll</div>
+  </section>
+
+  <section id="w" class="st">
+    <div class="cd">
+      <div class="l">01 — Wind</div>
+      <h2>Turbine Assembly</h2>
+      <p>On the snow-capped peak, a turbine builds itself — tower rises, nacelle locks in, blades unfold.</p>
+    </div>
+  </section>
+
+  <section id="s" class="st r">
+    <div class="cd">
+      <div class="l">02 — Solar</div>
+      <h2>PV Array Assembly</h2>
+      <p>In the sunlit valley, solar panels glide into formation forming a utility-scale farm.</p>
+    </div>
+  </section>
+
+  <section id="g" class="st">
+    <div class="cd">
+      <div class="l">03 — Geothermal</div>
+      <h2>Ocean Plant Assembly</h2>
+      <p>At the ocean floor, a geothermal plant rises — steam vents activate, turbines spin.</p>
+    </div>
+  </section>
+
+  <section id="t" style="min-height:70vh;display:flex;align-items:center;padding:60px 64px;justify-content:center;background:rgba(255,255,255,.85)">
+    <div class="cd" style="padding:40px 36px;max-width:640px;border:1px solid #e6e6e6;text-align:center;width:100%;background:#fff">
+      <div class="l">Leadership</div>
+      <h2 style="font-size:clamp(22px,3vw,32px);font-weight:700;margin-bottom:10px;color:#262626">The Team</h2>
+      <p style="font-size:15px;color:#3c3c3c;margin-bottom:20px">Driven by experience, united by purpose.</p>
+      <div class="tg" style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #e6e6e6">
+        <div class="ti" style="padding:20px 12px;border-right:1px solid #e6e6e6"><div style="width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#82b440">SN</div><h4 style="font-size:13px;font-weight:700;color:#262626">Sudashon Naidoo</h4><p style="font-size:12px;color:#6b6b6b">Managing Director</p></div>
+        <div class="ti" style="padding:20px 12px;border-right:1px solid #e6e6e6"><div style="width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#82b440">LG</div><h4 style="font-size:13px;font-weight:700;color:#262626">Lenny Gengia</h4><p style="font-size:12px;color:#6b6b6b">CTO</p></div>
+        <div class="ti" style="padding:20px 12px;border-right:1px solid #e6e6e6"><div style="width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#82b440">AD</div><h4 style="font-size:13px;font-weight:700;color:#262626">Akaash Dayaram</h4><p style="font-size:12px;color:#6b6b6b">Finance &amp; Tax</p></div>
+        <div class="ti" style="padding:20px 12px"><div style="width:36px;height:36px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#82b440">CN</div><h4 style="font-size:13px;font-weight:700;color:#262626">Carrie Narasimooloo</h4><p style="font-size:12px;color:#6b6b6b">Compliance</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>&copy; 2026 Low Carbon Energy</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const c = document.getElementById('c');
+const scn = new THREE.Scene();
+scn.background = new THREE.Color(0x8ec8e8);
+scn.fog = new THREE.FogExp2(0x8ec8e8, 0.012);
+
+const cam = new THREE.PerspectiveCamera(40, innerWidth/innerHeight, 0.1, 200);
+const ren = new THREE.WebGLRenderer({canvas:c,antialias:true});
+ren.setSize(innerWidth,innerHeight);
+ren.setPixelRatio(Math.min(devicePixelRatio,2));
+ren.shadowMap.enabled=true;
+ren.shadowMap.type=THREE.PCFSoftShadowMap;
+ren.toneMapping=THREE.ACESFilmicToneMapping;
+ren.toneMappingExposure=1.2;
+ren.outputEncoding=THREE.sRGBEncoding;
+
+const hemi=new THREE.HemisphereLight(0x87ceeb,0x4a8a4a,0.5); scn.add(hemi);
+const sun=new THREE.DirectionalLight(0xffeedd,1.4);
+sun.position.set(15,25,10); sun.castShadow=true;
+sun.shadow.mapSize.width=2048; sun.shadow.mapSize.height=2048;
+sun.shadow.camera.near=0.5; sun.shadow.camera.far=80;
+sun.shadow.camera.left=-30; sun.shadow.camera.right=30;
+sun.shadow.camera.top=30; sun.shadow.camera.bottom=-30;
+scn.add(sun);
+const amb=new THREE.AmbientLight(0x446688,0.15); scn.add(amb);
+
+// ─── TERRAIN ───
+const tg=new THREE.PlaneGeometry(60,60,200,200);
+tg.rotateX(-Math.PI/2);
+const tp=tg.attributes.position;
+for(let i=0;i<tp.count;i++){
+  const x=tp.getX(i);
+  let z=tp.getZ(i),h=0;
+  if(z>10){const m=Math.min(1,(z-10)/12);h=(3+Math.sin(x*.05+z*.035)*.7)*m*m;}
+  if(z>-5&&z<15){const v=(z+5)/20;h=h*(1-v)+(0.3+Math.sin(x*.04+z*.025)*.1)*v;}
+  if(z<-3){const d=Math.min(1,(-z-3)/12);h=h*(1-d)+(-0.3-d*1.8)*d;}
+  tp.setY(i,Math.max(h,-3));
+}
+tg.computeVertexNormals();
+const tc=new Float32Array(tp.count*3);
+for(let i=0;i<tp.count;i++){
+  const y=tp.getY(i),z=tp.getZ(i);
+  let r,g2,b;
+  if(y>2.2){r=.88;g2=.9;b=.94;}
+  else if(y>0.8){const t=(y-0.8)/1.4;r=.18+t*.24;g2=.32+t*.22;b=.1+t*.05;}
+  else if(z<-5){if(y>-0.1){r=.4;g2=.35;b=.22;}else{r=.04;g2=.08;b=.2;}}
+  else{r=.42;g2=.38;b=.18;}
+  tc[i*3]=r;tc[i*3+1]=g2;tc[i*3+2]=b;
+}
+tg.setAttribute('color',new THREE.Float32BufferAttribute(tc,3));
+const terrain=new THREE.Mesh(tg,new THREE.MeshStandardMaterial({vertexColors:true,roughness:.6,metalness:0,side:THREE.DoubleSide}));
+terrain.position.set(0,-0.3,0);terrain.receiveShadow=true;terrain.castShadow=true;
+scn.add(terrain);
+
+// ─── WATER ───
+const wg=new THREE.PlaneGeometry(60,16,40,16);
+wg.rotateX(-Math.PI/2);
+const wp=wg.attributes.position;
+for(let i=0;i<wp.count;i++){const x=wp.getX(i),z=wp.getZ(i);wp.setZ(i,z-8);wp.setY(i,Math.sin(x*.04+z*.04)*.04);}
+wg.computeVertexNormals();
+const water=new THREE.Mesh(wg,new THREE.MeshPhysicalMaterial({color:0x3a8aaa,transparent:true,opacity:.3,roughness:.05,metalness:0,clearcoat:.3,side:THREE.DoubleSide}));
+water.position.y=0.05;scn.add(water);
+
+// ─── SKY ───
+const skyg=new THREE.SphereGeometry(120,32,32);
+const skyc=new Float32Array(skyg.attributes.position.count*3);
+for(let i=0;i<skyg.attributes.position.count;i++){const y=skyg.attributes.position.getY(i),t=(y/120+1)/2;skyc[i*3]=.5+t*.35;skyc[i*3+1]=.72+t*.16;skyc[i*3+2]=.84;}
+skyg.setAttribute('color',new THREE.Float32BufferAttribute(skyc,3));
+scn.add(new THREE.Mesh(skyg,new THREE.MeshBasicMaterial({vertexColors:true,side:THREE.BackSide})));
+
+// ============================================================
+// STAGE 1 — WIND TURBINE (tapered tower, airfoil blades)
+// ============================================================
+const wtG=new THREE.Group();
+const twrMat=new THREE.MeshPhysicalMaterial({color:0xe8ece8,roughness:0.25,metalness:0.05,clearcoat:0.05});
+const nacMat=new THREE.MeshPhysicalMaterial({color:0xeef2ee,roughness:0.15,metalness:0.1,clearcoat:0.1});
+const bldMat=new THREE.MeshPhysicalMaterial({color:0x2a2a2a,roughness:0.4,metalness:0.05});
+const hubMat=new THREE.MeshPhysicalMaterial({color:0xd0d8d0,roughness:0.2,metalness:0.15});
+
+// Tower — 6 segments, radius 0.06→0.018, total 2.1 tall
+const twrS=[];
+for(let i=0;i<6;i++){
+  const t=i/6;
+  const s=new THREE.Mesh(new THREE.CylinderGeometry(0.06*(1-(t+1/6)*0.7),0.06*(1-t*0.7),0.35,16),twrMat);
+  s.castShadow=true;wtG.add(s);twrS.push(s);
+}
+const tH=2.1;
+
+// Nacelle — teardrop shape: sphere nose + cylinder body + cone tail, top housing
+const nacG=new THREE.Group();
+const nb=new THREE.Mesh(new THREE.CylinderGeometry(0.032,0.04,0.08,10),nacMat);
+nb.rotation.x=Math.PI/2;nb.position.set(0,tH,0);nacG.add(nb);
+const nn=new THREE.Mesh(new THREE.SphereGeometry(0.038,10,8),nacMat);
+nn.scale.set(1,1,0.7);nn.position.set(0,tH,0.047);nacG.add(nn);
+const nt2=new THREE.Mesh(new THREE.ConeGeometry(0.03,0.055,10),nacMat);
+nt2.rotation.x=Math.PI/2;nt2.position.set(0,tH,-0.065);nacG.add(nt2);
+const ntop=new THREE.Mesh(new THREE.BoxGeometry(0.055,0.015,0.035),new THREE.MeshPhysicalMaterial({color:0xddd,roughness:0.2}));
+ntop.position.set(0,tH+0.012,-0.005);nacG.add(ntop);
+nacG.position.z=-0.08;wtG.add(nacG);
+
+// Hub
+const hubM=new THREE.Mesh(new THREE.SphereGeometry(0.03,10,8),hubMat);
+hubM.position.set(0,tH,0.05);hubM.visible=false;wtG.add(hubM);
+
+// Blades — elliptical cross-section using scaled CylinderGeometry
+const bFold=new THREE.Group();bFold.position.set(0,tH,0.05);
+bFold.rotation.x=-Math.PI/2;
+const bSpin=new THREE.Group();bFold.add(bSpin);
+for(let b=0;b<3;b++){
+  const bg=new THREE.Group();bg.rotation.z=b*Math.PI*2/3;
+  for(let j=0;j<20;j++){
+    const t=j/19;
+    const y=0.02+t*1.48;
+    const chord=0.08*(1-t*0.88);
+    const thick=0.015*(1-t*0.87);
+    const segH=Math.max(0.003,1.5/20*1.3);
+    const seg=new THREE.Mesh(new THREE.CylinderGeometry(Math.max(thick/2,0.001),Math.max(thick/2,0.001),segH,10),bldMat);
+    seg.scale.x=Math.max(1,chord/thick);
+    seg.position.set(0,y,0);
+    seg.rotation.y=t*0.15;
+    bg.add(seg);
+  }
+  bSpin.add(bg);
+}
+wtG.add(bFold);
+
+wtG.position.set(2,0.6,12);
+scn.add(wtG);
+
+// ============================================================
+// STAGE 2 — SOLAR FARM (LARGE)
+// ============================================================
+const solG=new THREE.Group();
+const cMat=new THREE.MeshPhysicalMaterial({color:0x0a1a4a,roughness:0.15,metalness:0.6});
+const fMat=new THREE.MeshPhysicalMaterial({color:0xcccccc,roughness:0.3,metalness:0.5});
+const lMat=new THREE.MeshPhysicalMaterial({color:0x999999,roughness:0.5,metalness:0.3});
+const solP2=[];
+for(let r=0;r<6;r++)for(let c=0;c<8;c++){
+  const p=new THREE.Group();
+  const frm=new THREE.Mesh(new THREE.BoxGeometry(0.04,0.003,0.03),fMat);p.add(frm);
+  for(let cr=0;cr<2;cr++)for(let cc=0;cc<3;cc++){const cell=new THREE.Mesh(new THREE.BoxGeometry(0.01,0.0015,0.007),cMat);cell.position.set((cc-1)*0.012,0.003,(cr-0.5)*0.01);p.add(cell);}
+  p.rotation.x=-0.3;
+  const l1=new THREE.Mesh(new THREE.CylinderGeometry(0.002,0.003,0.015,4),lMat);l1.position.set(0,-0.01,0.01);p.add(l1);
+  const l2=new THREE.Mesh(new THREE.CylinderGeometry(0.002,0.003,0.02,4),lMat);l2.position.set(0,-0.013,-0.01);p.add(l2);
+  const xOff=(r%2)*0.02;
+  p.position.set((c-3.5)*0.085+xOff,0,(r-2.5)*0.065);
+  p.scale.setScalar(0);
+  solG.add(p);solP2.push(p);
+}
+solG.position.set(4,-0.15,-1);
+scn.add(solG);
+
+// ============================================================
+// STAGE 3 — GEOTHERMAL (LARGE)
+// ============================================================
+const geoG=new THREE.Group();
+const gMat=new THREE.MeshPhysicalMaterial({color:0x4a5a6a,roughness:0.3,metalness:0.4});
+const vMat=new THREE.MeshPhysicalMaterial({color:0x88aacc,emissive:0x88ccff,emissiveIntensity:0.3,transparent:true,opacity:0.6});
+
+const gBody=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.26,0.35,10),gMat);
+gBody.position.y=-0.18;geoG.add(gBody);
+const gTop=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.14,0.1,8),new THREE.MeshPhysicalMaterial({color:0x5a6a7a,roughness:0.2,metalness:0.5}));
+gTop.position.y=0.05;geoG.add(gTop);
+
+const gVents=[];
+for(let i=0;i<6;i++){const v=new THREE.Mesh(new THREE.CylinderGeometry(0.01,0.016,0.035,6),vMat);v.position.set(Math.cos(i*1.047)*0.14,0.18,Math.sin(i*1.047)*0.14);v.scale.y=0;geoG.add(v);gVents.push(v);}
+
+const gTH=new THREE.Mesh(new THREE.BoxGeometry(0.1,0.03,0.1),new THREE.MeshPhysicalMaterial({color:0x5a6a7a,roughness:0.2,metalness:0.5}));
+gTH.position.y=0.2;gTH.scale.setScalar(0);geoG.add(gTH);
+const gTurb=new THREE.Group();gTurb.position.y=0.2;gTurb.scale.setScalar(0);
+for(let i=0;i<6;i++){const v=new THREE.Mesh(new THREE.BoxGeometry(0.018,0.005,0.002),new THREE.MeshPhysicalMaterial({color:0x7a9aaa,metalness:0.6,roughness:0.1}));v.position.x=Math.cos(i*1.047)*0.033;v.position.z=Math.sin(i*1.047)*0.033;v.rotation.y=i*1.047;gTurb.add(v);}
+geoG.add(gTurb);
+
+const stC=100;const stG=new THREE.BufferGeometry();const stP=new Float32Array(stC*3);
+for(let i=0;i<stC;i++){stP[i*3]=(Math.random()-0.5)*0.5;stP[i*3+1]=Math.random()*0.6;stP[i*3+2]=(Math.random()-0.5)*0.5;}
+stG.setAttribute('position',new THREE.BufferAttribute(stP,3));
+const stM=new THREE.PointsMaterial({color:0xccddff,size:0.015,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false});
+geoG.add(new THREE.Points(stG,stM));
+
+geoG.position.set(0,-1.8,-14);geoG.scale.set(0.8,0.8,0.8);
+scn.add(geoG);
+
+// ============================================================
+// CAMERA PATH
+// ============================================================
+const path=[
+  {s:0,p:[0,7,22],t:[2,1,10]},
+  {s:.08,p:[4,4.5,18],t:[2,0.6,9]},
+  {s:.2,p:[5,3.5,16],t:[2.5,0.5,8]},
+  {s:.35,p:[4.5,2.5,10],t:[4,0.2,4]},
+  {s:.5,p:[5.5,1.5,4],t:[5,0,0]},
+  {s:.65,p:[3.5,0.8,-1],t:[1.5,-0.3,-3]},
+  {s:.78,p:[1,0.2,-5],t:[0,-0.7,-7]},
+  {s:.9,p:[-0.5,-0.3,-9],t:[0,-1.3,-11]},
+  {s:1,p:[0,-0.7,-12],t:[0,-1.9,-13]}
+];
+function lerp(a,b,t){return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,a[2]+(b[2]-a[2])*t]}
+function getPath(sc){
+  const s=Math.max(0,Math.min(1,sc));
+  for(let i=0;i<path.length-1;i++)if(s>=path[i].s&&s<=path[i+1].s){const a=path[i],b=path[i+1],t=(s-a.s)/(b.s-a.s);return{p:lerp(a.p,b.p,t),t:lerp(a.t,b.t,t)}}
+  return{p:path[path.length-1].p,t:path[path.length-1].t};
+}
+
+let sp=0;
+addEventListener('scroll',()=>{const m=document.body.scrollHeight-innerHeight;sp=m>0?scrollY/m:0;document.getElementById('p').style.width=(sp*100)+'%'});
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();ren.setSize(innerWidth,innerHeight)});
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})}));
+
+function easeOut(t){return 1-(1-t)*(1-t)}
+const _v=new THREE.Vector3();
+
+function animate(){
+  const time=performance.now()/1000;
+  const{p,t}=getPath(sp);
+  cam.position.set(p[0],p[1],p[2]);
+  cam.lookAt(t[0],t[1],t[2]);
+
+  // ─── WIND TURBINE (sp 0.03 - 0.38) ───
+  const wP=Math.max(0,Math.min(1,(sp-0.03)/0.35));
+  if(wP>0){
+    twrS.forEach((s,i)=>{
+      const lt=Math.max(0,Math.min(1,(wP-i*0.04)/0.5));
+      s.scale.y=lt;s.position.y=(i*0.35+0.175)*lt;
+    });
+    if(wP>0.2){const nT=Math.min(1,(wP-0.2)/0.15);nacG.position.z=-0.08*(1-nT);}
+    if(wP>0.35){hubM.visible=true;const hT=Math.min(1,(wP-0.35)/0.12);hubM.scale.set(hT,hT,hT*0.8);}
+    if(wP>0.5){const bT=Math.min(1,(wP-0.5)/0.15);bFold.rotation.x=-Math.PI/2+bT*Math.PI/2;}
+    if(wP>0.7){bSpin.rotation.z+=0.04;}
+  }else{
+    twrS.forEach(s=>{s.scale.y=0;s.position.y=0;});
+    nacG.position.z=-0.08;
+    hubM.visible=false;bFold.rotation.x=-Math.PI/2;
+  }
+
+  // ─── SOLAR (sp 0.38 - 0.68) ───
+  const sP=Math.max(0,Math.min(1,(sp-0.38)/0.3));
+  solP2.forEach((panel,i)=>{
+    const d=i/solP2.length*0.35;
+    if(sP>d){const pt=easeOut((sP-d)/0.65);panel.scale.setScalar(pt);}
+    else panel.scale.setScalar(0);
+  });
+
+  // ─── GEOTHERMAL (sp 0.68 - 0.95) ───
+  const gP2=Math.max(0,Math.min(1,(sp-0.68)/0.27));
+  if(gP2>0){
+    const e2=easeOut(gP2);
+    gBody.position.y=-0.18+e2*0.18;
+    gTop.position.y=0.05+e2*0.05;
+    if(gP2>0.25){gTH.scale.setScalar(easeOut((gP2-0.25)/0.15));gTurb.scale.setScalar(easeOut((gP2-0.25)/0.15));}
+    if(gP2>0.35){gTurb.rotation.y+=0.04;}
+    gVents.forEach((v,i)=>{const vt=Math.max(0,Math.min(1,(gP2-0.3-i*0.05)/0.15));v.scale.y=vt;});
+    if(gP2>0.5){stM.opacity=Math.min(0.35,(gP2-0.5)/0.18);}
+    const sp2=geoG.children.find(c=>c.geometry&&c.geometry.attributes.position===stG.attributes.position).geometry.attributes.position;
+    for(let i=0;i<stC;i++){sp2.array[i*3+1]+=0.002;if(sp2.array[i*3+1]>0.6){sp2.array[i*3]=(Math.random()-0.5)*0.5;sp2.array[i*3+1]=0;sp2.array[i*3+2]=(Math.random()-0.5)*0.5;}}
+    sp2.needsUpdate=true;
+  }else{
+    gBody.position.y=-0.18;gTop.position.y=0.05;
+    gTH.scale.setScalar(0);gTurb.scale.setScalar(0);
+    gVents.forEach(v=>v.scale.y=0);stM.opacity=0;
+  }
+
+  // Water waves
+  const wp2=water.geometry.attributes.position;
+  for(let i=0;i<wp2.count;i++){const x=wp2.getX(i),z=wp2.getZ(i);wp2.setY(i,Math.sin(x*0.04+z*0.035+time*0.25)*0.06+Math.sin(x*0.07+time*0.35)*0.025);}
+  wp2.needsUpdate=true;water.geometry.computeVertexNormals();
+
+  ren.render(scn,cam);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
