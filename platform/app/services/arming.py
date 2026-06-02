@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
 from typing import Dict, Optional
-from app.database import supabase
+from app.database import service
 
 class ArmingService:
     def is_armed(self, home_id: str) -> bool:
-        home = supabase.table("homes").select("status").eq("id", home_id).execute()
+        home = service.table("homes").select("status").eq("id", home_id).execute()
         if not home.data:
             return False
         if home.data[0]["status"] == "armed":
-            schedule = supabase.table("arming_schedules").select("*").eq("home_id", home_id).execute()
+            schedule = service.table("arming_schedules").select("*").eq("home_id", home_id).execute()
             if not schedule.data:
                 return True
             s = schedule.data[0]

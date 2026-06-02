@@ -29,11 +29,12 @@ def main():
         home_id = homes[0]["id"]
         print(f"Using home {home_id[:8]}...")
 
-    try:
-        s.post(f"{BASE}/devices/pair", json={"gateway_id": "cli-test", "firmware_ver": "test"}).json()
-        print("Device paired")
-    except:
+    r = s.post(f"{BASE}/devices/pair", params={"home_id": home_id}, json={"gateway_id": "cli-test", "firmware_ver": "test"})
+    if r.status_code == 409:
         print("Device already paired")
+    else:
+        r.raise_for_status()
+        print("Device paired")
 
     print("Simulating 10 normal packets...")
     for i in range(10):
@@ -62,10 +63,10 @@ def main():
     api_key = s.post(f"{BASE}/api-keys", json={"label": "test-key", "permissions": "read_only"}).json()
     print(f"API key: {api_key.get('key','')[:20]}...")
 
-    r = s.post(f"{BASE}/arming/override", params={"armed": True})
+    r = s.post(f"{BASE}/arming/override", params={"home_id": home_id, "armed": True})
     print(f"Arming: {r.json()}")
 
-    r = s.post(f"{BASE}/arming/override", params={"armed": False})
+    r = s.post(f"{BASE}/arming/override", params={"home_id": home_id, "armed": False})
     print(f"Disarming: {r.json()}")
 
     r = s.get(f"{BASE}/health")

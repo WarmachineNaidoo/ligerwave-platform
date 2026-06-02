@@ -43,8 +43,8 @@ class CsiProcessor:
         elif confidence >= self.confidence_thresholds["dashboard"]:
             return "motion"
         elif confidence >= self.confidence_thresholds["log"]:
-            return "uncertain"
-        return "normal"
+            return "motion"
+        return "motion"
 
     def process_csi(self, csi_bytes: bytes) -> Dict:
         n_subcarriers = 52
@@ -52,7 +52,7 @@ class CsiProcessor:
         expected_values = n_antennas * n_subcarriers
         data = np.frombuffer(csi_bytes, dtype=np.float32)
         if data.size < expected_values:
-            return {"confidence": 0.0, "event_type": "normal", "is_anomaly": False}
+            return {"confidence": 0.0, "event_type": "motion", "is_anomaly": False}
         amplitude = data.reshape(n_antennas, n_subcarriers)
         self.update_baseline(amplitude)
         confidence = self.compute_confidence(amplitude)
@@ -60,7 +60,7 @@ class CsiProcessor:
         return {
             "confidence": confidence,
             "event_type": event_type,
-            "is_anomaly": event_type != "normal",
+            "is_anomaly": event_type == "intrusion",
         }
 
 processors: Dict[str, CsiProcessor] = {}

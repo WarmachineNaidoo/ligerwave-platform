@@ -1,11 +1,11 @@
 from datetime import datetime, timezone, timedelta
-from app.database import supabase
+from app.database import service
 from io import BytesIO
 from typing import Optional
 
 def generate_report(home_id: str, months: int = 1) -> BytesIO:
     cutoff = (datetime.now(timezone.utc) - timedelta(days=30 * months)).isoformat()
-    events = supabase.table("events").select("*").eq("home_id", home_id).gte("timestamp", cutoff).execute()
+    events = service.table("events").select("*").eq("home_id", home_id).gte("timestamp", cutoff).execute()
     data = events.data or []
     total = len(data)
     intrusions = sum(1 for e in data if e.get("event_type") == "intrusion")

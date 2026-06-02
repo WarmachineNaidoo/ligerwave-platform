@@ -60,22 +60,21 @@ async def ingest_event(body: IngestedEvent, payload: dict = Depends(get_current_
     if not home.data or home.data[0]["organization_id"] != user.data[0]["organization_id"]:
         raise HTTPException(status_code=403, detail="Device not linked to your organization")
 
-    processor = processors.get(home_id)
+    if home_id not in processors:
+        processors[home_id] = CsiProcessor(home_id)
+    processor = processors[home_id]
     csi_storage_path = None
     confidence = body.confidence
     event_type = body.event_type
 
-    if body.csi_data_hex and processor:
-        try:
-            csi_bytes = binascii.unhexlify(body.csi_data_hex)
-            result = processor.process_csi(csi_bytes)
-            csi_storage_path = upload_csi(str(home_id), csi_bytes)
-            if confidence is None:
-                confidence = result["confidence"]
-            if body.event_type == "unknown" or body.event_type == "normal":
-                event_type = result["event_type"]
-        except (binascii.Error, ValueError):
-            pass
+    if body.csi_data_hex:
+        csi_bytes = binascii.unhexlify(body.csi_data_hex)
+        result = processor.process_csi(csi_bytes)
+        csi_storage_path = upload_csi(str(home_id), csi_bytes)
+        if confidence is None:
+            confidence = result["confidence"]
+        if body.event_type == "unknown" or body.event_type == "normal":
+            event_type = result["event_type"]
 
     is_armed = arming.is_armed(home_id)
     should_alert = arming.should_alert(home_id, confidence or 0)
