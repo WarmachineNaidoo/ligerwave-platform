@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from typing import Optional
-from app.database import supabase
+from app.database import supabase, service
 from app.middleware.auth import get_current_user
 from app.middleware.ownership import verify_home_ownership
 from app.services.audit import audit
@@ -33,17 +33,17 @@ async def set_schedule(
 ):
     data = body.model_dump(exclude_none=True)
     data["home_id"] = home_id
-    existing = supabase.table("arming_schedules").select("*").eq("home_id", home_id).execute()
+    existing = service.table("arming_schedules").select("*").eq("home_id", home_id).execute()
     if existing.data:
-        supabase.table("arming_schedules").update(data).eq("home_id", home_id).execute()
+        service.table("arming_schedules").update(data).eq("home_id", home_id).execute()
     else:
-        supabase.table("arming_schedules").insert(data).execute()
+        service.table("arming_schedules").insert(data).execute()
     audit.log(payload.get("sub"), "arming_schedule_updated", "home", resource_id=home_id)
     return {"status": "saved"}
 
 @router.get("/schedule")
 async def get_schedule(home_id: str = Depends(verify_home_ownership)):
-    result = supabase.table("arming_schedules").select("*").eq("home_id", home_id).execute()
+    result = service.table("arming_schedules").select("*").eq("home_id", home_id).execute()
     if not result.data:
         return {"schedule": None}
     return result.data[0]
@@ -54,10 +54,10 @@ async def override_arm(
     home_id: str = Depends(verify_home_ownership),
     payload: dict = Depends(get_current_user)
 ):
-    supabase.table("arming_schedules").update({
+    service.table("arming_schedules").update({
         "manual_override": True,
         "manual_armed": armed
     }).eq("home_id", home_id).execute()
-    supabase.table("homes").update({"status": "armed" if armed else "disarmed"}).eq("id", home_id).execute()
+    service.table("homes").update({"status": "armed" if armed else "disarmed"}).eq("id", home_id).execute()
     audit.log(payload.get("sub"), "arming_override", "home", resource_id=home_id, details={"armed": armed})
     return {"status": "armed" if armed else "disarmed"}

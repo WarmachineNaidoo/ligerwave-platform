@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field, HttpUrl
-from app.database import supabase
+from app.database import supabase, service
 from app.middleware.auth import get_current_user, require_role
 from app.middleware.ownership import verify_home_ownership
 from app.services.audit import audit
@@ -19,19 +19,19 @@ async def create_webhook(
     home_id: str = Depends(verify_home_ownership),
     payload: dict = Depends(get_current_user),
 ):
-    existing = supabase.table("webhooks").select("*").eq("home_id", home_id).execute()
+    existing = service.table("webhooks").select("*").eq("home_id", home_id).execute()
     if existing.data:
-        supabase.table("webhooks").update(body.model_dump()).eq("home_id", home_id).execute()
+        service.table("webhooks").update(body.model_dump()).eq("home_id", home_id).execute()
     else:
         body_dict = body.model_dump()
         body_dict["home_id"] = home_id
-        supabase.table("webhooks").insert(body_dict).execute()
+        service.table("webhooks").insert(body_dict).execute()
     audit.log(payload.get("sub"), "webhook_configured", "webhook", resource_id=home_id)
     return {"status": "configured", "url": body.url}
 
 @router.get("/{home_id}")
 async def get_webhook(home_id: str = Depends(verify_home_ownership)):
-    result = supabase.table("webhooks").select("*").eq("home_id", home_id).execute()
+    result = service.table("webhooks").select("*").eq("home_id", home_id).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="No webhook configured")
     return result.data[0]
@@ -41,6 +41,6 @@ async def delete_webhook(
     home_id: str = Depends(verify_home_ownership),
     payload: dict = Depends(get_current_user),
 ):
-    supabase.table("webhooks").delete().eq("home_id", home_id).execute()
+    service.table("webhooks").delete().eq("home_id", home_id).execute()
     audit.log(payload.get("sub"), "webhook_deleted", "webhook", resource_id=home_id)
     return {"status": "deleted"}

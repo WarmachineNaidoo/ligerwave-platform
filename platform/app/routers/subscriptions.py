@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 from datetime import datetime, timezone, timedelta
-from app.database import supabase
+from app.database import supabase, service
 from app.middleware.auth import get_current_user
 from app.middleware.ownership import verify_home_ownership
 from app.services.audit import audit
@@ -19,10 +19,10 @@ async def create_subscription(
     home_id: str = Depends(verify_home_ownership),
     payload: dict = Depends(get_current_user)
 ):
-    existing = supabase.table("subscriptions").select("*").eq("home_id", home_id).eq("status", "active").execute()
+    existing = service.table("subscriptions").select("*").eq("home_id", home_id).eq("status", "active").execute()
     if existing.data:
         raise HTTPException(status_code=409, detail="Active subscription already exists")
-    sub = supabase.table("subscriptions").insert({
+    sub = service.table("subscriptions").insert({
         "home_id": home_id,
         "provider": body.provider,
         "tier": body.tier,
@@ -34,7 +34,7 @@ async def create_subscription(
 
 @router.get("")
 async def get_subscription(home_id: str = Depends(verify_home_ownership)):
-    result = supabase.table("subscriptions").select("*").eq("home_id", home_id).execute()
+    result = service.table("subscriptions").select("*").eq("home_id", home_id).execute()
     return result.data
 
 @router.post("/cancel")
@@ -42,7 +42,7 @@ async def cancel_subscription(
     home_id: str = Depends(verify_home_ownership),
     payload: dict = Depends(get_current_user)
 ):
-    supabase.table("subscriptions").update({
+    service.table("subscriptions").update({
         "status": "canceled",
         "canceled_at": datetime.now(timezone.utc).isoformat()
     }).eq("home_id", home_id).execute()

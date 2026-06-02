@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Optional
-from app.database import supabase
+from app.database import supabase, service
 from app.middleware.auth import get_current_user
 from app.middleware.ownership import verify_home_ownership
 
@@ -15,7 +15,7 @@ async def list_events(
     offset: int = Query(0, ge=0),
     payload: dict = Depends(get_current_user)
 ):
-    q = supabase.table("events").select("*").eq("home_id", home_id).order("timestamp", desc=True)
+    q = service.table("events").select("*").eq("home_id", home_id).order("timestamp", desc=True)
     if event_type:
         q = q.eq("event_type", event_type)
     if min_confidence is not None:
@@ -28,7 +28,7 @@ async def get_event(
     home_id: str = Depends(verify_home_ownership),
     event_id: str = None
 ):
-    result = supabase.table("events").select("*").eq("id", event_id).eq("home_id", home_id).execute()
+    result = service.table("events").select("*").eq("id", event_id).eq("home_id", home_id).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="Event not found")
     return result.data[0]

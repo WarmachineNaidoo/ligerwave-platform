@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
-from app.database import supabase
+from app.database import supabase, service
 from app.middleware.ownership import verify_home_ownership
 from app.middleware.auth import get_current_user
 from app.services.reports import generate_report
@@ -15,7 +15,7 @@ async def export_csv(
     min_confidence: float = Query(None, ge=0, le=1),
     limit: int = Query(1000, ge=1, le=10000),
 ):
-    q = supabase.table("events").select("*").eq("home_id", home_id).order("timestamp", desc=True).limit(limit)
+    q = service.table("events").select("*").eq("home_id", home_id).order("timestamp", desc=True).limit(limit)
     if event_type:
         q = q.eq("event_type", event_type)
     if min_confidence is not None:
@@ -36,7 +36,7 @@ async def export_json(
     min_confidence: float = Query(None, ge=0, le=1),
     limit: int = Query(1000, ge=1, le=10000),
 ):
-    q = supabase.table("events").select("*").eq("home_id", home_id).order("timestamp", desc=True).limit(limit)
+    q = service.table("events").select("*").eq("home_id", home_id).order("timestamp", desc=True).limit(limit)
     if event_type:
         q = q.eq("event_type", event_type)
     if min_confidence is not None:

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
-from app.database import supabase
+from app.database import supabase, service
 from app.models.schemas import UserCreate
 from app.middleware.auth import get_current_user, require_role
 
@@ -16,7 +16,7 @@ async def register(body: UserCreate):
         })
         user = result.user
         if body.organization_id:
-            supabase.table("users").insert({
+            service.table("users").insert({
                 "id": user.id,
                 "email": body.email,
                 "name": body.name,
