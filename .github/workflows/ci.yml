@@ -50,15 +50,17 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set lowercase repo
+        run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
       - name: Build and tag Docker image
         run: |
           docker compose build api
-          docker tag ligerwave-api:latest ghcr.io/${{ github.repository }}/ligerwave-api:latest
-          docker tag ligerwave-api:latest ghcr.io/${{ github.repository }}/ligerwave-api:sha-${{ github.sha }}
+          docker tag ligerwave-api:latest ghcr.io/${{ env.REPO_LOWER }}/ligerwave-api:latest
+          docker tag ligerwave-api:latest ghcr.io/${{ env.REPO_LOWER }}/ligerwave-api:sha-${{ github.sha }}
       - name: Push to ghcr.io
         run: |
-          docker push ghcr.io/${{ github.repository }}/ligerwave-api:latest
-          docker push ghcr.io/${{ github.repository }}/ligerwave-api:sha-${{ github.sha }}
+          docker push ghcr.io/${{ env.REPO_LOWER }}/ligerwave-api:latest
+          docker push ghcr.io/${{ env.REPO_LOWER }}/ligerwave-api:sha-${{ github.sha }}
 
   security-scan:
     if: github.event_name == 'schedule'
