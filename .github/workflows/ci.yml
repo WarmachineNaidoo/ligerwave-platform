@@ -15,6 +15,11 @@ jobs:
     defaults:
       run:
         working-directory: platform
+    env:
+      SUPABASE_URL: http://localhost:8000
+      SUPABASE_KEY: test-key
+      SUPABASE_SERVICE_KEY: test-service-key
+      SUPABASE_JWT_SECRET: test-jwt-secret
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

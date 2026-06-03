@@ -1,5 +1,5 @@
 import os
-os.environ.setdefault("SUPABASE_URL", "http://localhost:8000")
-os.environ.setdefault("SUPABASE_KEY", "test-key")
-os.environ.setdefault("SUPABASE_SERVICE_KEY", "test-service-key")
-os.environ.setdefault("SUPABASE_JWT_SECRET", "test-jwt-secret")
+os.environ["SUPABASE_URL"] = os.environ.get("SUPABASE_URL") or "http://localhost:8000"
+os.environ["SUPABASE_KEY"] = os.environ.get("SUPABASE_KEY") or "test-key"
+os.environ["SUPABASE_SERVICE_KEY"] = os.environ.get("SUPABASE_SERVICE_KEY") or "test-service-key"
+os.environ["SUPABASE_JWT_SECRET"] = os.environ.get("SUPABASE_JWT_SECRET") or "test-jwt-secret"
