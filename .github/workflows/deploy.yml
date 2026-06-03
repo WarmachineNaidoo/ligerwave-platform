@@ -1,5 +1,4 @@
 name: Deploy
-
 on:
   workflow_run:
     workflows: ["CI"]
@@ -28,5 +27,6 @@ jobs:
             cd ~/ligerwave-platform
             git pull origin master
             cp platform/app/static/dashboard.html platform/app/static/index.html
+            cd platform
             docker compose build api
             docker compose up -d api
