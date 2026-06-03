@@ -15,7 +15,8 @@ async def get_current_user(
         if resp.status_code != 200:
             raise HTTPException(status_code=401, detail="Invalid token")
         user = resp.json()
-        return {"sub": user["id"], "email": user.get("email"), "role": "consumer"}
+        role = user.get("user_metadata", {}).get("role", "consumer")
+        return {"sub": user["id"], "email": user.get("email"), "role": role}
 
 def require_role(*roles: str):
     async def role_checker(payload: dict = Depends(get_current_user)) -> dict:

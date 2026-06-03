@@ -132,10 +132,32 @@ Router (on-site) → HTTPS CSI stream → Cloud API (FastAPI)
 - One property can have multiple keys (consumer + multiple AR companies + family members)
 - Keys have expiry dates set by the creator
 
+## Latest Additions (2026-06-03)
+- **11 premium CSI detection services**: `services/premium.py` — door/window, vehicle, fire/smoke, heart rate, gait ID, routine deviation, baby cry, room occupancy, smart triggers, water leak, structural movement. Each is a standalone detector class fed CSI data from the live ingestion pipeline.
+- **Feature gating system**: `services/feature_flags.py` — rollout stages (`dev` → `alpha` → `beta` → `ga`), tester user lists, `is_available(feature, user_id)` check. Admin controls which users see which features via GoTrue admin API (no DDL).
+- **Admin rollout dashboard**: `static/admin.html` — web UI to manage stage per feature, add/remove testers. Accessible at `/admin` after login.
+- **Subscription tier model**: `services/features.py` — `Free`, `Security+` (R30), `Wellness+` (R30), `Intelligence+` (R30), `Premium Bundle` (R80). Tier maps to feature sets. Individual toggles override tier defaults.
+- **Premium router**: `routers/premium.py` — 15 endpoints covering subscription management, feature toggles, and live status for each premium detector. Each endpoint gated by both rollout availability + subscription check.
+- **Settings UI**: Premium toggle switches in settings page, tier upgrade buttons, gait naming section (learn named walking patterns), subscription display.
+- **Dashboard premium section**: Dynamically renders available premium feature cards in the dashboard main view. Shows live status (heart rate BPM, gait match, occupancy count, structural days).
+- **Gait identification with naming**: `GaitDetector` extracts step cadence + amplitude signature, builds a fingerprint per named person, matches live walking against known gaits. UI supports learning new gaits with a name.
+- **Admin router**: `routers/admin.py` — `GET /admin/features`, `POST /admin/features/stage`, `POST /admin/features/tester`, `DELETE /admin/features/tester`. Admin role required.
+
+## Latest Additions (2026-06-03)
+- **Sleep efficiency endpoint**: `GET /{home_id}/sleep-efficiency` — estimates sleep time, wake time, efficiency %, fragmentation index from motion + breathing events, grouped by night (8pm-8am)
+- **EDF export**: `GET /{home_id}/sleep/export/edf` — generates standard European Data Format file for import into professional sleep scoring software (RemLogic, Noxturnal, etc.) with resampled 1 Hz breathing rate channel
+- **SpO₂ UI section**: Greyed-out wellness card with "Coming Soon" badge — placeholder for future Bluetooth oximetry ring integration
+- **Apnea dashboard display**: AHI score, severity, and event count shown live in the wellness grid
+- **Unit tests**: 18 comprehensive tests for `BreathingDetector`, `ApneaDetector`, and `FallDetector` — covering synthetic breathing at known rates, apnea/hypopnea events, fall impulse detection, edge cases, and noise resilience. All pass.
+- **Test infra**: `pytest.ini` (asyncio_mode=auto), `conftest.py`. 35 total tests (17 API auth + 18 wellness unit). All pass.
+- **Per-endpoint rate limiting**: `services/ratelimit.py` — configurable limits per route prefix (auth: 5-10/min, device events: 120/min, export: 10/min, default: 100/min). Only active in production.
+- **Structured JSON logging**: `services/log.py` + `LoggingMiddleware` — every request logs JSON with request_id, method, path, status, duration_ms, ip, user_id. `X-Request-ID` header on every response. `AuthContextMiddleware` extracts user_id from JWT (no verification) for logging context.
+
 ## File Locations
 - `C:\work\Software\New project 1\RuView\` — cloned RuView repo (reference for signal processing, WebSocket, existing API patterns)
 - `C:\work\Software\New project 1\research\` — automated research agent
 - `C:\work\Software\New project 1\platform\` — platform API code (FastAPI + Supabase schema)
+- `C:\work\Software\New project 1\platform\SCALING.md` — detailed scaling plan through 100,000 homes with migration triggers
 
 ## Weekly Research Agent
 Run every Monday to gather intelligence. Use `task` tool with `subagent_type: general` and the prompt from `research\research_config.md`. Findings append to `research\findings.md`.

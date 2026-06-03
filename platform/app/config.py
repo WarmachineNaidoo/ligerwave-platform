@@ -7,12 +7,14 @@ class Settings(BaseSettings):
     supabase_jwt_secret: str
     secret_key: str = "change-this-in-production"
     environment: str = "development"
+    app_url: str = "http://localhost:8000"
     cors_origins: str = "http://localhost:8000"
 
     stripe_secret_key: str | None = None
     yoco_secret_key: str | None = None
     whatsapp_api_key: str | None = None
     whatsapp_phone_number_id: str | None = None
+    admin_email: str | None = None
     r2_access_key_id: str | None = None
     r2_secret_access_key: str | None = None
     r2_bucket: str = "csi-raw"

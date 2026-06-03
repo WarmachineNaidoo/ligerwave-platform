@@ -49,3 +49,27 @@ async def get_home(home_id: str = Depends(verify_home_ownership)):
     if not result.data:
         raise HTTPException(status_code=404, detail="Home not found")
     return result.data[0]
+
+class HomeUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=200)
+    address: Optional[str] = Field(None, max_length=500)
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+
+@router.put("/{home_id}")
+async def update_home(body: HomeUpdate, home_id: str = Depends(verify_home_ownership)):
+    updates = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    result = service.table("homes").update(updates).eq("id", home_id).execute()
+    return result.data[0] if result.data else {"status": "updated"}
+
+@router.delete("/{home_id}")
+async def delete_home(home_id: str = Depends(verify_home_ownership)):
+    service.table("events").delete().eq("home_id", home_id).execute()
+    service.table("devices").delete().eq("home_id", home_id).execute()
+    service.table("api_keys").delete().eq("home_id", home_id).execute()
+    service.table("arming_schedules").delete().eq("home_id", home_id).execute()
+    service.table("invites").delete().eq("home_id", home_id).execute()
+    service.table("homes").delete().eq("id", home_id).execute()
+    return {"status": "deleted"}

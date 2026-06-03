@@ -31,6 +31,10 @@ test-chat.sh
 docs/
 attnvalue-specification.md
 
+# opencode configuration
+.opencode/
+opencode.json
+
 # Other projects in workspace (not part of ligerwave-platform)
 attnvalue/
 attnvalue-v2/

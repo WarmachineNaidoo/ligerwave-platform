@@ -4,322 +4,1084 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CSI Security Dashboard</title>
+<meta name="supabase-url" content="https://zchqctktwkimfecmjnon.supabase.co">
+<meta name="supabase-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpjaHFjdGt0d2tpbWZlY21qbm9uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1MjkzMTcsImV4cCI6MjA2MTEwNTMxN30.PuzT8hqbyPZ86aKph7tyGRQ5h5grT63REB2PQxjAw8o">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
-body{background:#0f172a;color:#e2e8f0;padding:20px;min-height:100vh}
+body{background:#f8fafc;color:#1e293b;padding:20px;min-height:100vh}
 .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px}
-.live-dot{width:10px;height:10px;border-radius:50%;background:#22c55e;display:inline-block;animation:pulse 2s infinite}
+h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px;color:#0f172a}
+.live-dot{width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block;animation:pulse 2s infinite}
 @keyframes pulse{0%{opacity:1}50%{opacity:0.3}100%{opacity:1}}
 .controls{display:flex;gap:8px;flex-wrap:wrap}
 .btn{padding:8px 18px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:13px;transition:all .15s}
 .btn:active{transform:scale(0.96)}
-.btn-arm{background:#f97316;color:#fff}.btn-arm:hover{background:#ea580c}
-.btn-disarm{background:#22c55e;color:#fff}.btn-disarm:hover{background:#16a34a}
-.btn-sim{background:#334155;color:#e2e8f0;border:1px solid #475569}.btn-sim:hover{background:#475569}
-.btn-sim-intrusion{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.btn-arm{background:#ea580c;color:#fff}.btn-arm:hover{background:#c2410c}
+.btn-disarm{background:#16a34a;color:#fff}.btn-disarm:hover{background:#15803d}
+.btn-sim{background:#e2e8f0;color:#475569;border:1px solid #cbd5e1}.btn-sim:hover{background:#cbd5e1}
+.btn-sim-intrusion{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.btn-outline{background:transparent;color:#64748b;border:1px solid #cbd5e1;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;transition:all .15s}
+.btn-outline:hover{background:#e2e8f0;color:#1e293b}
 .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
-.status-card{background:#1e293b;padding:14px 16px;border-radius:10px;border-left:3px solid #334155;position:relative}
-.status-card .label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
-.status-card .value{font-size:24px;font-weight:700;margin-top:4px}
-.status-card.armed{border-left-color:#f97316}
-.status-card.disarmed{border-left-color:#22c55e}
-.status-card.armed .value{color:#f97316}
-.status-card.disarmed .value{color:#22c55e}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-@media(max-width:900px){.charts-row{grid-template-columns:1fr}}
-.chart-box{background:#1e293b;border-radius:10px;padding:16px;position:relative}
-.chart-box h3{font-size:14px;color:#94a3b8;margin-bottom:12px;font-weight:500}
+.status-card{background:#fff;padding:14px 16px;border-radius:10px;border-left:3px solid #e2e8f0;position:relative;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.status-card .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
+.status-card .value{font-size:24px;font-weight:700;margin-top:4px;color:#0f172a}
+.status-card.armed{border-left-color:#ea580c}
+.status-card.disarmed{border-left-color:#16a34a}
+.status-card.armed .value{color:#ea580c}
+.status-card.disarmed .value{color:#16a34a}
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:1100px){.charts-row{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+.chart-box{background:#fff;border-radius:10px;padding:16px;position:relative;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.chart-box h3{font-size:14px;color:#64748b;margin-bottom:12px;font-weight:500}
 .chart-box canvas{max-height:200px;width:100%!important}
-.events-panel{background:#1e293b;border-radius:10px;overflow:hidden}
-.events-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #334155}
-.events-header h2{font-size:15px;font-weight:600}
-.events-header select{background:#0f172a;color:#e2e8f0;border:1px solid #334155;padding:4px 10px;border-radius:6px;font-size:12px}
-.event{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid #1e293b;transition:background .15s}
-.event:hover{background:#1a2332}
+.events-panel{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.events-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #e2e8f0}
+.events-header h2{font-size:15px;font-weight:600;color:#0f172a}
+.events-header select{background:#f1f5f9;color:#1e293b;border:1px solid #e2e8f0;padding:4px 10px;border-radius:6px;font-size:12px}
+.event{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid #f1f5f9;transition:background .15s}
+.event:hover{background:#f8fafc}
 .event:last-child{border:0}
 .event-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.event-icon.intrusion{background:#7f1d1d;color:#fca5a5}
-.event-icon.motion{background:#7c2d12;color:#fdba74}
-.event-icon.normal{background:#1e293b;color:#94a3b8}
-.event-icon.armed, .event-icon.disarmed{background:#1a2332;color:#94a3b8}
+.event-icon.intrusion{background:#fef2f2;color:#dc2626}
+.event-icon.motion{background:#fff7ed;color:#c2410c}
+.event-icon.normal{background:#f1f5f9;color:#64748b}
+.event-icon.armed, .event-icon.disarmed{background:#f8fafc;color:#64748b}
 .event-info{flex:1;min-width:0}
 .event-info .type{font-weight:600;font-size:13px}
-.event-info .type.intrusion{color:#ef4444}
-.event-info .type.motion{color:#fb923c}
-.event-info .type.normal{color:#94a3b8}
-.event-info .zone{font-size:11px;color:#64748b;margin-top:1px}
+.event-info .type.intrusion{color:#dc2626}
+.event-info .type.motion{color:#c2410c}
+.event-info .type.normal{color:#64748b}
+.event-info .zone{font-size:11px;color:#94a3b8;margin-top:1px}
 .event-meta{text-align:right;flex-shrink:0}
-.event-meta .time{font-size:11px;color:#64748b}
+.event-meta .time{font-size:11px;color:#94a3b8}
 .event-meta .conf-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block;margin-top:2px}
-.conf-high{background:#7f1d1d;color:#fca5a5}
-.conf-med{background:#7c2d12;color:#fdba74}
-.conf-low{background:#334155;color:#94a3b8}
-.empty-state{padding:40px;text-align:center;color:#64748b;font-size:14px}
-.schedule-bar{background:#1e293b;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px}
-.schedule-bar .label{color:#94a3b8;font-weight:500}
-.schedule-bar .time{color:#e2e8f0}
+.conf-high{background:#fef2f2;color:#dc2626}
+.conf-med{background:#fff7ed;color:#c2410c}
+.conf-low{background:#f1f5f9;color:#64748b}
+.empty-state{padding:40px;text-align:center;color:#94a3b8;font-size:14px}
+.schedule-bar{background:#fff;border-radius:10px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.wellness-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.wellness-card{background:#fff;border-radius:10px;padding:16px;border-left:3px solid #0891b2;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.wellness-card .label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
+.wellness-card .value{font-size:28px;font-weight:700;margin-top:2px;color:#0891b2}
+.wellness-card .sub{font-size:12px;color:#94a3b8;margin-top:2px}
+.wellness-card .status{font-size:12px;margin-top:4px;padding:2px 8px;border-radius:6px;display:inline-block}
+.wellness-card .status.active{background:#f0fdf4;color:#16a34a}
+.wellness-card .status.buffering{background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0}
+.wellness-card .status.fall{background:#fef2f2;color:#dc2626}
+.schedule-bar .label{color:#64748b;font-weight:500}
+.schedule-bar .time{color:#1e293b}
 .schedule-bar .status-badge{padding:3px 10px;border-radius:8px;font-size:11px;font-weight:600}
-.schedule-bar .status-badge.armed{background:#7f1d1d;color:#fca5a5}
-.schedule-bar .status-badge.disarmed{background:#1e293b;color:#94a3b8;border:1px solid #334155}
-#heatmap-canvas{width:100%;height:120px;border-radius:6px;image-rendering:pixelated}
+.schedule-bar .status-badge.armed{background:#fef2f2;color:#dc2626}
+.schedule-bar .status-badge.disarmed{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
+#heatmap-canvas{width:100%;height:200px;border-radius:6px;image-rendering:pixelated}.heatmap-axis-x{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:2px;padding:0 4px}.heatmap-axis-y{position:absolute;left:-28px;top:0;font-size:9px;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;height:200px;padding:2px 0}
+/* Zone path pills */
+.zone-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
+.zone-pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff}
+.zone-arrow{color:#94a3b8;font-size:14px;font-weight:700}
+/* Login modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;padding:32px;border-radius:12px;width:380px;max-width:92vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.1)}
+.modal h2{font-size:20px;font-weight:600;margin-bottom:4px;text-align:center;color:#0f172a}
+.modal .sub{color:#64748b;font-size:13px;text-align:center;margin-bottom:20px}
+.input-wrap{position:relative;margin-bottom:14px}
+.input-wrap input{width:100%;padding:10px 40px 10px 14px;border-radius:8px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;font-size:14px;outline:0;transition:border .15s}
+.input-wrap input:focus{border-color:#3b82f6;background:#fff}
+.toggle-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;padding:4px;font-size:16px;line-height:1}
+.toggle-eye:hover{color:#64748b}
+.btn-full{width:100%;padding:10px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:14px;transition:all .15s;margin-bottom:8px}
+.btn-full:disabled{opacity:0.5;cursor:not-allowed}
+.btn-primary{background:#2563eb;color:#fff}.btn-primary:hover{background:#1d4ed8}
+.btn-google{background:#fff;color:#1e293b;display:flex;align-items:center;justify-content:center;gap:8px;border:1px solid #e2e8f0}.btn-google:hover{background:#f8fafc}
+.btn-apple{background:#1d1d1f;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}.btn-apple:hover{background:#2d2d2f}
+.divider{display:flex;align-items:center;gap:12px;margin:14px 0;color:#94a3b8;font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:#e2e8f0}
+.modal-footer{text-align:center;font-size:13px;color:#94a3b8;margin-top:12px}
+.modal-footer a{color:#2563eb;text-decoration:none;cursor:pointer}
+.modal-footer a:hover{text-decoration:underline}
+.error-msg{color:#dc2626;font-size:12px;text-align:center;margin-bottom:10px;display:none}
+.forgot-link{text-align:right;font-size:12px;margin-top:-8px;margin-bottom:12px}
+.forgot-link a{color:#2563eb;text-decoration:none;cursor:pointer}
+.forgot-link a:hover{text-decoration:underline}
+.oauth-buttons{display:flex;flex-direction:column;gap:8px}
+
+/* Settings page */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:700px){.settings-grid{grid-template-columns:1fr}}
+.settings-card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.settings-card h3{font-size:14px;color:#64748b;margin-bottom:12px;font-weight:600}
+.settings-card .field{margin-bottom:12px}
+.settings-card .field label{font-size:12px;color:#94a3b8;display:block;margin-bottom:4px}
+.settings-card .field input,.settings-card .field select{width:100%;padding:8px 12px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;font-size:13px;outline:0}
+.settings-card .field input:focus{border-color:#3b82f6;background:#fff}
+.settings-card .field .btn{margin-top:6px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9}
+.setting-row:last-child{border:0}
+.setting-row .label{font-size:13px;color:#1e293b}
+.setting-row .desc{font-size:11px;color:#94a3b8}
+.toggle-switch{width:42px;height:22px;background:#cbd5e1;border-radius:11px;position:relative;cursor:pointer;transition:background .15s;flex-shrink:0}
+.toggle-switch.active{background:#16a34a}
+.toggle-switch::after{content:'';width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:transform .15s}
+.toggle-switch.active::after{transform:translateX(20px)}
+.invite-chip{display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;padding:4px 10px;border-radius:6px;font-size:12px;margin:3px;color:#475569}
+.invite-chip .revoke{color:#dc2626;cursor:pointer;font-weight:700}
+.zone-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.zone-row input{flex:1;padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;color:#1e293b;font-size:13px;outline:0}
+.zone-row input:focus{border-color:#3b82f6}
+.zone-row input[type=range]{flex:0 0 100px}
+.zone-row .remove-zone{color:#dc2626;cursor:pointer;font-weight:700;font-size:16px}
+.setting-saved{color:#16a34a;font-size:12px;margin-top:4px;display:none}
+
+/* Toast notifications */
+#toast-container{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.toast{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,0.1);animation:slideIn .2s ease-out;cursor:pointer;display:flex;align-items:center;gap:10px}
+.toast.info{background:#eff6ff;color:#1e40af;border-left:3px solid #2563eb}
+.toast.success{background:#f0fdf4;color:#166534;border-left:3px solid #16a34a}
+.toast.warn{background:#fff7ed;color:#9a3412;border-left:3px solid #ea580c}
+.toast.error{background:#fef2f2;color:#991b1b;border-left:3px solid #dc2626}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast-close{margin-left:auto;font-weight:700;opacity:0.6;cursor:pointer;flex-shrink:0}
+.toast-close:hover{opacity:1}
+
+/* Install app button */
+#install-app-btn{display:none}
+#install-app-btn.visible{display:inline-block}
+
+/* CSI Replay modal */
+.replay-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center}
+.replay-modal-overlay.active{display:flex}
+.replay-modal{background:#fff;border-radius:12px;width:90vw;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15);padding:24px}
+.replay-modal h2{font-size:18px;font-weight:600;margin-bottom:16px;color:#0f172a}
+.replay-modal .close-btn{float:right;background:none;border:none;font-size:24px;color:#94a3b8;cursor:pointer;line-height:1}
+.replay-modal .close-btn:hover{color:#475569}
+.replay-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;padding:12px;background:#f8fafc;border-radius:8px}
+.replay-details .detail-item{font-size:12px}
+.replay-details .detail-item .label{color:#64748b;text-transform:uppercase;letter-spacing:0.5px;font-size:10px}
+.replay-details .detail-item .value{font-weight:600;color:#0f172a;margin-top:2px;font-size:13px}
+#replay-heatmap-canvas{width:100%;height:350px;border-radius:6px;image-rendering:pixelated}
+.replay-loading{text-align:center;padding:60px 20px;color:#64748b;font-size:14px}
+
+/* Loading spinner */
+.spinner{width:18px;height:18px;border:2px solid #e2e8f0;border-top-color:#0891b2;border-radius:50%;animation:spin .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;align-items:center;justify-content:center;border-radius:10px;z-index:5}
+
+
+/* Mobile responsive */
+@media(max-width:600px){
+  body{padding:10px}
+  .header{flex-direction:column;align-items:stretch}
+  .header h1{font-size:18px}
+  .controls{flex-wrap:wrap}
+  .controls button,.controls select{font-size:11px;padding:6px 10px;flex:1;min-width:0}
+  .status-grid{grid-template-columns:1fr 1fr}
+  .status-card .value{font-size:20px}
+  .wellness-grid{grid-template-columns:1fr 1fr}
+  .chart-box{padding:10px}
+  .schedule-bar{flex-direction:column;align-items:flex-start;gap:8px}
+  .event{padding:8px 12px}
+  .modal{padding:24px 16px}
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1><span class="live-dot"></span>WiFi CSI Security</h1>
+  <h1><span class="live-dot"></span><span data-i18n="app.title">WiFi CSI Security</span></h1>
   <div class="controls">
-    <button class="btn btn-arm" onclick="overrideHome(true)">ARM</button>
-    <button class="btn btn-disarm" onclick="overrideHome(false)">DISARM</button>
-    <button class="btn btn-sim" onclick="simulate('normal')">Sim Normal</button>
-    <button class="btn btn-sim" onclick="simulate('motion')">Sim Motion</button>
-    <button class="btn btn-sim-intrusion" onclick="simulate('intrusion')">Sim Intrusion</button>
-    <button class="btn btn-sim" onclick="downloadReport()">Download Report</button>
+    <button class="btn btn-arm" onclick="overrideHome(true)" data-i18n="controls.arm">ARM</button>
+    <button class="btn btn-disarm" onclick="overrideHome(false)" data-i18n="controls.disarm">DISARM</button>
+    <button class="btn btn-sim" onclick="simulate('normal')" data-i18n="controls.sim_normal">Sim Normal</button>
+    <button class="btn btn-sim" onclick="simulate('motion')" data-i18n="controls.sim_motion">Sim Motion</button>
+    <button class="btn btn-sim-intrusion" onclick="simulate('intrusion')" data-i18n="controls.sim_intrusion">Sim Intrusion</button>
+    <button class="btn btn-sim" onclick="downloadReport()" data-i18n="controls.download_report">Download Report</button>
+    <button class="btn-outline" onclick="exportCSV()" data-i18n="controls.export_csv">CSV</button>
+    <button class="btn-outline" onclick="exportJSON()" data-i18n="controls.export_json">JSON</button>
+    <button class="btn btn-arm" id="install-app-btn" onclick="installApp()" style="display:none;font-size:11px;padding:4px 10px">Install App</button>
+    <button class="btn-outline" onclick="showSettings()" id="settings-btn" style="display:none" data-i18n="nav.settings">Settings</button>
+    <select id="lang-select" class="btn-outline" onchange="switchLang(this.value)" style="padding:6px 8px;font-size:12px;border-radius:8px;background:#fff;color:#1e293b;border:1px solid #cbd5e1;cursor:pointer">
+      <option value="en">English</option>
+      <option value="zu">isiZulu</option>
+      <option value="af">Afrikaans</option>
+      <option value="fr">Français</option>
+      <option value="pt">Português</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+      <option value="zh">中文</option>
+      <option value="ja">日本語</option>
+      <option value="hi">हिन्दी</option>
+      <option value="ta">தமிழ்</option>
+      <option value="te">తెలుగు</option>
+      <option value="th">ไทย</option>
+      <option value="fil">Filipino</option>
+    </select>
+    <button class="btn-outline" onclick="showLogout()" id="logout-btn" style="display:none" data-i18n="nav.logout">Logout</button>
   </div>
 </div>
 
 <div class="schedule-bar" id="schedule-bar">
-  <span class="label">Status:</span>
+  <span class="label" data-i18n="status.status">Status:</span>
   <span class="status-badge disarmed" id="status-badge">DISARMED</span>
-  <span class="label">Schedule:</span>
-  <span class="time" id="schedule-text">Not set</span>
-  <span class="label">Home:</span>
+  <span class="label" data-i18n="status.schedule">Schedule:</span>
+  <span class="time" id="schedule-text" data-i18n="status.not_set">Not set</span>
+  <span class="label" data-i18n="status.home_id">Home:</span>
   <span class="time" id="home-label">--</span>
 </div>
 
 <div class="status-grid">
   <div class="status-card" id="card-status">
-    <div class="label">System Status</div>
+    <div class="label" data-i18n="status.system_status">System Status</div>
     <div class="value" id="status-value">--</div>
   </div>
   <div class="status-card">
-    <div class="label">Events Today</div>
+    <div class="label" data-i18n="status.events_today">Events Today</div>
     <div class="value" id="events-today">--</div>
   </div>
   <div class="status-card">
-    <div class="label">High Confidence</div>
+    <div class="label" data-i18n="status.high_confidence">High Confidence</div>
     <div class="value" id="alerts-count">--</div>
   </div>
   <div class="status-card">
-    <div class="label">Avg Confidence</div>
+    <div class="label" data-i18n="status.avg_confidence">Avg Confidence</div>
     <div class="value" id="conf-avg">--</div>
   </div>
   <div class="status-card">
-    <div class="label">CSI Storage</div>
+    <div class="label" data-i18n="status.csi_storage">CSI Storage</div>
     <div class="value" id="csi-size">--</div>
   </div>
 </div>
 
+<div class="wellness-grid" id="wellness-grid">
+  <div class="wellness-card">
+    <div class="label" data-i18n="wellness.breathing_rate">Breathing Rate</div>
+    <div class="value" id="breathing-rate">--</div>
+    <div class="sub" id="breathing-status" data-i18n="wellness.initializing">Initializing...</div>
+  </div>
+  <div class="wellness-card">
+    <div class="label" data-i18n="wellness.overnight_avg">Overnight Avg</div>
+    <div class="value" id="breathing-avg">--</div>
+    <div class="sub" id="breathing-samples">--</div>
+  </div>
+  <div class="wellness-card">
+    <div class="label" data-i18n="wellness.fall_detection">Fall Detection</div>
+    <div class="value" id="fall-status">--</div>
+    <div class="sub" id="fall-detail">--</div>
+  </div>
+  <div class="wellness-card">
+    <div class="label" data-i18n="wellness.wellness_events">Wellness Events</div>
+    <div class="value" id="wellness-count">--</div>
+    <div class="sub" id="wellness-period" data-i18n="wellness.last_7d">Last 7 days</div>
+  </div>
+  <div class="wellness-card">
+    <div class="label" data-i18n="wellness.apnea_ahi">Apnea AHI</div>
+    <div class="value" id="apnea-ahi">--</div>
+    <div class="sub" id="apnea-severity">--</div>
+  </div>
+  <div class="wellness-card" style="opacity:0.5;pointer-events:none;position:relative">
+    <div style="position:absolute;top:6px;right:8px;font-size:9px;background:#64748b;color:#0f172a;padding:1px 6px;border-radius:4px;font-weight:600" data-i18n="wellness.coming_soon">Coming Soon</div>
+    <div class="label" data-i18n="wellness.spo2">SpO₂ (Oximetry)</div>
+    <div class="value" style="color:#64748b" data-i18n="wellness.spo2_unavailable">Ring not paired</div>
+    <div class="sub" style="color:#475569" data-i18n="wellness.spo2_desc">Pairs via Bluetooth</div>
+  </div>
+</div>
+
+<div id="premium-section" style="display:none;margin-bottom:20px">
+  <h2 style="font-size:16px;font-weight:600;margin-bottom:10px;color:#0f172a" data-i18n="premium.title">Premium Features</h2>
+  <div id="premium-grid" class="wellness-grid"></div>
+</div>
+
 <div class="charts-row">
   <div class="chart-box">
-    <h3>CSI Heatmap (last 50 packets — subcarriers 0-51)</h3>
-    <canvas id="heatmap-canvas" height="120"></canvas>
+    <h3 data-i18n="charts.waveform_title">CSI Waveform — <span id="waveform-event-label">live</span></h3>
+    <canvas id="waveform-canvas" height="140"></canvas>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;align-items:center">
+      <span style="font-size:11px;color:#64748b" data-i18n="charts.scrub_events">Select event:</span>
+      <select id="waveform-event-select" style="flex:1;min-width:100px;padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;color:#1e293b;font-size:11px" onchange="loadWaveform(this.value)"></select>
+      <button class="btn-outline" style="font-size:11px;padding:4px 10px" onclick="loadWaveform('live')" data-i18n="charts.live">Live</button>
+    </div>
   </div>
   <div class="chart-box">
-    <h3>Events per Hour (today)</h3>
+    <h3 data-i18n="charts.hourly_title">Events per Hour (today)</h3>
     <canvas id="hourly-chart"></canvas>
+  </div>
+  <div class="chart-box" style="position:relative">
+    <h3 data-i18n="charts.heatmap_title">CSI Subcarrier Heatmap</h3>
+    <canvas id="heatmap-canvas"></canvas>
+    <div class="heatmap-axis-x"><span>Frame 1</span><span>Frame 50</span><span>Frame 100</span></div>
   </div>
 </div>
 
 <div class="events-panel" id="events-panel">
   <div class="events-header">
-    <h2>Event Log</h2>
-    <select id="filter-type" onchange="renderEvents(currentEvents)">
-      <option value="all">All Types</option>
-      <option value="intrusion">Intrusion</option>
-      <option value="motion">Motion</option>
-      <option value="normal">Normal</option>
-    </select>
+    <h2 data-i18n="events.title">Event Log <span id="event-total" style="font-weight:400;font-size:12px;color:#64748b"></span></h2>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="filter-type" onchange="resetPagination();renderEvents(currentEvents)">
+        <option value="all" data-i18n="events.all_types">All Types</option>
+        <option value="intrusion" data-i18n="events.intrusion">Intrusion</option>
+        <option value="motion" data-i18n="events.motion">Motion</option>
+        <option value="normal" data-i18n="events.normal">Normal</option>
+      </select>
+      <input type="text" id="event-search" placeholder="" data-i18n="events.search" style="padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;color:#1e293b;font-size:11px;width:100px" oninput="filterEvents()">
+    </div>
   </div>
-  <div id="event-list"><div class="empty-state">Connecting...</div></div>
+  <div id="event-list"><div class="empty-state" data-i18n="events.connecting">Connecting...</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 18px;border-top:1px solid #e2e8f0">
+    <button class="btn-outline" id="load-more-btn" onclick="loadMore()" style="display:none;font-size:11px;padding:4px 12px" data-i18n="events.load_more">Load More</button>
+    <span id="event-count" style="font-size:11px;color:#64748b"></span>
+  </div>
 </div>
 
+<!-- Timeline scrubber -->
+<div class="chart-box" style="margin-bottom:20px" id="timeline-box">
+  <h3 data-i18n="charts.timeline_title">Timeline Scrubber</h3>
+  <div style="position:relative;height:40px;margin:4px 0 8px">
+    <div id="timeline-bars" style="display:flex;height:100%;gap:1px;align-items:flex-end"></div>
+    <div id="timeline-cursor" style="position:absolute;top:0;bottom:0;width:2px;background:#22d3ee;display:none;pointer-events:none;z-index:2"></div>
+  </div>
+  <input type="range" id="timeline-slider" min="0" max="100" value="0" style="width:100%;height:4px;accent-color:#22d3ee" oninput="scrubTimeline(this.value)">
+  <div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b">
+    <span id="timeline-start">--</span>
+    <span id="timeline-current" style="color:#22d3ee">--</span>
+    <span id="timeline-end">--</span>
+  </div>
+</div>
+
+<!-- Login modal -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal" id="login-form">
+    <h2 id="auth-title" data-i18n="auth.sign_in">Sign In</h2>
+    <div class="sub" id="auth-sub" data-i18n="app.tagline">Access your CSI security dashboard</div>
+    <div class="error-msg" id="auth-error"></div>
+    <div class="input-wrap">
+      <input type="email" id="auth-email" placeholder="" data-i18n="auth.email" autocomplete="email" autocapitalize="off">
+    </div>
+    <div class="input-wrap">
+      <input type="password" id="auth-pass" placeholder="" data-i18n="auth.password" autocomplete="current-password">
+      <button class="toggle-eye" onclick="toggleEye('auth-pass', this)" aria-label="Toggle password visibility" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+    <div class="forgot-link" id="forgot-link-container"><a onclick="showForgotPassword()" data-i18n="auth.forgot_password">Forgot password?</a></div>
+    <button class="btn-full btn-primary" id="auth-btn" onclick="submitAuth()" data-i18n="auth.sign_in">Sign In</button>
+    <div class="divider" data-i18n="auth.or_continue_with">or continue with</div>
+    <div class="oauth-buttons">
+      <button class="btn-full btn-google" onclick="oauthLogin('google')"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.54 28.59A14.5 14.5 0 0 1 9.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 0 0 0 24c0 3.87.93 7.54 2.56 10.78l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg> Google</button>
+      <button class="btn-full btn-apple" onclick="oauthLogin('apple')"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg> Apple</button>
+    </div>
+    <div class="modal-footer" id="auth-footer">
+      <span data-i18n="auth.no_account">Don't have an account?</span> <a onclick="toggleAuthMode()" data-i18n="auth.create_one">Create one</a>
+    </div>
+  </div>
+</div>
+
+<!-- Forgot password modal -->
+<div class="modal-overlay" id="forgot-modal">
+  <div class="modal">
+    <h2 data-i18n="auth.reset_password">Reset Password</h2>
+    <div class="sub" data-i18n="auth.reset_password_sub">Enter your email to receive a reset link</div>
+    <div class="error-msg" id="forgot-error"></div>
+    <div class="input-wrap">
+      <input type="email" id="forgot-email" placeholder="" data-i18n="auth.email" autocomplete="email">
+    </div>
+    <button class="btn-full btn-primary" id="forgot-btn" onclick="submitForgotPassword()" data-i18n="auth.send_reset_link">Send Reset Link</button>
+    <div class="modal-footer"><a onclick="closeForgotPassword()" data-i18n="auth.back_to_sign_in">Back to sign in</a></div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<!-- CSI Replay Modal -->
+<div class="replay-modal-overlay" id="replay-modal" onclick="closeCsiReplay(event)">
+  <div class="replay-modal" onclick="event.stopPropagation()">
+    <button class="close-btn" onclick="closeCsiReplay()">&times;</button>
+    <h2>CSI Replay</h2>
+    <div class="replay-details" id="replay-details">
+      <div class="detail-item"><div class="label">Event</div><div class="value" id="replay-event-id">--</div></div>
+      <div class="detail-item"><div class="label">Timestamp</div><div class="value" id="replay-timestamp">--</div></div>
+      <div class="detail-item"><div class="label">Confidence</div><div class="value" id="replay-confidence">--</div></div>
+      <div class="detail-item"><div class="label">Zone</div><div class="value" id="replay-zone">--</div></div>
+      <div class="detail-item"><div class="label">Zone Path</div><div class="value" id="replay-zone-path"><span class="zone-default">--</span></div></div>
+    </div>
+    <div id="replay-heatmap-container">
+      <canvas id="replay-heatmap-canvas"></canvas>
+    </div>
+  </div>
+</div>
+
+<div id="settings-section" style="display:none">
+  <div class="settings-grid">
+    <div class="settings-card">
+      <h3 data-i18n="settings.profile">Profile</h3>
+      <div class="field">
+        <label data-i18n="settings.user_id">User ID</label>
+        <input type="text" id="settings-user-id" readonly style="color:#64748b">
+      </div>
+      <div class="field">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" id="settings-email" readonly style="color:#64748b">
+      </div>
+      <div class="field">
+        <label data-i18n="settings.display_name">Display Name</label>
+        <input type="text" id="settings-name">
+      </div>
+      <button class="btn btn-arm" onclick="saveProfile()" data-i18n="settings.save">Save</button>
+      <div class="setting-saved" id="profile-saved" data-i18n="settings.saved">Saved</div>
+    </div>
+
+    <div class="settings-card">
+      <h3 data-i18n="settings.home_management">Home Management</h3>
+      <div class="field">
+        <label data-i18n="settings.home_name">Home Name</label>
+        <input type="text" id="settings-home-name">
+      </div>
+      <div class="field">
+        <label data-i18n="settings.address">Address</label>
+        <input type="text" id="settings-address">
+      </div>
+      <div class="field" style="display:flex;gap:8px">
+        <button class="btn btn-arm" onclick="saveHome()" data-i18n="settings.save_home">Save Home</button>
+        <button class="btn btn-sim-intrusion" onclick="deleteHome()" data-i18n="settings.delete_home_hint">Delete Home</button>
+      </div>
+      <div class="setting-saved" id="home-saved" data-i18n="settings.saved">Saved</div>
+    </div>
+
+    <div class="settings-card">
+      <h3 data-i18n="settings.zones">Zones</h3>
+      <div id="zone-list"></div>
+      <button class="btn btn-sim" onclick="addZone()" data-i18n="settings.add_zone">+ Add Zone</button>
+      <button class="btn btn-arm" onclick="saveZones()" style="margin-left:8px" data-i18n="settings.save_zones">Save Zones</button>
+      <div class="setting-saved" id="zones-saved" data-i18n="settings.saved">Saved</div>
+    </div>
+
+    <div class="settings-card" id="settings-home-card">
+      <h3 data-i18n="settings.family_invites">Family Invites</h3>
+      <div class="field">
+        <label data-i18n="auth.email">Email</label>
+        <input type="email" id="invite-email" placeholder="">
+      </div>
+      <div class="field" style="display:flex;gap:8px;align-items:center">
+        <select id="invite-role" style="padding:8px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;color:#1e293b;flex:1">
+          <option value="read_only" data-i18n="settings.read_only">Read Only</option>
+          <option value="dispatch" data-i18n="settings.dispatch">Dispatch</option>
+          <option value="admin" data-i18n="settings.admin">Admin</option>
+        </select>
+        <button class="btn btn-arm" onclick="sendInvite()" data-i18n="settings.invite">Invite</button>
+      </div>
+      <div id="invite-list" style="margin-top:8px"></div>
+      <div class="setting-saved" id="invite-saved" data-i18n="settings.sent">Sent</div>
+    </div>
+
+    <div class="settings-card">
+      <h3 data-i18n="settings.notifications">Notifications</h3>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.email">Email Alerts</div>
+          <div class="desc" data-i18n="settings.email_desc">Receive alerts via email</div>
+        </div>
+        <div class="toggle-switch" id="email-toggle" onclick="toggleEmail()"></div>
+      </div>
+      <div id="email-config" style="display:none;margin-top:8px">
+        <div class="field">
+          <label data-i18n="auth.email">Email</label>
+          <input type="email" id="email-addr" placeholder="">
+        </div>
+        <button class="btn btn-sim" onclick="saveEmail()" data-i18n="settings.save">Save</button>
+        <button class="btn btn-sim" onclick="testNotif('email')" style="margin-left:4px" data-i18n="settings.test">Test</button>
+        <div class="setting-saved" id="email-saved" data-i18n="settings.saved">Saved</div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.browser_push">Browser Push</div>
+          <div class="desc" data-i18n="settings.browser_push_desc">Push notifications to this browser</div>
+        </div>
+        <div class="toggle-switch" id="push-toggle" onclick="togglePush()"></div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.telegram">Telegram Bot</div>
+          <div class="desc" data-i18n="settings.telegram_desc">Send alerts via Telegram</div>
+        </div>
+        <div class="toggle-switch" id="telegram-toggle" onclick="toggleTelegram()"></div>
+      </div>
+      <div id="telegram-config" style="display:none;margin-top:8px">
+        <div class="field">
+          <label data-i18n="settings.bot_token">Bot Token</label>
+          <input type="text" id="tg-token" placeholder="">
+        </div>
+        <div class="field">
+          <label data-i18n="settings.chat_id">Chat ID</label>
+          <input type="text" id="tg-chat" placeholder="">
+        </div>
+        <button class="btn btn-sim" onclick="saveTelegram()" data-i18n="settings.save">Save</button>
+        <div class="setting-saved" id="tg-saved" data-i18n="settings.saved">Saved</div>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.sms">SMS Alerts</div>
+          <div class="desc" data-i18n="settings.sms_desc">Send alerts via SMS (Clickatell)</div>
+        </div>
+        <div class="toggle-switch" id="sms-toggle" onclick="toggleSMS()"></div>
+      </div>
+      <div id="sms-config" style="display:none;margin-top:8px">
+        <div class="field">
+          <label data-i18n="settings.phone">Phone Number</label>
+          <input type="tel" id="sms-phone" placeholder="+27...">
+        </div>
+        <div class="field">
+          <label data-i18n="settings.api_key">API Key</label>
+          <input type="text" id="sms-key" placeholder="">
+        </div>
+        <button class="btn btn-sim" onclick="saveSMS()" data-i18n="settings.save">Save</button>
+        <button class="btn btn-sim" onclick="testNotif('sms')" style="margin-left:4px" data-i18n="settings.test">Test</button>
+        <div class="setting-saved" id="sms-saved" data-i18n="settings.saved">Saved</div>
+      </div>
+    </div>
+
+    <div class="settings-card">
+      <h3 data-i18n="settings.display">Display</h3>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.font_size">Font Size</div>
+          <div class="desc" data-i18n="settings.font_size_desc">Scale all text up or down</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn-outline" style="flex:1;font-size:11px" onclick="setFontSize(0.85)">A</button>
+        <button class="btn-outline" style="flex:1;font-size:13px" onclick="setFontSize(1)">A</button>
+        <button class="btn-outline" style="flex:1;font-size:15px" onclick="setFontSize(1.15)">A</button>
+        <button class="btn-outline" style="flex:1;font-size:17px" onclick="setFontSize(1.3)">A</button>
+      </div>
+      <div class="setting-saved" id="font-size-saved" data-i18n="settings.saved">Saved</div>
+    </div>
+
+    <div class="settings-card">
+      <h3 data-i18n="subscription.title">Subscription & Premium Features</h3>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="subscription.current_tier">Current Tier</div>
+          <div class="desc" id="current-tier-display" data-i18n="subscription.free">Free</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <button class="btn btn-sim" onclick="setTier('security')" style="flex:1;font-size:11px">Security+ (R30)</button>
+        <button class="btn btn-sim" onclick="setTier('wellness')" style="flex:1;font-size:11px">Wellness+ (R30)</button>
+        <button class="btn btn-sim" onclick="setTier('intel')" style="flex:1;font-size:11px">Intelligence+ (R30)</button>
+        <button class="btn btn-arm" onclick="setTier('premium')" style="flex:1;font-size:11px">Premium (R80)</button>
+      </div>
+      <div id="premium-features-list" style="margin-top:12px"></div>
+      <div class="setting-saved" id="tier-saved" data-i18n="settings.saved">Saved</div>
+    </div>
+
+    <!-- Gait naming -->
+    <div class="settings-card" id="gait-settings" style="display:none">
+      <h3 data-i18n="premium.gait_title">Gait Identification</h3>
+      <div class="desc" style="font-size:12px;color:#64748b;margin-bottom:8px" data-i18n="premium.gait_desc">Name detected walking patterns to identify who is in the house.</div>
+      <div id="known-gaits" style="margin-bottom:8px"></div>
+      <div style="display:flex;gap:6px">
+        <input type="text" id="gait-name-input" placeholder="Enter name (e.g. John)" style="flex:1;padding:6px 10px;border-radius:6px;border:1px solid #e2e8f0;background:#f8fafc;font-size:13px">
+        <button class="btn btn-arm" onclick="learnGait()" style="font-size:11px;padding:6px 12px" data-i18n="premium.learn_gait">Learn Walk</button>
+      </div>
+      <div class="setting-saved" id="gait-saved" data-i18n="settings.saved">Saved</div>
+    </div>
+
+    <div class="settings-card">
+      <h3 data-i18n="settings.security">Security</h3>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.mfa">Two-Factor Auth (MFA)</div>
+          <div class="desc" data-i18n="settings.mfa_desc">Extra security layer with authenticator app</div>
+        </div>
+        <div class="toggle-switch" id="mfa-toggle" onclick="toggleMFA()"></div>
+      </div>
+      <div id="mfa-enroll" style="display:none;margin-top:8px">
+        <div id="mfa-qr" style="margin-bottom:8px;text-align:center"></div>
+        <div class="field">
+          <label data-i18n="settings.verify_code">Enter 6-digit code from authenticator app</label>
+          <input type="text" id="mfa-code" placeholder="000000" maxlength="6" style="text-align:center;letter-spacing:4px;font-size:18px">
+        </div>
+        <button class="btn btn-arm" onclick="verifyMFA()" data-i18n="settings.verify">Verify</button>
+        <div class="setting-saved" id="mfa-saved" data-i18n="settings.saved">Saved</div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-sim" onclick="changePassword()" data-i18n="settings.change_password">Change Password</button>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid #e2e8f0">
+        <button class="btn btn-sim-intrusion" onclick="deleteAccount()" data-i18n="settings.delete_account">Delete Account</button>
+        <div class="desc" style="margin-top:4px" data-i18n="settings.delete_account_desc">Permanently delete all data (POPIA)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const API = window.location.origin;
-let token = localStorage.getItem('token');
-let homeId = localStorage.getItem('homeId');
-let currentEvents = [];
-let hourlyChart = null;
-let heatmapCtx = null;
+var __t = {};
+var __lang = localStorage.getItem('lang') || navigator.language.slice(0,2) || 'en';
+if (['en','zu','af','fr','pt','es','de','zh','ja','hi','ta','te','th','fil'].indexOf(__lang) < 0) __lang = 'en';
 
-async function api(method, path, body) {
-  const res = await fetch(`${API}${path}`, {
-    method, headers: {'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json'},
-    body: body ? JSON.stringify(body) : undefined
+function t(key) {
+  var parts = key.split('.'), obj = __t;
+  for (var i = 0; i < parts.length && obj; i++) obj = obj[parts[i]];
+  return obj || key;
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var key = el.getAttribute('data-i18n');
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.setAttribute('placeholder', t(key));
+    } else {
+      el.textContent = t(key);
+    }
   });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
 }
 
-function showLogin() {
-  const email = prompt('Email:'); if (!email) return;
-  const password = prompt('Password:'); if (!password) return;
-  api('POST', '/auth/login', {email, password}).then(r => {
-    token = r.access_token; localStorage.setItem('token', token);
-    init(); createHomeIfNeeded();
-  }).catch(e => { alert('Login failed: ' + e.message); showLogin(); });
-}
-
-async function init() {
+async function loadLang(lang) {
   try {
-    const homes = await api('GET', '/homes');
-    if (homes.length === 0) return;
-    homeId = homes[0].id; localStorage.setItem('homeId', homeId);
-    document.getElementById('home-label').textContent = homeId.slice(0,8) + '...';
-    refresh(); pairDevice();
-  } catch(e) { showLogin(); }
+    var r = await fetch('/i18n/' + lang + '.json');
+    __t = await r.json();
+    localStorage.setItem('lang', lang);
+    document.getElementById('lang-select').value = lang;
+    applyTranslations();
+    return __t;
 }
 
-async function createHomeIfNeeded() {
-  try {
-    const homes = await api('GET', '/homes');
-    if (homes.length > 0) { homeId = homes[0].id; localStorage.setItem('homeId', homeId); return; }
-    const h = await api('POST', '/homes', {name: 'My Home', address: ''});
-    homeId = h.id; localStorage.setItem('homeId', homeId);
-    pairDevice(); refresh();
-  } catch(e) { showLogin(); }
-}
-
-async function pairDevice() {
-  try { await api('POST', '/devices/pair?' + new URLSearchParams({home_id: homeId}), {gateway_id: 'dash-' + Date.now(), firmware_ver: '0.1'}); }
-  catch(e) { /* already paired */ }
-}
-
-async function refresh() {
-  if (!homeId) return;
-  try {
-    const [events, schedule] = await Promise.all([
-      api('GET', `/events/${homeId}?limit=100`),
-      api('GET', `/arming/schedule`).catch(() => ({schedule: null, status: 'disarmed'}))
-    ]);
-    currentEvents = events.events || [];
-    renderEvents(currentEvents);
-    renderStatus(currentEvents, schedule);
-    renderHeatmap(currentEvents);
-    renderHourlyChart(currentEvents);
-  } catch(e) { console.error('Refresh error:', e); }
-}
-
-function renderStatus(events, schedule) {
-  const armed = schedule && schedule.status === 'armed';
-  const card = document.getElementById('card-status');
-  const val = document.getElementById('status-value');
-  card.className = `status-card ${armed ? 'armed' : 'disarmed'}`;
-  val.textContent = armed ? 'ARMED' : 'DISARMED';
-
-  const badge = document.getElementById('status-badge');
-  badge.className = `status-badge ${armed ? 'armed' : 'disarmed'}`;
-  badge.textContent = armed ? 'ARMED' : 'DISARMED';
-
-  if (schedule && schedule.schedule) {
-    const day = new Date().toLocaleDateString('en', {weekday:'long'}).toLowerCase();
-    const s = schedule.schedule;
-    const start = s[day + '_start'];
-    const end = s[day + '_end'];
-    document.getElementById('schedule-text').textContent = start && end ? `${start} - ${end}` : 'No schedule';
+function renderZonePathHtml(zone, zonePath) {
+  var colors = {entrance:'#22c55e',living_room:'#3b82f6',kitchen:'#f97316',bedroom:'#8b5cf6',bathroom:'#14b8a6'};
+  var zones = (zonePath && zonePath.length) ? zonePath : (zone ? [zone] : null);
+  if (!zones) return '';
+  var html = '<div class="zone-path">';
+  for (var i = 0; i < zones.length; i++) {
+    if (i > 0) html += '<span class="zone-arrow">→</span>';
+    html += '<span class="zone-pill" style="background:' + (colors[zones[i]] || '#64748b') + '">' + zones[i].replace(/_/g, ' ') + '</span>';
   }
-
-  const today = new Date().toISOString().slice(0,10);
-  const todayEvents = events.filter(e => e.timestamp && e.timestamp.startsWith(today));
-  document.getElementById('events-today').textContent = todayEvents.length;
-  
-  const highConf = todayEvents.filter(e => (e.confidence||0) >= 0.8);
-  document.getElementById('alerts-count').textContent = highConf.length;
-
-  const confs = todayEvents.map(e => e.confidence || 0);
-  document.getElementById('conf-avg').textContent = confs.length ? (confs.reduce((a,b)=>a+b,0)/confs.length*100).toFixed(0)+'%' : '--';
-
-  const totalCsi = events.reduce((s, e) => s + (e.csi_size_bytes || 0), 0);
-  document.getElementById('csi-size').textContent = totalCsi > 1e6 ? (totalCsi/1e6).toFixed(1)+' MB' : (totalCsi/1e3).toFixed(0)+' KB';
+  html += '</div>';
+  return html;
 }
 
-function renderEvents(events) {
-  const filter = document.getElementById('filter-type').value;
-  const filtered = filter === 'all' ? events : events.filter(e => e.event_type === filter);
-  const el = document.getElementById('event-list');
-  if (!filtered || filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state">No events match this filter</div>';
-    return;
-  }
-  el.innerHTML = filtered.slice(0, 50).map(e => {
-    const t = e.event_type || 'normal';
-    const time = new Date(e.timestamp).toLocaleString();
-    const conf = (e.confidence || 0);
-    const confCls = conf >= 0.8 ? 'conf-high' : conf >= 0.5 ? 'conf-med' : 'conf-low';
-    const icon = t === 'intrusion' ? '!' : t === 'motion' ? '~' : t === 'armed' ? '#' : t === 'disarmed' ? 'O' : '.';
-    const zoneInfo = e.zone ? 'Zone: ' + e.zone : (e.zone_path && e.zone_path.length ? e.zone_path.join(' -> ') : '');
-    return `<div class="event">
-      <div class="event-icon ${t}">${icon}</div>
-      <div class="event-info">
-        <div class="type ${t}">${t}</div>
-        ${zoneInfo ? '<div class="zone">' + zoneInfo + '</div>' : ''}
-      </div>
-      <div class="event-meta">
-        <div class="time">${time}</div>
-        <span class="conf-badge ${confCls}">${(conf*100).toFixed(0)}%</span>
-      </div>
-    </div>`;
-  }).join('');
+// Heatmap decode and render
+function decodeCsiHex(hex) {
+  if (!hex || hex.length < 312) return null;
+  try {
+    var bytes = new Uint8Array(hex.match(/.{2}/g).map(function(b) { return parseInt(b, 16); }));
+    var floats = new Float32Array(bytes.buffer);
+    var amps = [];
+    for (var sc = 0; sc < 52; sc++) {
+      var sum = 0;
+      for (var row = 0; row < 3; row++) {
+        sum += floats[row * 52 + sc] || 0;
+      }
+      amps.push(sum / 3);
+    }
+    return amps;
+  } catch(e) { return null; }
 }
 
-function renderHeatmap(events) {
-  const canvas = document.getElementById('heatmap-canvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.parentElement.clientWidth - 32;
-  const H = 120;
-  canvas.width = W;
-  canvas.height = H;
+function heatmapColor(t) {
+  t = Math.max(0, Math.min(1, t));
+  var r, g, b;
+  if (t < 0.25) { r = 0; g = t * 4; b = 1; }
+  else if (t < 0.5) { r = 0; g = 1; b = 1 - (t - 0.25) * 4; }
+  else if (t < 0.75) { r = (t - 0.5) * 4; g = 1; b = 0; }
+  else { r = 1; g = 1 - (t - 0.75) * 4; b = 0; }
+  return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+}
 
-  const csiEvents = events.filter(e => e.csi_size_bytes > 0).slice(-50);
-  if (csiEvents.length < 2) {
-    ctx.fillStyle = '#1e293b';
+function pushHeatmapFrame(amps) {
+  if (!amps || amps.length < 52) return;
+  heatmapBuffer.push(amps);
+  if (heatmapBuffer.length > HEATMAP_MAX_FRAMES) heatmapBuffer.shift();
+  renderHeatmap();
+}
+
+function renderHeatmap() {
+  var canvas = document.getElementById('heatmap-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var rect = canvas.parentElement.getBoundingClientRect();
+  var W = Math.floor((rect.width || 600) - 32);
+  var H = 200;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  var frames = heatmapBuffer;
+  if (frames.length === 0) {
+    ctx.fillStyle = '#f8fafc';
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#64748b';
     ctx.font = '13px system-ui';
     ctx.textAlign = 'center';
-    ctx.fillText('Waiting for CSI data...', W/2, H/2+4);
+    ctx.fillText('Waiting for CSI data...', W / 2, H / 2 + 4);
     return;
   }
 
-  const cols = Math.min(csiEvents.length, 50);
-  const rows = 52;
-  const cellW = W / cols;
-  const cellH = H / rows;
-
-  // Simulate amplitude distribution from confidence values
-  for (let c = 0; c < cols; c++) {
-    const conf = csiEvents[c].confidence || 0;
-    const base = conf * 3;
-    for (let r = 0; r < rows; r++) {
-      const val = base + Math.sin(r * 0.3 + c * 0.2) * 0.5 + (Math.random() - 0.5) * 0.3;
-      const t = Math.max(0, Math.min(1, val / 4));
-      const r2 = Math.round(10 + t * 240);
-      const g = Math.round(10 + (1 - t) * 200);
-      const b = Math.round(50 + (1 - t) * 100);
-      ctx.fillStyle = `rgb(${r2},${g},${b})`;
-      ctx.fillRect(c * cellW, r * cellH, Math.ceil(cellW), Math.ceil(cellH));
+  // Find min/max
+  var min = Infinity, max = -Infinity;
+  for (var f = 0; f < frames.length; f++) {
+    for (var s = 0; s < frames[f].length; s++) {
+      var v = frames[f][s];
+      if (v < min) min = v;
+      if (v > max) max = v;
     }
+  }
+  var range = max - min || 1;
+
+  var imageData = ctx.createImageData(W, H);
+  var data = imageData.data;
+  var cellW = W / HEATMAP_MAX_FRAMES;
+  var cellH = H / NUM_SUBCARRIERS;
+
+  for (var f = 0; f < HEATMAP_MAX_FRAMES; f++) {
+    var frame = frames[f] || frames[frames.length - 1];
+    for (var s = 0; s < NUM_SUBCARRIERS; s++) {
+      var val = (frame[s] - min) / range;
+      var c = heatmapColor(val);
+      var x = Math.floor(f * cellW);
+      var y = Math.floor((NUM_SUBCARRIERS - 1 - s) * cellH);
+      var ex = Math.ceil((f + 1) * cellW);
+      var ey = Math.ceil((NUM_SUBCARRIERS - s) * cellH);
+      for (var py = y; py < ey && py < H; py++) {
+        for (var px = x; px < ex && px < W; px++) {
+          var idx = (py * W + px) * 4;
+          data[idx] = c[0]; data[idx + 1] = c[1];
+          data[idx + 2] = c[2]; data[idx + 3] = 255;
+        }
+      }
+    }
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  // Draw y-axis labels
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '9px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('SC 52', 4, 10);
+  ctx.fillText('SC 1', 4, H - 4);
+}
+
+function renderStaticHeatmap(amplitude) {
+  var canvas = document.getElementById('replay-heatmap-canvas');
+  if (!canvas || !amplitude || amplitude.length === 0) return;
+  var ctx = canvas.getContext('2d');
+  var W = canvas.parentElement.clientWidth - 4;
+  var H = 350;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  // Average each packet's subcarriers
+  var packets = amplitude.map(function(pkt) {
+    return pkt.slice(0, 52);
+  });
+  if (packets.length === 0) return;
+  var numPkts = packets.length;
+  var numSc = 52;
+
+  var min = Infinity, max = -Infinity;
+  for (var f = 0; f < numPkts; f++) {
+    for (var s = 0; s < numSc; s++) {
+      var v = packets[f][s];
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+  }
+  var range = max - min || 1;
+
+  var imageData = ctx.createImageData(W, H);
+  var data = imageData.data;
+  var cellW = W / numPkts;
+  var cellH = H / numSc;
+
+  for (var f = 0; f < numPkts; f++) {
+    for (var s = 0; s < numSc; s++) {
+      var val = (packets[f][s] - min) / range;
+      var c = heatmapColor(val);
+      var x = Math.floor(f * cellW);
+      var y = Math.floor((numSc - 1 - s) * cellH);
+      var ex = Math.ceil((f + 1) * cellW);
+      var ey = Math.ceil((numSc - s) * cellH);
+      for (var py = y; py < ey && py < H; py++) {
+        for (var px = x; px < ex && px < W; px++) {
+          var idx = (py * W + px) * 4;
+          data[idx] = c[0]; data[idx + 1] = c[1];
+          data[idx + 2] = c[2]; data[idx + 3] = 255;
+        }
+      }
+    }
+  }
+  ctx.putImageData(imageData, 0, 0);
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('Subcarrier 52', 4, 12);
+  ctx.fillText('Subcarrier 1', 4, H - 4);
+  ctx.textAlign = 'right';
+  ctx.fillText('Packet ' + numPkts, W - 4, H - 4);
+  ctx.fillText('Packet 1', W - 4, 12);
+}
+
+// Waveform viewer (real CSI amplitude plot)
+var waveformChart = null;
+var waveformDataCache = {};
+
+async function loadWaveform(eventId) {
+  if (!homeId) return;
+  var label = document.getElementById('waveform-event-label');
+  var canvas = document.getElementById('waveform-canvas');
+  if (eventId === 'live') {
+    label.textContent = t('charts.live');
+    renderLiveWaveform();
+    return;
+  }
+  label.textContent = '#' + eventId.slice(0,8);
+  // Check cache first
+  if (waveformDataCache[eventId]) {
+    renderWaveformChart(waveformDataCache[eventId]);
+    return;
+  }
+  try {
+    var data = await api('GET', '/events/' + homeId + '/' + eventId + '/csi');
+    if (data && data.amplitude && data.amplitude.length > 0) {
+      waveformDataCache[eventId] = data;
+      renderWaveformChart(data);
+    } else {
+      renderWaveformEmpty();
+    }
+  } catch(e) { renderWaveformEmpty(); }
+}
+
+function renderLiveWaveform() {
+  var canvas = document.getElementById('waveform-canvas');
+  var ctx = canvas.getContext('2d');
+  var W = canvas.parentElement.clientWidth - 32;
+  var H = 140;
+  canvas.width = W; canvas.height = H;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, cw, ch);
+
+  var bw = cw / data.length;
+  var colors = ['#fef2f2','#fff7ed','#e2e8f0','#f1f5f9'];
+  for (var i = 0; i < data.length; i++) {
+    var v = Math.min(1, data[i] / 0.5);
+    var ci = Math.min(3, Math.floor(v * 4));
+    ctx.fillStyle = colors[ci];
+    ctx.fillRect(i * bw, ch - v * ch, Math.max(1, bw - 1), v * ch);
+  }
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#64748b';
+  ctx.font = '13px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(t('charts.no_csi_data'), W/2, H/2+4);
+  if (waveformChart) { waveformChart.destroy(); waveformChart = null; }
+}
+
+function renderWaveformChart(data) {
+  var canvas = document.getElementById('waveform-canvas');
+  var ctx = canvas.getContext('2d');
+  if (waveformChart) { waveformChart.destroy(); }
+  // Average amplitude across all subcarriers for each packet
+  var avgAmp = data.amplitude.map(function(pkt) {
+    return pkt.reduce(function(a,b){return a+b},0) / pkt.length;
+  });
+  var labels = avgAmp.map(function(_, i) { return i; });
+  var subcarrierAmp = data.amplitude.length > 0 ? data.amplitude[data.amplitude.length-1] : [];
+  waveformChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: t('charts.mean_amplitude'),
+        data: avgAmp,
+        borderColor: '#22d3ee',
+        backgroundColor: 'rgba(34,211,238,0.1)',
+        fill: true,
+        pointRadius: 0,
+        borderWidth: 1.5,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: {size: 10} } } },
+      scales: {
+        x: { ticks: { color: '#64748b', font: {size: 9}, maxTicksLimit: 10 }, grid: { display: false } },
+        y: { ticks: { color: '#64748b', font: {size: 9} }, grid: { color: '#e2e8f0' } }
+      }
+    }
+  });
+}
+
+// Event pagination
+var eventOffset = 0;
+var eventPageSize = 50;
+var eventTotal = 0;
+var allLoadedEvents = [];
+
+function resetPagination() {
+  eventOffset = 0;
+  allLoadedEvents = [];
+  document.getElementById('load-more-btn').style.display = 'none';
+}
+
+function filterEvents() {
+  renderEvents(currentEvents);
+}
+
+function loadMore() {
+  eventOffset += eventPageSize;
+  loadEvents(true);
+}
+
+async function loadEvents(append) {
+  if (!homeId) return;
+  try {
+    var url = '/events/' + homeId + '?limit=' + eventPageSize + '&offset=' + eventOffset;
+    var filter = document.getElementById('filter-type').value;
+    if (filter !== 'all') url += '&event_type=' + filter;
+    var result = await api('GET', url);
+    if (append) {
+      allLoadedEvents = allLoadedEvents.concat(result.events);
+    } else {
+      allLoadedEvents = result.events;
+    }
+    currentEvents = allLoadedEvents;
+    eventTotal = result.total || allLoadedEvents.length;
+    renderEvents(allLoadedEvents);
+    document.getElementById('event-total').textContent = '(' + eventTotal + ' total)';
+    document.getElementById('event-count').textContent = allLoadedEvents.length + ' / ' + eventTotal;
+    document.getElementById('load-more-btn').style.display = allLoadedEvents.length < eventTotal ? 'inline-block' : 'none';
+    populateWaveformSelect(allLoadedEvents);
+    buildTimeline(allLoadedEvents);
+  } catch(e) { console.error(e); }
+}
+
+function renderEvents(events) {
+  var filter = document.getElementById('filter-type').value;
+  var filtered = filter === 'all' ? events : events.filter(function(e) { return e.event_type === filter; });
+  var el = document.getElementById('event-list');
+  if (!filtered || filtered.length === 0) {
+    el.innerHTML = '<div class="empty-state">' + t('events.no_events_match') + '</div>';
+    return;
+  }
+  el.innerHTML = filtered.slice(0, 50).map(function(e) {
+    var t = e.event_type || 'normal';
+    var time = new Date(e.timestamp).toLocaleString();
+    var conf = (e.confidence || 0);
+    var confCls = conf >= 0.8 ? 'conf-high' : conf >= 0.5 ? 'conf-med' : 'conf-low';
+    var icon = t === 'intrusion' ? '!' : t === 'motion' ? '~' : t === 'armed' ? '#' : t === 'disarmed' ? 'O' : '.';
+    var zoneInfo = renderZonePathHtml(e.zone, e.zone_path);
+    var hasCsi = e.csi_size_bytes > 0 || e.csi_data_hex;
+    return '<div class="event">' +
+      '<div class="event-icon ' + t + '">' + icon + '</div>' +
+      '<div class="event-info">' +
+        '<div class="type ' + t + '">' + t + '</div>' +
+        (zoneInfo ? '<div class="zone">' + zoneInfo + '</div>' : '') +
+      '</div>' +
+      '<div class="event-meta">' +
+        '<div class="time">' + time + '</div>' +
+        '<div style="display:flex;gap:4px;align-items:center;margin-top:2px">' +
+          '<span class="conf-badge ' + confCls + '">' + (conf*100).toFixed(0) + '%</span>' +
+          (hasCsi ? '<button class="btn-outline" onclick="event.stopPropagation();openCsiReplay(\'' + e.id + '\',\'' + (e.home_id || homeId) + '\')" style="font-size:10px;padding:1px 6px;line-height:1.4">CSI</button>' : '') +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function populateWaveformSelect(events) {
+  var sel = document.getElementById('waveform-event-select');
+  var csiEvents = events.filter(function(e) { return e.csi_size_bytes > 0; });
+  sel.innerHTML = '<option value="">' + t('charts.select_event') + '</option>' +
+    csiEvents.slice(0, 30).map(function(e) {
+      var time = new Date(e.timestamp).toLocaleString();
+      return '<option value="' + e.id + '">' + (e.event_type||'?') + ' @ ' + time + '</option>';
+    }).join('');
+}
+
+// Timeline scrubber
+function buildTimeline(events) {
+  var bars = document.getElementById('timeline-bars');
+  var slider = document.getElementById('timeline-slider');
+  if (!events || events.length < 2) {
+    bars.innerHTML = '<div style="color:#64748b;font-size:12px;text-align:center;width:100%;padding-top:10px">' + t('charts.waiting_events') + '</div>';
+    document.getElementById('timeline-start').textContent = '--';
+    document.getElementById('timeline-end').textContent = '--';
+    return;
+  }
+  var min = new Date(events[events.length-1].timestamp).getTime();
+  var max = new Date(events[0].timestamp).getTime();
+  var range = max - min || 1;
+  document.getElementById('timeline-start').textContent = new Date(min).toLocaleTimeString();
+  document.getElementById('timeline-end').textContent = new Date(max).toLocaleTimeString();
+  // Draw mini bars colored by confidence
+  bars.innerHTML = events.slice(0, 100).map(function(e) {
+    var pct = ((new Date(e.timestamp).getTime() - min) / range * 100);
+    var conf = Math.max(5, (e.confidence || 0.1) * 100);
+    var color = e.event_type === 'intrusion' ? '#ef4444' : e.event_type === 'motion' ? '#fb923c' : '#22c55e';
+    return '<div style="flex:0 0 6px;height:' + conf + '%;background:' + color + ';border-radius:1px;opacity:0.7" title="' + e.event_type + ' @ ' + new Date(e.timestamp).toLocaleString() + '"></div>';
+  }).join('');
+  slider.max = events.length - 1;
+  slider.value = 0;
+  slider.oninput = function() { scrubTimeline(this.value); };
+}
+
+function scrubTimeline(idx) {
+  var events = allLoadedEvents.length ? allLoadedEvents : currentEvents;
+  idx = parseInt(idx);
+  if (!events || idx >= events.length) return;
+  var e = events[idx];
+  var cursor = document.getElementById('timeline-cursor');
+  var slider = document.getElementById('timeline-slider');
+  var bars = document.getElementById('timeline-bars');
+  if (bars.children.length > 0 && idx < bars.children.length) {
+    var bar = bars.children[idx];
+    cursor.style.display = 'block';
+    cursor.style.left = bar.offsetLeft + 'px';
+  }
+  document.getElementById('timeline-current').textContent = new Date(e.timestamp).toLocaleString() + ' — ' + (e.event_type||'') + ' ' + Math.round((e.confidence||0)*100) + '%';
+  // Load waveform for this event
+  if (e.csi_size_bytes > 0) {
+    loadWaveform(e.id);
   }
 }
 
-function renderHourlyChart(events) {
-  const today = new Date().toISOString().slice(0,10);
-  const todayEvents = events.filter(e => e.timestamp && e.timestamp.startsWith(today));
-  const hours = Array.from({length: 24}, (_, i) => i);
-  const counts = hours.map(h => todayEvents.filter(e => {
-    const hour = parseInt(e.timestamp.slice(11,13));
-    return hour === h;
-  }).length);
+// Override refresh to use paginated load
+var origRefresh = refresh;
+refresh = function() {
+  if (!homeId) return;
+  loadEvents(false);
+  renderStatus(allLoadedEvents.length ? allLoadedEvents : currentEvents, {});
+  renderHourlyChart(allLoadedEvents.length ? allLoadedEvents : currentEvents);
+  renderWellness();
+};
 
-  const ctx = document.getElementById('hourly-chart').getContext('2d');
+function renderHourlyChart(events) {
+  var today = new Date().toISOString().slice(0,10);
+  var todayEvents = events.filter(function(e) { return e.timestamp && e.timestamp.startsWith(today); });
+  var hours = Array.from({length: 24}, function(_, i) { return i; });
+  var counts = hours.map(function(h) { return todayEvents.filter(function(e) { return parseInt(e.timestamp.slice(11,13)) === h; }).length; });
+
+  var ctx = document.getElementById('hourly-chart').getContext('2d');
   if (hourlyChart) { hourlyChart.destroy(); }
 
   hourlyChart = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: hours.map(h => h + ':00'),
+      labels: hours.map(function(h) { return h + ':00'; }),
       datasets: [{
         label: 'Events',
         data: counts,
@@ -333,7 +1095,7 @@ function renderHourlyChart(events) {
       plugins: { legend: { display: false } },
       scales: {
         x: { ticks: { color: '#94a3b8', font: {size: 10}, maxTicksLimit: 12 }, grid: { display: false } },
-        y: { ticks: { color: '#94a3b8', font: {size: 10}, stepSize: 1 }, grid: { color: '#334155' }, beginAtZero: true }
+        y: { ticks: { color: '#94a3b8', font: {size: 10}, stepSize: 1 }, grid: { color: '#e2e8f0' }, beginAtZero: true }
       }
     }
   });
@@ -341,29 +1103,630 @@ function renderHourlyChart(events) {
 
 async function overrideHome(armed) {
   try {
-    await api('POST', `/arming/override?home_id=${homeId}&armed=${armed}`);
+    await api('POST', '/arming/override?home_id=' + homeId + '&armed=' + armed);
     refresh();
   } catch(e) { console.error(e); }
 }
 
 async function downloadReport() {
   if (!homeId) return;
-  window.open(`${API}/export/${homeId}/report?months=1`, '_blank');
+  window.open(API + '/export/' + homeId + '/report?months=1', '_blank');
 }
 
 async function simulate(type) {
-  const intrusion = type === 'intrusion';
   try {
-    await api('GET', `/devices/simulate?home_id=${homeId}&intrusion=${intrusion}`);
+    await api('GET', '/devices/simulate?home_id=' + homeId + '&intrusion=' + (type === 'intrusion'));
     setTimeout(refresh, 300);
   } catch(e) { console.error(e); }
 }
 
-(async () => {
-  heatmapCtx = document.getElementById('heatmap-canvas').getContext('2d');
+// Toast notifications
+function toast(msg, type, duration) {
+  type = type || 'info';
+  duration = duration || 4000;
+  var container = document.getElementById('toast-container');
+  var el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = '<span>' + msg + '</span><span class="toast-close" onclick="this.parentElement.remove()">&times;</span>';
+  el.onclick = function() { this.remove(); };
+  container.appendChild(el);
+  setTimeout(function() { if (el.parentElement) el.remove(); }, duration);
+}
+
+// Loading states
+function showLoading(key) {
+  loadingKeys[key] = true;
+}
+function hideLoading(key) {
+  delete loadingKeys[key];
+}
+function withLoading(key, promise) {
+  showLoading(key);
+  return promise.finally(function() { hideLoading(key); });
+}
+
+// WebSocket connection
+function connectWS() {
+  if (!homeId || !token) return;
+  if (ws && ws.readyState === WebSocket.OPEN) return;
+  var proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  var url = proto + '//' + window.location.host + '/ws/' + homeId + '?token=' + token;
+  try {
+    ws = new WebSocket(url);
+    ws.onopen = function() {
+      console.log('WS connected');
+      if (wsReconnectTimer) { clearTimeout(wsReconnectTimer); wsReconnectTimer = null; }
+    };
+    ws.onmessage = function(ev) {
+      try {
+        var msg = JSON.parse(ev.data);
+        if (msg.type === 'event') {
+          toast('New ' + (msg.data.event_type || 'event') + ' event (' + Math.round((msg.data.confidence||0)*100) + '%)', 'info');
+          refresh();
+          if (msg.data && msg.data.csi_data_hex) {
+            var amps = decodeCsiHex(msg.data.csi_data_hex);
+            if (amps) pushHeatmapFrame(amps);
+          }
+        }
+        // Also handle standalone csi frames
+        if (msg.type === 'csi_frame' && msg.data && msg.data.csi_data_hex) {
+          var amps = decodeCsiHex(msg.data.csi_data_hex);
+          if (amps) pushHeatmapFrame(amps);
+        }
+      } catch(e) {}
+    };
+    ws.onclose = function() {
+      console.log('WS disconnected');
+      ws = null;
+      wsReconnectTimer = setTimeout(connectWS, 5000);
+    };
+    ws.onerror = function() {
+      ws && ws.close();
+    };
+  } catch(e) { console.error('WS error:', e); }
+}
+
+function disconnectWS() {
+  if (ws) { ws.close(); ws = null; }
+  if (wsReconnectTimer) { clearTimeout(wsReconnectTimer); wsReconnectTimer = null; }
+}
+
+// Keepalive ping
+setInterval(function() {
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    try { ws.send('ping'); } catch(e) {}
+  }
+}, 30000);
+
+// PWA install prompt
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-app-btn').style.display = 'inline-block';
+});
+
+window.addEventListener('appinstalled', function() {
+  deferredPrompt = null;
+  document.getElementById('install-app-btn').style.display = 'none';
+});
+
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(result) {
+    deferredPrompt = null;
+    document.getElementById('install-app-btn').style.display = 'none';
+  });
+}
+
+// Listen for push messages from service worker
+if (navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'push') {
+      toast(e.data.title + ': ' + e.data.body, 'warn', 8000);
+    }
+  });
+  // Also handle controller change after SW update
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    console.log('SW controller changed');
+  });
+}
+
+// CSI Replay modal
+function openCsiReplay(eventId, eventHomeId) {
+  var modal = document.getElementById('replay-modal');
+  modal.classList.add('active');
+  var container = document.getElementById('replay-heatmap-container');
+  container.innerHTML = '<div class="replay-loading"><span class="spinner"></span> Loading CSI data...</div>';
+  document.getElementById('replay-event-id').textContent = '#' + (eventId ? eventId.slice(0, 12) : '?');
+  // Find event details from current events
+  var ev = null;
+  var allEvents = allLoadedEvents.length ? allLoadedEvents : currentEvents;
+  for (var i = 0; i < allEvents.length; i++) {
+    if (allEvents[i].id === eventId) { ev = allEvents[i]; break; }
+  }
+  if (ev) {
+    document.getElementById('replay-timestamp').textContent = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '--';
+    document.getElementById('replay-confidence').textContent = ev.confidence ? Math.round(ev.confidence * 100) + '%' : '--';
+    document.getElementById('replay-zone').textContent = ev.zone || '--';
+    document.getElementById('replay-zone-path').innerHTML = (ev.zone || (ev.zone_path && ev.zone_path.length)) ? renderZonePathHtml(ev.zone, ev.zone_path) : '<span class="zone-default">--</span>';
+  }
+  var hid = eventHomeId || homeId;
+  if (!hid || !eventId) return;
+  fetch(API + '/events/' + hid + '/' + eventId + '/csi', {headers: {'Authorization': 'Bearer ' + token}})
+    .then(function(r) { if (!r.ok) throw new Error('Failed to load CSI'); return r.json(); })
+    .then(function(data) {
+      container.innerHTML = '<canvas id="replay-heatmap-canvas"></canvas>';
+      if (data && data.amplitude && data.amplitude.length > 0) {
+        renderStaticHeatmap(data.amplitude);
+      } else {
+        container.innerHTML = '<div class="replay-loading">No CSI amplitude data available for this event</div>';
+      }
+    })
+    .catch(function(err) {
+      container.innerHTML = '<div class="replay-loading">Error: ' + err.message + '</div>';
+    });
+}
+
+function closeCsiReplay(e) {
+  if (e && e.target !== document.getElementById('replay-modal')) return;
+  document.getElementById('replay-modal').classList.remove('active');
+}
+
+// PWA registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js');
+  });
+}
+
+async function renderWellness() {
+  if (!homeId) return;
+  try {
+    var results = await Promise.all([
+      api('GET', '/wellness/' + homeId + '/breathing'),
+      api('GET', '/wellness/' + homeId + '/fall'),
+      api('GET', '/wellness/' + homeId + '/breathing/history?days=7'),
+      api('GET', '/wellness/' + homeId + '/apnea'),
+    ]);
+    var breath = results[0], fall = results[1], breathHist = results[2], apnea = results[3];
+
+    if (breath.breathing_rate_bpm) {
+      document.getElementById('breathing-rate').textContent = breath.breathing_rate_bpm + ' bpm';
+    } else {
+      document.getElementById('breathing-rate').textContent = '--';
+    }
+    var bStatus = document.getElementById('breathing-status');
+    bStatus.className = 'status ' + (breath.status || 'buffering');
+    if (breath.status === 'active') bStatus.textContent = t('wellness.active');
+    else if (breath.status === 'buffering') bStatus.textContent = t('wellness.buffering') + ' (' + (breath.samples || 0) + ')';
+    else bStatus.textContent = t('wellness.waiting');
+
+    if (breathHist.average_rate_bpm) {
+      document.getElementById('breathing-avg').textContent = breathHist.average_rate_bpm + ' bpm';
+      document.getElementById('breathing-samples').textContent = breathHist.samples + ' samples, ' + breathHist.days + ' days';
+    }
+
+    if (fall.fall_confidence > 0.3) {
+      document.getElementById('fall-status').textContent = (fall.fall_confidence * 100).toFixed(0) + '%';
+      document.getElementById('fall-detail').textContent = fall.status === 'fall_detected' ? t('wellness.fall_detected') : t('wellness.possible_fall');
+    } else {
+      document.getElementById('fall-status').textContent = t('wellness.normal');
+      document.getElementById('fall-detail').textContent = t('wellness.no_fall_pattern');
+    }
+
+    var wellnessEvents = currentEvents.filter(function(e) { return e.event_type === 'breathing' || e.event_type === 'fall' || e.event_type === 'apnea'; });
+    document.getElementById('wellness-count').textContent = wellnessEvents.length;
+    document.getElementById('wellness-period').textContent = 'Last 24h';
+
+    // Apnea
+    if (apnea && apnea.status === 'active') {
+      document.getElementById('apnea-ahi').textContent = (apnea.ahi || 0).toFixed(1) + ' /h';
+      document.getElementById('apnea-severity').textContent = (apnea.severity || 'normal') + ' (' + (apnea.total_events || 0) + ' events)';
+    } else if (apnea && apnea.status === 'not_initialized') {
+      document.getElementById('apnea-ahi').textContent = '--';
+      document.getElementById('apnea-severity').textContent = t('wellness.waiting');
+    } else {
+      document.getElementById('apnea-ahi').textContent = apnea && apnea.ahi ? apnea.ahi.toFixed(1) + ' /h' : '0.0 /h';
+      document.getElementById('apnea-severity').textContent = apnea ? (apnea.severity || 'normal') : t('wellness.initializing');
+    }
+
+    // Sleep quality
+    try {
+      var sleep = await api('GET', '/wellness/' + homeId + '/sleep?nights=7');
+      if (sleep.overall && sleep.overall.nights > 0) {
+        document.getElementById('breathing-avg').textContent = sleep.overall.avg_bpm + ' bpm avg';
+        document.getElementById('breathing-samples').textContent = sleep.overall.nights + ' nights, var: ' + sleep.overall.variability;
+      }
+    } catch(ex) {}
+  } catch(e) { /* wellness not available yet */ }
+}
+
+// Settings & Profile
+function showSettings() {
+  var s = document.getElementById('settings-section');
+  s.style.display = s.style.display === 'none' ? 'block' : 'none';
+  if (s.style.display === 'block') loadSettings();
+}
+
+function setFontSize(scale) {
+  document.documentElement.style.zoom = scale;
+  localStorage.setItem('fontScale', scale);
+  document.querySelectorAll('#settings-section button[onclick^="setFontSize"]').forEach(function(b) {
+    b.style.borderColor = Math.abs(parseFloat(b.getAttribute('onclick').match(/[\d.]+/)[0]) - scale) < 0.01 ? '#2563eb' : '#cbd5e1';
+  });
+}
+
+async function setTier(tier) {
+  try { await api('POST', '/premium/subscription/tier?tier=' + tier + '&home_id=' + homeId); showSaved('tier-saved'); loadSubscription(); } catch(e) { alert(e.message); }
+}
+
+async function loadSubscription() {
+  try {
+    var sub = await api('GET', '/premium/subscription?home_id=' + homeId);
+    document.getElementById('current-tier-display').textContent = (sub.tier_info && sub.tier_info.label) || sub.tier;
+    var list = document.getElementById('premium-features-list');
+    list.innerHTML = '';
+    var features = sub.features || [];
+    features.forEach(function(f) {
+      var row = document.createElement('div');
+      row.className = 'setting-row';
+      row.innerHTML = '<div><div class="label">' + f.label + '</div><div class="desc">' + (f.desc || '') + '</div></div>' +
+        '<div class="toggle-switch' + (f.enabled ? ' active' : '') + '" onclick="togglePremiumFeature(\'' + f.key + '\', ' + (!f.enabled) + ')"></div>';
+      list.appendChild(row);
+    });
+
+    // Show/hide gait settings
+    var hasGait = features.some(function(f) { return f.key === 'gait_id' && f.enabled; });
+    document.getElementById('gait-settings').style.display = hasGait ? 'block' : 'none';
+    if (hasGait) loadGaits();
+  } catch(e) { /* subscription not available */ }
+}
+
+async function loadGaits() {
+  try {
+    var g = await api('GET', '/premium/gait?home_id=' + homeId);
+    var known = g.known_gait || [];
+    var container = document.getElementById('known-gaits');
+    if (known.length === 0) { container.innerHTML = '<div style="font-size:12px;color:#94a3b8">No gaits learned yet. Walk around and click "Learn Walk" with a name.</div>'; return; }
+    container.innerHTML = known.map(function(n) { return '<span class="invite-chip">' + n + '</span>'; }).join(' ');
+  } catch(e) {}
+}
+
+async function learnGait() {
+  var name = document.getElementById('gait-name-input').value.trim();
+  if (!name) return;
+  try {
+    await api('POST', '/premium/gait/learn?home_id=' + homeId, {label: name});
+    document.getElementById('gait-name-input').value = '';
+    showSaved('gait-saved');
+    loadGaits();
+  } catch(e) { alert(e.message); }
+}
+
+async function togglePremiumFeature(key, enable) {
+  try { await api('POST', '/premium/subscription/feature?feature_key=' + encodeURIComponent(key) + '&enable=' + enable + '&home_id=' + homeId); loadSubscription(); } catch(e) { alert(e.message); }
+}
+
+async function loadSettings() {
+  try {
+    var profile = await api('GET', '/settings/profile');
+    document.getElementById('settings-user-id').value = profile.id || '';
+    document.getElementById('settings-email').value = profile.email || '';
+    document.getElementById('settings-name').value = profile.name || '';
+  } catch(e) { console.error(e); }
+  var homes = await api('GET', '/homes');
+  if (homes.length > 0) {
+    var h = homes[0];
+    document.getElementById('settings-home-name').value = h.name || '';
+    document.getElementById('settings-address').value = h.address || '';
+    loadZones();
+    loadInvites();
+  }
+  loadNotifications();
+  loadMFAStatus();
+  loadSubscription();
+}
+
+async function saveProfile() {
+  var name = document.getElementById('settings-name').value.trim();
+  try { await api('PUT', '/settings/profile', {name: name}); showSaved('profile-saved'); } catch(e) { alert(e.message); }
+}
+
+async function saveHome() {
+  var name = document.getElementById('settings-home-name').value.trim();
+  var addr = document.getElementById('settings-address').value.trim();
+  try { await api('PUT', '/homes/' + homeId, {name: name, address: addr}); showSaved('home-saved'); } catch(e) { alert(e.message); }
+}
+
+async function deleteHome() {
+  if (!confirm(t('settings.confirm_delete_home'))) return;
+  try { await api('DELETE', '/homes/' + homeId); localStorage.removeItem('homeId'); location.reload(); } catch(e) { alert(e.message); }
+}
+
+async function deleteAccount() {
+  if (!confirm(t('settings.confirm_delete_account'))) return;
+  var email = prompt(t('settings.type_email_to_confirm'));
+  if (!email) return;
+  try { await fetch(API + '/settings/account', {method:'DELETE', headers:{'Authorization':'Bearer '+token}}); localStorage.clear(); location.reload(); } catch(e) { alert(e.message); }
+}
+
+function showSaved(id) {
+  var el = document.getElementById(id); el.style.display = 'block';
+  setTimeout(function(){el.style.display='none'}, 2000);
+}
+
+// Zones
+var currentZones = [];
+
+async function loadZones() {
+  try {
+    var zones = await api('GET', '/zones/' + homeId);
+    currentZones = zones.length ? zones : [{name: 'Living Room', sensitivity: 0.8}, {name: 'Kitchen', sensitivity: 0.7}];
+    renderZones();
+  } catch(e) { renderZones(); }
+}
+
+function renderZones() {
+  var el = document.getElementById('zone-list');
+  el.innerHTML = currentZones.map(function(z, i) {
+    return '<div class="zone-row">' +
+      '<input type="text" value="' + (z.name || 'Zone '+(i+1)) + '" onchange="currentZones['+i+'].name=this.value" placeholder="'+t('settings.zone_name')+'">' +
+      '<input type="range" min="0.1" max="1" step="0.1" value="' + (z.sensitivity||0.8) + '" onchange="currentZones['+i+'].sensitivity=parseFloat(this.value)" title="'+t('settings.sensitivity')+'">' +
+      '<span style="font-size:11px;color:#64748b;min-width:30px">' + (z.sensitivity||0.8).toFixed(1) + '</span>' +
+      '<span class="remove-zone" onclick="currentZones.splice('+i+',1);renderZones()">&times;</span>' +
+    '</div>';
+  }).join('');
+}
+
+function addZone() {
+  currentZones.push({name: '', sensitivity: 0.8});
+  renderZones();
+}
+
+async function saveZones() {
+  try { await api('PUT', '/zones/' + homeId, {zones: currentZones}); showSaved('zones-saved'); } catch(e) { alert(e.message); }
+}
+
+// Family invites
+async function loadInvites() {
+  try {
+    var invites = await api('GET', '/settings/invites?home_id=' + homeId);
+    var el = document.getElementById('invite-list');
+    if (!invites.length) { el.innerHTML = '<div style="color:#64748b;font-size:12px">'+t('settings.no_invites')+'</div>'; return; }
+    el.innerHTML = invites.map(function(i) {
+      return '<div class="invite-chip">' +
+        (i.email || i.code.slice(0,12)+'...') + ' (' + i.role + ')' +
+        ' <span class="revoke" onclick="revokeInvite(\''+i.id+'\')">&times;</span>' +
+      '</div>';
+    }).join('');
+  } catch(e) {}
+}
+
+async function sendInvite() {
+  var email = document.getElementById('invite-email').value.trim();
+  var role = document.getElementById('invite-role').value;
+  if (!email) return;
+  try {
+    await api('POST', '/settings/invites?home_id=' + homeId, {email: email, role: role});
+    document.getElementById('invite-email').value = '';
+    showSaved('invite-saved');
+    loadInvites();
+  } catch(e) { alert(e.message); }
+}
+
+async function revokeInvite(id) {
+  try { await api('DELETE', '/settings/invites/' + id); loadInvites(); } catch(e) { alert(e.message); }
+}
+
+// Notifications
+var notifConfig = {telegram: null, sms: null, email: null, push: false};
+
+async function loadNotifications() {
+  try {
+    var chs = await api('GET', '/settings/notifications');
+    chs.forEach(function(c) {
+      if (c.channel === 'telegram') { notifConfig.telegram = c; document.getElementById('telegram-toggle').classList.add('active'); }
+      if (c.channel === 'sms') { notifConfig.sms = c; document.getElementById('sms-toggle').classList.add('active'); }
+      if (c.channel === 'email') { notifConfig.email = c; document.getElementById('email-toggle').classList.add('active'); document.getElementById('email-addr').value = c.config.email || ''; }
+    });
+    // Check push subscription
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if (sub) { notifConfig.push = true; document.getElementById('push-toggle').classList.add('active'); }
+    }
+  } catch(e) {}
+}
+
+// Email notifications
+function toggleEmail() {
+  var tog = document.getElementById('email-toggle');
+  var cfg = document.getElementById('email-config');
+  if (tog.classList.toggle('active')) {
+    cfg.style.display = 'block';
+    if (!document.getElementById('email-addr').value) {
+      document.getElementById('email-addr').value = document.getElementById('settings-email').value;
+    }
+  } else { cfg.style.display = 'none'; saveEmail(); }
+}
+
+async function saveEmail() {
+  try {
+    await api('POST', '/settings/notifications/email?home_id=' + homeId, {email: document.getElementById('email-addr').value.trim()});
+    showSaved('email-saved');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+// Browser push notifications
+async function togglePush() {
+  var tog = document.getElementById('push-toggle');
+  if (tog.classList.contains('active')) {
+    // Unsubscribe
+    try {
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        await api('DELETE', '/push/unsubscribe?endpoint=' + encodeURIComponent(sub.endpoint));
+        await sub.unsubscribe();
+      }
+      tog.classList.remove('active');
+      notifConfig.push = false;
+    } catch(e) { toast(e.message, 'error'); }
+  } else {
+    // Subscribe
+    try {
+      // Get VAPID key
+      var vapidResp = await fetch(API + '/push/vapid-key');
+      var vapidData = await vapidResp.json();
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidData.public_key)
+      });
+      await api('POST', '/push/subscribe', {endpoint: sub.endpoint, keys: sub.toJSON().keys, home_id: homeId});
+      tog.classList.add('active');
+      notifConfig.push = true;
+      toast('Push notifications enabled', 'success');
+    } catch(e) { toast('Push failed: ' + e.message, 'error'); tog.classList.remove('active'); }
+  }
+}
+
+function urlBase64ToUint8Array(base64String) {
+  var padding = '='.repeat((4 - base64String.length % 4) % 4);
+  var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+  var rawData = window.atob(base64);
+  var output = new Uint8Array(rawData.length);
+  for (var i = 0; i < rawData.length; ++i) { output[i] = rawData.charCodeAt(i); }
+  return output;
+}
+
+async function testNotif(channel) {
+  try {
+    var r = await fetch(API + '/settings/notifications/test?channel=' + channel + '&home_id=' + homeId, {headers:{'Authorization':'Bearer '+token}});
+    var data = await r.json();
+    if (r.ok) toast('Test ' + channel + ' sent!', 'success');
+    else toast(data.detail || 'Failed', 'error');
+  } catch(e) { toast(e.message, 'error'); }
+}
+
+function toggleTelegram() {
+  var tog = document.getElementById('telegram-toggle');
+  var cfg = document.getElementById('telegram-config');
+  if (tog.classList.toggle('active')) {
+    cfg.style.display = 'block';
+    if (notifConfig.telegram && notifConfig.telegram.config) {
+      document.getElementById('tg-token').value = notifConfig.telegram.config.bot_token || '';
+      document.getElementById('tg-chat').value = notifConfig.telegram.config.chat_id || '';
+    }
+  } else { cfg.style.display = 'none'; saveTelegram(); }
+}
+
+function toggleSMS() {
+  var tog = document.getElementById('sms-toggle');
+  var cfg = document.getElementById('sms-config');
+  if (tog.classList.toggle('active')) {
+    cfg.style.display = 'block';
+    if (notifConfig.sms && notifConfig.sms.config) {
+      document.getElementById('sms-phone').value = notifConfig.sms.config.phone || '';
+      document.getElementById('sms-key').value = notifConfig.sms.config.api_key || '';
+    }
+  } else { cfg.style.display = 'none'; saveSMS(); }
+}
+
+async function saveTelegram() {
+  try {
+    await api('POST', '/settings/notifications/telegram', {bot_token: document.getElementById('tg-token').value.trim(), chat_id: document.getElementById('tg-chat').value.trim()});
+    showSaved('tg-saved');
+  } catch(e) { alert(e.message); }
+}
+
+async function saveSMS() {
+  try {
+    await api('POST', '/settings/notifications/sms', {phone: document.getElementById('sms-phone').value.trim(), api_key: document.getElementById('sms-key').value.trim()});
+    showSaved('sms-saved');
+  } catch(e) { alert(e.message); }
+}
+
+// MFA
+async function loadMFAStatus() {
+  try {
+    var factors = await api('GET', '/auth/mfa/factors');
+    if (factors.factors && factors.factors.length > 0) document.getElementById('mfa-toggle').classList.add('active');
+  } catch(e) {}
+}
+
+async function toggleMFA() {
+  var tog = document.getElementById('mfa-toggle');
+  var enroll = document.getElementById('mfa-enroll');
+  if (tog.classList.contains('active')) {
+    // Unenroll
+    try {
+      var factors = await api('GET', '/auth/mfa/factors');
+      if (factors.factors && factors.factors.length > 0) {
+        await api('POST', '/auth/mfa/unenroll?factor_id=' + factors.factors[0].id);
+      }
+      tog.classList.remove('active');
+      enroll.style.display = 'none';
+    } catch(e) { alert(e.message); }
+  } else {
+    // Enroll
+    try {
+      var result = await api('POST', '/auth/mfa/enroll');
+      if (result.totp && result.totp.qr_code) {
+        document.getElementById('mfa-qr').innerHTML = '<img src="' + result.totp.qr_code + '" style="max-width:180px;border-radius:8px">';
+      }
+      if (result.id) document.getElementById('mfa-factor-id').value = result.id;
+      enroll.style.display = 'block';
+    } catch(e) { alert(e.message); }
+  }
+}
+
+async function verifyMFA() {
+  var code = document.getElementById('mfa-code').value.trim();
+  if (!code || code.length < 6) return;
+  try {
+    var factors = await api('GET', '/auth/mfa/factors');
+    if (factors.factors && factors.factors.length > 0) {
+      await api('POST', '/auth/mfa/verify', {factor_id: factors.factors[0].id, code: code});
+      showSaved('mfa-saved');
+      document.getElementById('mfa-enroll').style.display = 'none';
+    }
+  } catch(e) { alert(e.message); }
+}
+
+async function changePassword() {
+  var old = prompt(t('settings.enter_current_password'));
+  if (!old) return;
+  var newp = prompt(t('settings.enter_new_password'));
+  if (!newp) return;
+  try {
+    var r = await supabase.auth.updateUser({password: newp});
+    if (r.error) throw new Error(r.error.message);
+    alert(t('settings.password_changed'));
+  } catch(e) { alert(e.message); }
+}
+
+// Export
+async function exportCSV() {
+  if (!homeId) return;
+  window.open(API + '/export/' + homeId + '/csv?limit=5000', '_blank');
+}
+
+async function exportJSON() {
+  if (!homeId) return;
+  window.open(API + '/export/' + homeId + '/json?limit=5000', '_blank');
+}
+
+(async function() {
+  await loadLang(__lang);
+  // Restore saved font size
+  var savedScale = localStorage.getItem('fontScale');
+  if (savedScale) setFontSize(parseFloat(savedScale));
   if (token) { try { await init(); } catch(e) { showLogin(); } }
   else { showLogin(); }
-  setInterval(refresh, 5000);
+  // Background poll every 30s (WebSocket handles real-time)
+  setInterval(refresh, 30000);
 })();
 </script>
 </body>

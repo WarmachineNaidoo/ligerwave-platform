@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Docs — Ligerwave for AR Companies</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0f172a;color:#e2e8f0;padding:30px;max-width:900px;margin:0 auto;min-height:100vh}
+h1{font-size:26px;font-weight:700;color:#f1f5f9;margin-bottom:6px}
+h2{font-size:18px;font-weight:600;color:#e2e8f0;margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid #1e293b}
+h3{font-size:15px;font-weight:600;color:#93c5fd;margin:20px 0 8px}
+p,li{font-size:14px;line-height:1.6;color:#94a3b8;margin-bottom:8px}
+code{background:#1e293b;color:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:13px;font-family:'Cascadia Code','Fira Code',monospace}
+pre{background:#1e293b;color:#e2e8f0;padding:14px 16px;border-radius:8px;font-size:13px;overflow-x:auto;margin:10px 0;border:1px solid #334155;font-family:'Cascadia Code','Fira Code',monospace;line-height:1.5}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #1e293b}
+th{color:#64748b;font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+td{color:#e2e8f0}
+tr:last-child td{border-bottom:0}
+.base-url{background:#1e293b;border-radius:8px;padding:12px 16px;margin:12px 0;border-left:3px solid #3b82f6}
+.base-url code{background:transparent;padding:0;font-size:14px;color:#93c5fd}
+section{background:#1e293b;border-radius:8px;padding:16px 20px;margin-bottom:12px;border:1px solid #334155}
+section h3{margin-top:0}
+.method{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700;margin-right:8px;vertical-align:middle}
+.method.get{background:#1e3a5f;color:#93c5fd}
+.method.post{background:#14532d;color:#86efac}
+.method.put{background:#7c2d12;color:#fdba74}
+.endpoint{font-family:'Cascadia Code','Fira Code',monospace;font-size:14px;font-weight:600;color:#e2e8f0;vertical-align:middle}
+section p{margin-top:8px;font-size:13px}
+.footer{margin-top:40px;padding-top:16px;border-top:1px solid #1e293b;font-size:12px;color:#64748b;text-align:center}
+</style>
+</head>
+<body>
+
+<h1>Ligerwave AR Company API</h1>
+<p>WiFi CSI security platform — AR company integration endpoints.</p>
+
+<div class="base-url">
+  Base URL: <code>https://ligerwave.tech/ar</code>
+</div>
+
+<p>Pass your API key in the <code>X-API-Key</code> header.</p>
+
+<h2>Endpoints</h2>
+
+<section>
+<h3><span class="method get">GET</span><span class="endpoint">/ar/dispatch</span></h3>
+<p>List all properties you have access to.</p>
+<pre>Response: {
+  "homes": [
+    {
+      "id": "...",
+      "name": "...",
+      "address": "...",
+      "status": "armed"
+    }
+  ]
+}</pre>
+</section>
+
+<section>
+<h3><span class="method get">GET</span><span class="endpoint">/ar/dispatch/{home_id}/events?limit=50</span></h3>
+<p>List events for a property. Optionally filter by <code>event_type</code>.</p>
+<pre>Response: {
+  "home_id": "...",
+  "events": [...]
+}</pre>
+</section>
+
+<section>
+<h3><span class="method get">GET</span><span class="endpoint">/ar/dispatch/{home_id}/status</span></h3>
+<p>Get current status: armed/disarmed, last event, 24h intrusion count.</p>
+</section>
+
+<section>
+<h3><span class="method get">GET</span><span class="endpoint">/ar/dispatch/{home_id}/live</span></h3>
+<p>Server-Sent Events stream of live events. Connect with EventSource.</p>
+</section>
+
+<section>
+<h3><span class="method post">POST</span><span class="endpoint">/ar/dispatch/{home_id}/acknowledge?event_id=...</span></h3>
+<p>Acknowledge an alert. Requires dispatch permission.</p>
+</section>
+
+<section>
+<h3><span class="method get">GET</span><span class="endpoint">/ar/keys</span></h3>
+<p>List all API keys across your properties.</p>
+</section>
+
+<section>
+<h3><span class="method put">PUT</span><span class="endpoint">/ar/keys/{key_id}/revoke</span></h3>
+<p>Revoke an API key.</p>
+</section>
+
+<h2>Permissions</h2>
+<table>
+<tr><th>Level</th><th>Access</th></tr>
+<tr><td><code>read_only</code></td><td>View events and status</td></tr>
+<tr><td><code>dispatch</code></td><td>View + acknowledge alerts</td></tr>
+<tr><td><code>admin</code></td><td>Full access including key management</td></tr>
+</table>
+
+<h2>Rate Limits</h2>
+<p>100 requests per minute per API key. Returns <code>429 Too Many Requests</code> on exceeding.</p>
+
+<h2>Example Usage</h2>
+<pre>curl -H "X-API-Key: csi_..." https://ligerwave.tech/ar/dispatch</pre>
+
+<p class="footer">Updated: June 2026 | Ligerwave WiFi CSI Platform</p>
+
+</body>
+</html>

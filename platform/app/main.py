@@ -1,50 +1,122 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
-from app.config import settings
-from app.routers import auth, homes, devices, events, api_keys, arming, subscriptions, export, webhooks, agent
-import time, os
+from app.config import settings as app_settings
+from app.routers import auth, homes, devices, events, api_keys, arming, subscriptions, export, webhooks, agent, wellness, ar, settings, zones, push, health, premium, admin
+from app.services.ws import manager
+from app.middleware.auth import get_current_user
+from app.services.log import logger
+from app.services.ratelimit import limiter, _get_client_ip
+import time, os, asyncio, uuid, json
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
-        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline'"
+        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://zchqctktwkimfecmjnon.supabase.co wss://ligerwave.tech https://api.supabase.com; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; worker-src 'self'; manifest-src 'self'"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["X-XSS-Protection"] = "0"
+        response.headers["Referrer-Policy"] = "same-origin"
+        response.headers["Access-Control-Max-Age"] = "86400"
         return response
 
-class RateLimitMiddleware(BaseHTTPMiddleware):
-    def __init__(self, app, max_requests: int = 100, window_seconds: int = 60):
-        super().__init__(app)
-        self.max_requests = max_requests
-        self.window_seconds = window_seconds
-        self.requests = {}
-
+class AuthContextMiddleware(BaseHTTPMiddleware):
+    """Extract user_id from JWT into request.state for logging (no verification)."""
     async def dispatch(self, request, call_next):
-        client_ip = request.client.host if request.client else "unknown"
-        now = time.time()
-        key = f"{client_ip}:{request.url.path}"
-        window = self.requests.get(key, [])
-        window = [t for t in window if now - t < self.window_seconds]
-        if len(window) >= self.max_requests:
-            return Response(status_code=429, content="Too many requests")
-        window.append(now)
-        self.requests[key] = window
+        auth = request.headers.get("Authorization", "")
+        if auth.startswith("Bearer "):
+            try:
+                import base64
+                payload_b64 = auth[7:].split(".")[1]
+                payload_b64 += "=" * (4 - len(payload_b64) % 4)
+                payload = json.loads(base64.urlsafe_b64decode(payload_b64))
+                request.state.user_id = payload.get("sub")
+            except Exception as e:
+                logger.warning("auth_context_decode_failed", extra={"extra": {"action": "decode_jwt", "error": str(e)}})
+                request.state.user_id = None
+        else:
+            request.state.user_id = None
+        return await call_next(request)
+
+class LoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        req_id = request.headers.get("X-Request-ID", uuid.uuid4().hex[:12])
+        start = time.perf_counter()
+        try:
+            response = await call_next(request)
+        except Exception as exc:
+            duration_ms = int((time.perf_counter() - start) * 1000)
+            logger.error("request_failed", extra={"extra": {
+                "request_id": req_id, "method": request.method,
+                "path": request.url.path, "status": 500,
+                "duration_ms": duration_ms, "ip": _get_client_ip(request)
+            }})
+            raise
+        duration_ms = int((time.perf_counter() - start) * 1000)
+        user_id = getattr(request.state, "user_id", None)
+        logger.info("request", extra={"extra": {
+            "request_id": req_id, "method": request.method,
+            "path": request.url.path, "status": response.status_code,
+            "duration_ms": duration_ms, "ip": _get_client_ip(request),
+            "user_id": user_id,
+        }})
+        response.headers["X-Request-ID"] = req_id
+        return response
+
+class RequestBodySizeMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > 5 * 1024 * 1024:
+            return Response("Request too large", status_code=413)
         return await call_next(request)
 
 app = FastAPI(title="WiFi CSI Intrusion Detection Platform", version="0.1.0")
 
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins.split(","), allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
-app.add_middleware(SecurityHeadersMiddleware)
+@app.on_event("startup")
+async def start_escalation_ticker():
+    """Periodically advance escalation tiers."""
+    async def tick():
+        while True:
+            try:
+                from app.services.escalation import escalation_protocols
+                for proto in escalation_protocols.values():
+                    proto.tick()
+            except Exception as e:
+                logger.warning("escalation_ticker_failed", extra={"extra": {"action": "tick_escalation", "error": str(e)}})
+            await asyncio.sleep(30)
+    asyncio.create_task(tick())
 
-if settings.environment == "production":
-    app.add_middleware(RateLimitMiddleware, max_requests=100, window_seconds=60)
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.cors_origins.split(","))
+app.add_middleware(RequestBodySizeMiddleware)
+cors_origins_list = [o.strip() for o in app_settings.cors_origins.split(",")]
+allow_creds = not any(o == "*" for o in cors_origins_list)
+app.add_middleware(CORSMiddleware, allow_origins=cors_origins_list, allow_credentials=allow_creds, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(AuthContextMiddleware)
+app.add_middleware(LoggingMiddleware)
+
+# Per-endpoint rate limits
+limiter.set_limit("/auth/login", 10)
+limiter.set_limit("/auth/register", 5)
+limiter.set_limit("/auth/mfa", 5)
+limiter.set_limit("/devices/events", 120)
+limiter.set_limit("/devices", 30)
+limiter.set_limit("/export", 10)
+limiter.set_limit("/agent", 20)
+limiter.set_limit("/webhooks", 20)
+# Default for all others: 100
+if app_settings.environment == "production":
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=app_settings.cors_origins.split(","))
+    class PerEndpointRateLimitMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            resp = limiter.check(request)
+            if resp:
+                return resp
+            return await call_next(request)
+    app.add_middleware(PerEndpointRateLimitMiddleware)
 
 app.include_router(auth.router)
 app.include_router(homes.router)
@@ -56,10 +128,51 @@ app.include_router(subscriptions.router)
 app.include_router(export.router)
 app.include_router(webhooks.router)
 app.include_router(agent.router)
+app.include_router(wellness.router)
+app.include_router(ar.router)
+app.include_router(settings.router)
+app.include_router(zones.router)
+app.include_router(push.router)
+app.include_router(health.router)
+app.include_router(premium.router)
+app.include_router(admin.router)
+
+@app.websocket("/ws/{home_id}")
+async def websocket_endpoint(websocket: WebSocket, home_id: str):
+    """Real-time event push. First message must be {"type":"auth","token":"..."}."""
+    try:
+        data = await websocket.receive_text()
+        msg = json.loads(data)
+        if not isinstance(msg, dict) or msg.get("type") != "auth" or "token" not in msg:
+            await websocket.close(code=4001)
+            return
+        import httpx
+        r = httpx.get(f"{app_settings.supabase_url}/auth/v1/user", headers={"Authorization": f"Bearer {msg['token']}"})
+        if r.status_code != 200:
+            await websocket.close(code=4001)
+            return
+        user_id = r.json().get("id")
+        if not user_id:
+            await websocket.close(code=4001)
+            return
+        await manager.connect(websocket, user_id, home_id)
+        await websocket.send_json({"type": "connected", "home_id": home_id})
+        while True:
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_json({"type": "pong"})
+    except WebSocketDisconnect:
+        manager.disconnect(websocket, user_id if 'user_id' in dir() else "", home_id)
+    except Exception as e:
+        logger.warning("websocket_error", extra={"extra": {"action": "websocket_handler", "error": str(e)}})
+        try:
+            manager.disconnect(websocket, user_id if 'user_id' in dir() else "", home_id)
+        except Exception as e2:
+            logger.warning("websocket_disconnect_failed", extra={"extra": {"action": "disconnect_websocket", "error": str(e2)}})
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "environment": settings.environment}
+    return {"status": "ok"}
 
 import shutil
 static_dir = os.path.join(os.path.dirname(__file__), "static")

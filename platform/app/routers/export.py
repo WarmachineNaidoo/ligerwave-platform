@@ -4,6 +4,7 @@ from app.database import supabase, service
 from app.middleware.ownership import verify_home_ownership
 from app.middleware.auth import get_current_user
 from app.services.reports import generate_report
+from app.services.health_report import generate_weekly_wellness_report
 import csv, io, json
 
 router = APIRouter(prefix="/export", tags=["export"])
@@ -51,3 +52,11 @@ async def export_report(
 ):
     buf = generate_report(home_id, months)
     return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename=security_report_{home_id[:8]}.pdf"})
+
+@router.get("/{home_id}/wellness/weekly")
+async def export_wellness_weekly(
+    home_id: str = Depends(verify_home_ownership),
+    payload: dict = Depends(get_current_user),
+):
+    buf = generate_weekly_wellness_report(home_id)
+    return StreamingResponse(buf, media_type="application/pdf", headers={"Content-Disposition": f"attachment; filename=weekly_wellness_{home_id[:8]}.pdf"})

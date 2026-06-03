@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Feature Rollout</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f8fafc;color:#1e293b;padding:20px;min-height:100vh}
+h1{font-size:22px;margin-bottom:20px;color:#0f172a}
+.feature-card{background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.feature-card .name{font-weight:600;font-size:15px;min-width:140px}
+.feature-card .stage{padding:3px 10px;border-radius:8px;font-size:11px;font-weight:600}
+.stage-dev{background:#fef2f2;color:#dc2626}
+.stage-alpha{background:#fff7ed;color:#c2410c}
+.stage-beta{background:#f0fdf4;color:#16a34a}
+.stage-ga{background:#eff6ff;color:#2563eb}
+select{padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:12px}
+.tester-input{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tester-input input{padding:4px 8px;border-radius:6px;border:1px solid #e2e8f0;font-size:12px;width:200px}
+.tester-input button{padding:4px 10px;border-radius:6px;border:0;font-size:11px;cursor:pointer;font-weight:600}
+.btn-add{background:#2563eb;color:#fff}
+.btn-rm{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px}
+.testers{display:flex;gap:4px;flex-wrap:wrap;font-size:11px}
+.tester-tag{background:#f1f5f9;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:4px}
+.msg{color:#16a34a;font-size:12px;margin-top:4px}
+</style>
+</head>
+<body>
+<h1>Feature Rollout Control</h1>
+<div id="features"></div>
+<script>
+const API = window.location.origin;
+const token = localStorage.getItem('token');
+
+async function api(method, path, body) {
+  const r = await fetch(API + path, {method, headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'}, body: body ? JSON.stringify(body) : undefined});
+  if (!r.ok) throw new Error((await r.text()).slice(0,100));
+  return r.json();
+}
+
+async function load() {
+  var data = await api('GET', '/admin/features');
+  var html = '';
+  for (var key in data) {
+    var f = data[key];
+    var stage = f.stage || 'dev';
+    html += '<div class="feature-card"><div class="name">' + key + '</div>';
+    html += '<select onchange="setStage(\'' + key + '\', this.value)">';
+    ['dev','alpha','beta','ga'].forEach(function(s) {
+      html += '<option value="' + s + '"' + (s === stage ? ' selected' : '') + '>' + s + '</option>';
+    });
+    html += '</select>';
+    html += '<div class="tester-input"><input id="t-' + key + '" placeholder="user_id"><button class="btn-add" onclick="addTester(\'' + key + '\')">+</button></div>';
+    html += '<div class="testers">';
+    (f.testers || []).forEach(function(t) {
+      html += '<span class="tester-tag">' + t.slice(0,12) + '... <button class="btn-rm" onclick="rmTester(\'' + key + '\',\'' + t + '\')">x</button></span>';
+    });
+    html += '</div></div>';
+  }
+  document.getElementById('features').innerHTML = html;
+}
+
+async function setStage(key, stage) {
+  await api('POST', '/admin/features/stage', {feature_key: key, stage: stage});
+}
+async function addTester(key) {
+  var uid = document.getElementById('t-' + key).value.trim();
+  if (!uid) return;
+  await api('POST', '/admin/features/tester', {feature_key: key, user_id: uid});
+  document.getElementById('t-' + key).value = '';
+  load();
+}
+async function rmTester(key, uid) {
+  await api('DELETE', '/admin/features/tester?feature_key=' + encodeURIComponent(key) + '&user_id=' + encodeURIComponent(uid));
+  load();
+}
+load();
+</script>
+</body>
+</html>

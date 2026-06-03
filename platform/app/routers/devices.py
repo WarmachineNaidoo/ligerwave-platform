@@ -8,9 +8,13 @@ from app.middleware.ownership import verify_home_ownership
 from app.services.simulator import simulators, CsiSimulator
 from app.services.storage import upload_csi
 from app.services.signal import processors, CsiProcessor
+from app.services.ws import manager
 from app.services.arming import arming
 from app.services.audit import audit
-import binascii
+from app.services.cross_validation import get_validator, CrossValidator
+from app.services.baseline import baselines, HomeBaseline
+from app.services.log import logger
+import binascii, numpy as np
 
 router = APIRouter(prefix="/devices", tags=["devices"])
 
@@ -68,9 +72,11 @@ async def ingest_event(body: IngestedEvent, payload: dict = Depends(get_current_
     event_type = body.event_type
 
     if body.csi_data_hex:
-        csi_bytes = binascii.unhexlify(body.csi_data_hex)
+        try:
+            csi_bytes = binascii.unhexlify(body.csi_data_hex)
+        except binascii.Error:
+            raise HTTPException(status_code=400, detail="Invalid csi_data_hex format")
         result = processor.process_csi(csi_bytes)
-        csi_storage_path = upload_csi(str(home_id), csi_bytes)
         if confidence is None:
             confidence = result["confidence"]
         if body.event_type == "unknown" or body.event_type == "normal":
@@ -78,6 +84,14 @@ async def ingest_event(body: IngestedEvent, payload: dict = Depends(get_current_
 
     is_armed = arming.is_armed(home_id)
     should_alert = arming.should_alert(home_id, confidence or 0)
+
+    # Cross-validate using sensor fusion (CSI + mmWave + door)
+    validator = get_validator(home_id)
+    cv = validator.ingest_csi(event_type, confidence or 0.5, body.zone or "default")
+    fused_confidence = cv["fused_confidence"]
+    should_alert = cv["should_alert"]
+    fusion_info = {"sensors": cv["sensors"], "fused_confidence": fused_confidence}
+    logger.info("cross_validation", extra={"extra": {"home_id": home_id, **fusion_info, "original_confidence": confidence}})
 
     event = service.table("events").insert({
         "home_id": home_id,
@@ -90,15 +104,70 @@ async def ingest_event(body: IngestedEvent, payload: dict = Depends(get_current_
 
     event_id = event.data[0]["id"]
 
-    if csi_storage_path:
-        service.table("csi_raw").insert({
-            "event_id": event_id,
-            "storage_path": csi_storage_path,
-            "size_bytes": len(body.csi_data_hex or "") // 2 if body.csi_data_hex else 0
-        }).execute()
+    if body.csi_data_hex:
+        csi_bytes = binascii.unhexlify(body.csi_data_hex)
+        csi_storage_path = upload_csi(event_id, csi_bytes)
+        if csi_storage_path:
+            service.table("csi_raw").insert({
+                "event_id": event_id,
+                "storage_path": csi_storage_path,
+                "size_bytes": len(body.csi_data_hex or "") // 2 if body.csi_data_hex else 0
+            }).execute()
+
+        data = np.frombuffer(csi_bytes, dtype=np.float32)
+        if data.size >= 156:
+            amplitude = data[:156].reshape(3, 52)
+            # Feed home baseline (silent learning)
+            if home_id not in baselines:
+                baselines[home_id] = HomeBaseline(home_id)
+            baselines[home_id].add_frame(amplitude)
+            from app.services.wellness import breathing_detectors, fall_detectors, apnea_detectors, BreathingDetector, FallDetector, ApneaDetector
+            if home_id not in breathing_detectors:
+                breathing_detectors[home_id] = BreathingDetector(home_id)
+            if home_id not in fall_detectors:
+                fall_detectors[home_id] = FallDetector(home_id)
+            if home_id not in apnea_detectors:
+                apnea_detectors[home_id] = ApneaDetector(home_id)
+            breathing_detectors[home_id].add_packet(amplitude)
+            fall_detectors[home_id].add_packet(amplitude)
+            apnea_detectors[home_id].add_envelope_sample(float(np.mean(np.abs(amplitude))))
+            # Feed premium detectors
+            try:
+                from app.services.premium import DoorWindowDetector, VehicleDetector, FireSmokeDetector, BabyCryDetector, RoomOccupancyDetector, WaterLeakDetector, StructuralDetector, HeartRateDetector, GaitDetector
+                from app.routers.premium import detectors as prem_dets
+                if home_id not in prem_dets:
+                    prem_dets[home_id] = {}
+                p = prem_dets[home_id]
+                for cls_name, cls, key in [
+                    ("DoorWindowDetector", DoorWindowDetector, "door_window"),
+                    ("VehicleDetector", VehicleDetector, "vehicle"),
+                    ("FireSmokeDetector", FireSmokeDetector, "fire_smoke"),
+                    ("BabyCryDetector", BabyCryDetector, "baby_cry"),
+                    ("RoomOccupancyDetector", RoomOccupancyDetector, "occupancy"),
+                    ("WaterLeakDetector", WaterLeakDetector, "water_leak"),
+                    ("StructuralDetector", StructuralDetector, "structural"),
+                    ("HeartRateDetector", HeartRateDetector, "heart_rate"),
+                    ("GaitDetector", GaitDetector, "gait"),
+                ]:
+                    if key not in p:
+                        p[key] = cls(home_id)
+                    p[key].add_packet(amplitude)
+            except Exception as e:
+                logger.warning("premium_detector_init_failed", extra={"extra": {"action": "init_premium_detectors", "error": str(e)}})
+
+    # Suppress alerts during dark mode learning period
+    if home_id in baselines and baselines[home_id].is_learning():
+        should_alert = False
 
     if should_alert:
         service.table("homes").update({"status": "armed"}).eq("id", home_id).execute()
+
+    # Broadcast via WebSocket
+    try:
+        import asyncio
+        asyncio.ensure_future(manager.broadcast_home(home_id, {"type": "event", "data": event.data[0]}))
+    except Exception as e:
+        logger.warning("ws_broadcast_failed", extra={"extra": {"action": "broadcast_event", "error": str(e)}})
 
     return {
         **event.data[0],

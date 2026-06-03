@@ -1,0 +1,26 @@
+{
+  "scenarios": {
+    "device_events": {
+      "executor": "ramping-vus",
+      "startVUs": 10,
+      "stages": [
+        { "duration": "2m", "target": 50 },
+        { "duration": "5m", "target": 100 },
+        { "duration": "3m", "target": 200 },
+        { "duration": "5m", "target": 200 },
+        { "duration": "2m", "target": 0 }
+      ],
+      "gracefulRampDown": "30s"
+    },
+    "dashboard_queries": {
+      "executor": "constant-vus",
+      "vus": 20,
+      "duration": "17m"
+    }
+  },
+  "thresholds": {
+    "event_push_duration": ["p(95)<1000", "avg<500"],
+    "query_duration": ["p(95)<500", "avg<200"],
+    "errors": ["rate<0.01"]
+  }
+}
