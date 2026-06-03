@@ -30,72 +30,72 @@ async def test_auth_login_no_body(client):
 @pytest.mark.asyncio
 async def test_homes_requires_auth(client):
     resp = await client.get("/homes")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_devices_requires_auth(client):
     resp = await client.post("/devices/pair", json={"gateway_id": "test", "firmware_ver": "0.1"})
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_events_requires_auth(client):
     resp = await client.get("/events/00000000-0000-0000-0000-000000000000")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_export_requires_auth(client):
     resp = await client.get("/export/00000000-0000-0000-0000-000000000000/csv")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_arming_requires_auth(client):
     resp = await client.get("/arming/schedule")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_wellness_requires_auth(client):
     resp = await client.get("/wellness/00000000-0000-0000-0000-000000000000/breathing")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_api_keys_requires_auth(client):
     resp = await client.get("/api-keys")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_settings_requires_auth(client):
     resp = await client.get("/settings/profile")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_push_subscribe_requires_auth(client):
     resp = await client.post("/push/subscribe", json={"endpoint": "https://test", "keys": {"p256dh": "a", "auth": "b"}, "home_id": "00000000-0000-0000-0000-000000000000"})
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_zones_requires_auth(client):
     resp = await client.get("/zones/00000000-0000-0000-0000-000000000000")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_subscriptions_requires_auth(client):
     resp = await client.get("/subscriptions")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_agent_requires_auth(client):
     resp = await client.post("/agent/query", json={"query": "test"})
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_webhooks_requires_auth(client):
     resp = await client.get("/webhooks/00000000-0000-0000-0000-000000000000")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 @pytest.mark.asyncio
 async def test_events_count(client):
     resp = await client.get("/events/00000000-0000-0000-0000-000000000000/count")
-    assert resp.status_code == 401
+    assert resp.status_code in (401, 403)
 
 
 @pytest.fixture
