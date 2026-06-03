@@ -153,6 +153,13 @@ Router (on-site) → HTTPS CSI stream → Cloud API (FastAPI)
 - **Per-endpoint rate limiting**: `services/ratelimit.py` — configurable limits per route prefix (auth: 5-10/min, device events: 120/min, export: 10/min, default: 100/min). Only active in production.
 - **Structured JSON logging**: `services/log.py` + `LoggingMiddleware` — every request logs JSON with request_id, method, path, status, duration_ms, ip, user_id. `X-Request-ID` header on every response. `AuthContextMiddleware` extracts user_id from JWT (no verification) for logging context.
 
+## GitHub Account
+- **Username**: WarmachineNaidoo
+- **Platform repo**: `github.com/WarmachineNaidoo/ligerwave-platform.git` (branch: `master`)
+- **RuView repo**: `github.com/ruvnet/RuView.git` (research reference, read-only)
+- **Auth**: Push requires user to authenticate via `git push origin master`. Never push without confirming the remote is correct first.
+- **Rule**: Always check the git remote URL before pushing. Never push to `ruvnet/*` repos — only push to `WarmachineNaidoo/*`.
+
 ## File Locations
 - `C:\work\Software\New project 1\RuView\` — cloned RuView repo (reference for signal processing, WebSocket, existing API patterns)
 - `C:\work\Software\New project 1\research\` — automated research agent
