@@ -143,19 +143,17 @@ Router (on-site) → HTTPS CSI stream → Cloud API (FastAPI)
 - **Gait identification with naming**: `GaitDetector` extracts step cadence + amplitude signature, builds a fingerprint per named person, matches live walking against known gaits. UI supports learning new gaits with a name.
 - **Admin router**: `routers/admin.py` — `GET /admin/features`, `POST /admin/features/stage`, `POST /admin/features/tester`, `DELETE /admin/features/tester`. Admin role required.
 
-## Full Product Lineup
+## Full Product Lineup — ✅ All 5 Locked 2026-06-04
 
-| # | Product | Customer | Device | Antenna | Power | Price | Latency | Status |
-|---|---------|----------|--------|---------|-------|-------|---------|--------|
-| 1 | **Security+** | Consumer | Mi Router 4A | Omni 3dBi | 20dBm | R30/mo | ~2s | ✅ Live |
-| 2 | **Wellness+** | Consumer | Same | — | — | R30/mo | ~2s | ✅ Live |
-| 3 | **Intelligence+** | Consumer | Same | — | — | R30/mo | ~2s | ✅ Live |
-| 4 | **Premium Bundle** | Consumer | Same | — | — | R80/mo | ~2s | ✅ Live |
-| 5 | **AR Premium** | AR companies | Same | — | — | R100/mo | **~600ms WS** | 🆕 Design |
-| 6 | **Wholesale** | AR resellers | Same | — | — | R15/mo | ~2s | ✅ Live |
-| 7 | **Trace** | SAPS/Military | **EAP225-Outdoor** | Omni 5dBi | 27dBm | R2,500-5k/kit | **~600ms WS** | 🆕 Design done |
-| 8 | **PrisonGuard** | Corrections | **CPE510** | **Directional 13dBi** | **30dBm** | R2,500/block/mo | **~600ms WS** | 🆕 Design done |
-| 9 | **Drone** | Tactical ops | **EAP225-on-drone** | Omni 5dBi | 27dBm | ~R67k/kit | **~600ms WS** | 🆕 Design done |
+| # | Product | Customer | Device | Key Diff | Price | Latency | Status |
+|---|---------|----------|--------|----------|-------|---------|--------|
+| 1-4 | **Consumer Suite** | Consumer | Mi Router 4A | Self-service | R30-80/mo | ~2s | ✅ Live |
+| 5-6 | **AR Suite** | AR companies | Mi Router 4A | API keys | R15-100/mo | ~2-600ms | ✅+🆕 |
+| **7** | **Trace** | SAPS/Military | EAP225 | HR through wall | TBD | **~600ms** | ✅ **Locked** |
+| **8** | **PrisonGuard** | Corrections | **CPE510** | Riot prediction | TBD | **~600ms** | ✅ **Locked** |
+| **4** | **EstateGuard** | Gated Estates | CPE510+EAP225 | Perimeter + gait | TBD | **~600ms** | ✅ **Locked** |
+| **5** | **MineGuard** | Mining | CPE510+EAP225 | **Zero wearable** | TBD | **~600ms** | ✅ **Locked** |
+| **6** | **ConstructionGuard** | Construction | EAP225 (battery+4G) | Fall detection + blind spot | TBD | **~600ms** | ✅ **Design done** |
 
 ## Product 7 — Ligerwave Trace (SAPS/Military)
 ### Overview
@@ -331,6 +329,35 @@ Drone-mounted CSI for building threat mapping. 30-40s hover above roof produces 
 - `C:\work\Software\New project 1\research\` — automated research agent
 - `C:\work\Software\New project 1\platform\` — platform API code (FastAPI + Supabase schema)
 - `C:\work\Software\New project 1\platform\SCALING.md` — detailed scaling plan through 100,000 homes with migration triggers
+
+## Product 6 — Ligerwave ConstructionGuard
+### Overview
+Construction site personnel safety adapted from MineGuard. Same CSI core — presence, HR, breathing, gait — but for open-air, dynamic, multi-contractor construction sites with no existing WiFi. Battery/solar APs with 4G backhaul. Deploy 30 min, pack-up 15 min.
+
+### Key Adaptations from MineGuard
+| Factor | MineGuard | ConstructionGuard |
+|--------|-----------|------------------|
+| WiFi | Mine mesh (exists) | Self-deployed (battery + 4G) |
+| Power | Grid | Battery + solar |
+| Site | Fixed tunnels | Evolving, weekly changes |
+| Contractors | Single employer | Multiple contractors |
+| #1 risk | Rockfall | **Fall from height** |
+| Mobile plant | LHDs underground | Cranes/excavators open air |
+
+### Key Features
+- Rapid deployment: tripod + battery + 4G AP. 30 min setup, 15 min pack-up.
+- Fall from height detection: vertical CSI + sudden stop + HR. Alerts in <1s.
+- Crane/excavator blind spot: person in swing radius → in-cab phone alert.
+- Trench collapse detection: soil shift via CSI vibration anomaly.
+- Multi-story heatmap: AP sees 2-3 floors through concrete slabs.
+- Contractor-agnostic: gait identifies humans regardless of employer.
+- After-hours security: intruder detection on partially built structures.
+
+### Kit: 4x EAP225 + batteries + 4G = ~R11,200 per kit. Covers ~4 floors / 2,000sqm.
+
+### Fringe Cases: Fall caught by harness, crane swing over persons, trench partial burial, formwork burst, unknown person on site, AP theft, rain attenuation, demolition countdown, rapid evacuation.
+
+### Built: ~6-8 weeks. Mostly reuse from MineGuard.
 
 ## Weekly Research Agent
 Run every Monday to gather intelligence. Use `task` tool with `subagent_type: general` and the prompt from `research\research_config.md`. Findings append to `research\findings.md`.
