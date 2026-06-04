@@ -53,6 +53,18 @@ class ConstructionSite:
             "alert": "Collapse risk detected — evacuate" if collapse_risk else "Stable",
         }
 
+    def detect_man_overboard(self, zone_id: str, person_present: bool, rail_proximity: float = 0) -> Optional[dict]:
+        if not person_present and rail_proximity > 0.8:
+            event = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "zone": zone_id,
+                "type": "man_overboard",
+                "severity": "critical",
+            }
+            self.fall_events.append(event)
+            return event
+        return None
+
     def get_summary(self) -> dict:
         return {
             "site": self.name,

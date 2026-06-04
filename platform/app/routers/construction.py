@@ -57,6 +57,21 @@ async def check_trench(body: TrenchCheck, payload: dict = Depends(get_current_us
         logger.critical("trench_collapse_risk", extra={"extra": result})
     return result
 
+class ManOverboardDetect(BaseModel):
+    site_id: str = Field(..., max_length=100)
+    zone_id: str = Field(..., max_length=100)
+    person_present: bool = True
+    rail_proximity: float = Field(default=0, ge=0, le=1)
+
+@router.post("/man-overboard")
+async def detect_man_overboard(body: ManOverboardDetect, payload: dict = Depends(get_current_user)):
+    if body.site_id not in sites:
+        sites[body.site_id] = ConstructionSite(body.site_id, body.site_id)
+    result = sites[body.site_id].detect_man_overboard(body.zone_id, body.person_present, body.rail_proximity)
+    if result:
+        logger.critical("man_overboard", extra={"extra": result})
+    return result or {"status": "normal"}
+
 @router.get("/summary/{site_id}")
 async def get_summary(site_id: str, payload: dict = Depends(get_current_user)):
     if site_id not in sites:
