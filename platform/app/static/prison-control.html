@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PrisonGuard — Control Room</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0f172a;color:#e2e8f0;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;color:#22d3ee;display:flex;align-items:center;gap:10px}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.stat-card{background:#1e293b;border-radius:10px;padding:14px 20px;min-width:120px;flex:1;border-left:3px solid #334155}
+.stat-card .label{font-size:11px;color:#64748b;text-transform:uppercase}
+.stat-card .value{font-size:28px;font-weight:700;color:#fff;margin-top:4px}
+.stat-card.alert{border-left-color:#ef4444}.stat-card.alert .value{color:#ef4444}
+.stat-card.warning{border-left-color:#f59e0b}.stat-card.warning .value{color:#f59e0b}
+.block-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:20px}
+.block-card{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155;transition:border-color .3s}
+.block-card:hover{border-color:#22d3ee}
+.block-card .block-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.block-card .block-name{font-size:16px;font-weight:600;color:#fff}
+.block-card .block-status{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+.block-card .block-status.ok{background:#065f46;color:#6ee7b7}
+.block-card .block-status.warning{background:#78350f;color:#fcd34d}
+.block-card .block-status.critical{background:#7f1d1d;color:#fca5a5}
+.block-card .stats-row{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+.block-card .stat{text-align:center;flex:1}
+.block-card .stat .val{font-size:22px;font-weight:700}
+.block-card .stat .lbl{font-size:10px;color:#64748b;text-transform:uppercase;margin-top:2px}
+.block-card .alert-banner{display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:12px;font-weight:600}
+.block-card .alert-banner.active{display:block}
+.block-card .alert-banner.critical{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.block-card .alert-banner.high{background:#78350f;color:#fcd34d;border:1px solid #92400e}
+.block-card .factors{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.block-card .factor{font-size:10px;padding:3px 8px;border-radius:4px;background:#334155;color:#94a3b8}
+.alert-feed{margin-top:20px;background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
+.alert-feed h2{font-size:15px;font-weight:600;color:#fff;margin-bottom:12px}
+.alert-item{padding:10px 0;border-bottom:1px solid #334155;font-size:13px;display:flex;gap:12px;align-items:start}
+.alert-item:last-child{border:0}
+.alert-item .sev{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;flex-shrink:0}
+.alert-item .sev.critical{background:#7f1d1d;color:#fca5a5}
+.alert-item .sev.high{background:#78350f;color:#fcd34d}
+.alert-item .msg{color:#cbd5e1}
+.alert-item .time{color:#64748b;font-size:11px;flex-shrink:0}
+.threshold-panel{display:none;margin-top:20px;background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
+.threshold-panel.active{display:block}
+.threshold-panel h2{font-size:15px;font-weight:600;color:#fff;margin-bottom:12px}
+.threshold-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.threshold-row label{font-size:12px;color:#94a3b8;min-width:120px}
+.threshold-row input[type=range]{flex:1;min-width:100px;accent-color:#22d3ee}
+.threshold-row .val{font-size:12px;color:#22d3ee;font-weight:600;min-width:40px;text-align:right}
+.threshold-row select{padding:4px 8px;border-radius:6px;background:#334155;color:#e2e8f0;border:1px solid #475569;font-size:12px}
+.btn{padding:8px 16px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s}
+.btn-primary{background:#22d3ee;color:#0f172a}
+.btn-outline{background:transparent;color:#22d3ee;border:1px solid #22d3ee}
+.btn:active{transform:scale(0.96)}
+.refresh{color:#64748b;font-size:11px;margin-top:8px;text-align:center}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🏛️ PrisonGuard — Control Room</h1>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-outline" onclick="toggleAdmin()">⚙️ Thresholds</button>
+    <button class="btn btn-primary" onclick="refreshAll()">Refresh</button>
+  </div>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat-card"><div class="label">Blocks</div><div class="value" id="total-blocks">0</div></div>
+  <div class="stat-card alert"><div class="label">In Alert</div><div class="value" id="alert-count">0</div></div>
+  <div class="stat-card"><div class="label">Total Inmates</div><div class="value" id="total-inmates">0</div></div>
+  <div class="stat-card warning"><div class="label">Avg HR (all blocks)</div><div class="value" id="avg-hr">0</div></div>
+</div>
+
+<div class="block-grid" id="block-grid"></div>
+
+<div class="alert-feed" id="alert-feed">
+  <h2>⚠️ Active Alerts</h2>
+  <div id="alert-list"><div style="color:#64748b;font-size:13px">No active alerts</div></div>
+</div>
+
+<div class="threshold-panel" id="threshold-panel">
+  <h2>⚙️ Alert Thresholds (Admin — applies to all blocks)</h2>
+  <div class="threshold-row"><label>HR Spike (BPM over baseline)</label><input type="range" min="5" max="50" value="20" oninput="this.nextElementSibling.textContent=this.value;updateThreshold('hr_spike',parseFloat(this.value))"><span class="val">20</span></div>
+  <div class="threshold-row"><label>HR Absolute Threshold</label><input type="range" min="60" max="120" value="90" oninput="this.nextElementSibling.textContent=this.value;updateThreshold('hr_absolute',parseFloat(this.value))"><span class="val">90</span></div>
+  <div class="threshold-row"><label>Crowding (per cell)</label><input type="range" min="2" max="10" value="5" oninput="this.nextElementSibling.textContent=this.value;updateThreshold('crowding',parseFloat(this.value))"><span class="val">5</span></div>
+  <div class="threshold-row"><label>Riot Probability</label><input type="range" min="0.2" max="0.9" step="0.05" value="0.6" oninput="this.nextElementSibling.textContent=this.value;updateThreshold('riot_probability',parseFloat(this.value))"><span class="val">0.6</span></div>
+  <div class="threshold-row"><label>Offline Alert (minutes)</label><input type="range" min="1" max="30" value="5" oninput="this.nextElementSibling.textContent=this.value;updateThreshold('offline_alert_minutes',parseFloat(this.value))"><span class="val">5</span></div>
+  <button class="btn btn-primary" onclick="refreshAll()" style="margin-top:12px">Apply & Refresh</button>
+</div>
+
+<div class="refresh" id="refresh-status">Auto-refresh every 10s. Last update: --</div>
+
+<script>
+var API = window.location.origin;
+var token = localStorage.getItem('token');
+
+if (!token) { document.body.innerHTML = '<div style="padding:40px;text-align:center;color:#64748b">Please sign in from the main dashboard first.</div>'; }
+
+function toggleAdmin() { document.getElementById('threshold-panel').classList.toggle('active'); }
+
+function updateThreshold(key, value) {
+  if (!token) return;
+  fetch(API + '/prison/thresholds/global', {
+    method: 'POST',
+    headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+    body: JSON.stringify({key: key, value: value})
+  }).catch(function(){});
+}
+
+async function refreshAll() {
+  if (!token) return;
+  try {
+    var r = await fetch(API + '/prison/dashboard', {headers: {'Authorization': 'Bearer ' + token}});
+    if (!r.ok) return;
+    var data = await r.json();
+    renderDashboard(data);
+  } catch(e) {}
+}
+
+function renderDashboard(data) {
+  document.getElementById('total-blocks').textContent = data.total_blocks;
+  document.getElementById('alert-count').textContent = data.alert_blocks;
+  document.getElementById('total-inmates').textContent = data.inmates || 0;
+  var allHr = data.blocks.map(function(b){return b.avg_hr || 0});
+  var avgHr = allHr.length ? Math.round(allHr.reduce(function(a,b){return a+b},0) / allHr.length) : 0;
+  document.getElementById('avg-hr').textContent = avgHr;
+
+  var grid = document.getElementById('block-grid');
+  grid.innerHTML = '';
+  var alerts = [];
+
+  for (var i = 0; i < data.blocks.length; i++) {
+    var b = data.blocks[i];
+    var card = document.createElement('div'); card.className = 'block-card';
+    var statusClass = 'ok';
+    if (b.status === 'alert') {
+      statusClass = b.severity === 'critical' ? 'critical' : 'warning';
+    }
+    var thr = b.thresholds || {};
+    card.innerHTML =
+      '<div class="block-header"><span class="block-name">Block ' + (i + 1) + '</span><span class="block-status ' + statusClass + '">' + b.status + ' (' + (b.severity || 'ok') + ')</span></div>' +
+      '<div class="stats-row">' +
+        '<div class="stat"><div class="val" style="color:' + (b.avg_hr > (thr.hr_absolute||90) ? '#ef4444' : '#22d3ee') + '">' + (b.avg_hr || '--') + '</div><div class="lbl">Avg HR</div></div>' +
+        '<div class="stat"><div class="val" style="color:' + (b.probability >= 0.6 ? '#ef4444' : '#94a3b8') + '">' + Math.round((b.probability || 0) * 100) + '%</div><div class="lbl">Riot Prob</div></div>' +
+        '<div class="stat"><div class="val">' + (b.occupancy || 0) + '</div><div class="lbl">Inmates</div></div>' +
+        '<div class="stat"><div class="val">' + (b.crowded_cells || 0) + '</div><div class="lbl">Crowded</div></div>' +
+      '</div>' +
+      '<div class="factors">' +
+        (b.factors ? '<span class="factor">HR: ' + Math.round(b.factors.hr_score * 100) + '%</span>' : '') +
+        (b.factors ? '<span class="factor">Crowd: ' + Math.round(b.factors.crowding_score * 100) + '%</span>' : '') +
+        (b.factors ? '<span class="factor">Gait: ' + Math.round(b.factors.gait_score * 100) + '%</span>' : '') +
+        (b.factors ? '<span class="factor">Movement: ' + Math.round(b.factors.amplitude_score * 100) + '%</span>' : '') +
+      '</div>' +
+      '<div class="alert-banner ' + (statusClass === 'critical' ? 'critical active' : statusClass === 'warning' ? 'high active' : '') + '">' +
+        (b.status === 'alert' ? '⚠ Riot probability ' + Math.round(b.probability * 100) + '% — ' + b.severity : '✅ Normal') +
+      '</div>';
+    grid.appendChild(card);
+
+    if (b.status === 'alert') {
+      alerts.push({severity: b.severity, msg: 'Block ' + (i + 1) + ' — HR ' + b.avg_hr + ', riot probability ' + Math.round(b.probability * 100) + '%', time: new Date().toLocaleTimeString()});
+    }
+  }
+
+  // Render alerts
+  var alertList = document.getElementById('alert-list');
+  alertList.innerHTML = '';
+  if (alerts.length === 0) {
+    alertList.innerHTML = '<div style="color:#64748b;font-size:13px">No active alerts</div>';
+  } else {
+    for (var j = 0; j < alerts.length; j++) {
+      var a = alerts[j];
+      var item = document.createElement('div'); item.className = 'alert-item';
+      item.innerHTML = '<span class="sev ' + a.severity + '">' + a.severity + '</span><span class="msg">' + a.msg + '</span><span class="time">' + a.time + '</span>';
+      alertList.appendChild(item);
+    }
+  }
+
+  document.getElementById('refresh-status').textContent = 'Auto-refresh every 10s. Last update: ' + new Date().toLocaleTimeString();
+}
+
+// Auto-refresh every 10s
+setInterval(refreshAll, 10000);
+refreshAll();
+</script>
+</body>
+</html>
