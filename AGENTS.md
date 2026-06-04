@@ -143,18 +143,83 @@ Router (on-site) → HTTPS CSI stream → Cloud API (FastAPI)
 - **Gait identification with naming**: `GaitDetector` extracts step cadence + amplitude signature, builds a fingerprint per named person, matches live walking against known gaits. UI supports learning new gaits with a name.
 - **Admin router**: `routers/admin.py` — `GET /admin/features`, `POST /admin/features/stage`, `POST /admin/features/tester`, `DELETE /admin/features/tester`. Admin role required.
 
-## Latest Additions (2026-06-04)
-- **POPIA compliance**: Data subject rights (`routers/privacy.py`), audit retention 3yr (`retention.py`), dashboard POPIA notice (en/af/zu)
-- **GDPR future-proofing**:
-  - Consent records: `POST /privacy/consent` — logs consent_type, version, IP, UA to audit_logs (Art 7)
-  - Data portability: `GET /privacy/my-data/export?format=json|csv` (Art 20)
-  - DPO contact: `GET /privacy/dpo` (Art 37)
-  - Breach detection: `services/breach.py` — monitors auth fails + rate limit spikes, alerts DPO (Art 33)
-- **Consent flow**: First-load modal with 3 checkboxes (security, wellness, signage). Records to audit_logs.
-- **RF Tomography**: `GET /tomography/{home_id}` — 20×20 perturbation grid, zone mapping, person detection. Canvas dashboard refreshes every 2s.
-- **R2 bucket**: `csi-raw` bucket verified — read/write/delete working
-- **Marketing site**: `landing.html` with pricing tiers, feature cards, how-it-works. Served at `/`
-- **Migration 003**: Updated with consent_logs table + tier fix. Needs manual run in Supabase SQL Editor.
+## Full Product Lineup
+
+| # | Product | Customer | Device | Antenna | Power | Price | Latency | Status |
+|---|---------|----------|--------|---------|-------|-------|---------|--------|
+| 1 | **Security+** | Consumer | Mi Router 4A | Omni 3dBi | 20dBm | R30/mo | ~2s | ✅ Live |
+| 2 | **Wellness+** | Consumer | Same | — | — | R30/mo | ~2s | ✅ Live |
+| 3 | **Intelligence+** | Consumer | Same | — | — | R30/mo | ~2s | ✅ Live |
+| 4 | **Premium Bundle** | Consumer | Same | — | — | R80/mo | ~2s | ✅ Live |
+| 5 | **AR Premium** | AR companies | Same | — | — | R100/mo | **~600ms WS** | 🆕 Design |
+| 6 | **Wholesale** | AR resellers | Same | — | — | R15/mo | ~2s | ✅ Live |
+| 7 | **Trace** | SAPS/Military | **EAP225-Outdoor** | Omni 5dBi | 27dBm | R2,500-5k/kit | **~600ms WS** | 🆕 Design done |
+| 8 | **PrisonGuard** | Corrections | **CPE510** | **Directional 13dBi** | **30dBm** | R2,500/block/mo | **~600ms WS** | 🆕 Design done |
+| 9 | **Drone** | Tactical ops | **EAP225-on-drone** | Omni 5dBi | 27dBm | ~R67k/kit | **~600ms WS** | 🆕 Design done |
+
+## Product 7 — Ligerwave Trace (SAPS/Military)
+### Overview
+Through-wall HR monitoring for tactical pre-entry intel. Officer places router near wall, 30s calibration builds heatmap showing persons inside, taps target, hears HR tones via BT earpiece.
+
+### Key Specs
+- Device: EAP225-Outdoor (400g, portable). Latency: ~600ms WebSocket push. 
+- Phone app is thin client — zero signal processing code (IP protection)
+- Audit log: Full session — officer ID, GPS, timestamps, BPM readings, immutable
+- GPS: One-time at install (officer's phone) + IP geolocation fallback
+
+### Tones: <70 BPM slow, 70-100 medium, >100 rapid flutter
+
+### Design Decisions
+- Cloud over local edge (IP theft risk if laptop stolen)
+- 600ms not lower (HR changes in 3-5s cycles, diminishing returns)
+- SAPS HR revocation webhook + admin fallback
+- NOT admissible in court — operational intelligence tool only
+- POPIA Section 6(1)(c) exempt (law enforcement)
+
+## Product 8 — Ligerwave PrisonGuard (Corrections)
+### Overview
+Through-wall wellness + riot prediction. One CPE510 per cell block (20-30 cells). Control room dashboard with 600ms alerts.
+
+### Key Specs
+- Device: CPE510 (30dBm, 13dBi directional dish). Reason: focused beam penetrates more cells through concrete walls
+- Pricing: R2,500/block/month. ~R21,000 hardware for 10-block prison
+
+### Riot Prediction: Multi-signal weighted (HR deviation 0.4 + crowding 0.25 + gait 0.2 + movement 0.15). Configurable thresholds via admin panel (no coding).
+
+### Tamper: Disconnect, jamming (RuView ais_prompt_shield), physical movement, theft. Remote deactivation via 3 layers: API key revocation + geographic fence + 24h offline self-disable.
+
+### 10-clause ToS: Operational support only, no warranty, indemnification, liability cap, training required, export restriction (SA only), tamper prohibition, deactivation right, government use only.
+
+## Product 9 — Ligerwave Drone (Tactical Ops)
+### Overview
+Drone-mounted CSI for building threat mapping. 30-40s hover above roof produces heatmap of persons inside. Hybrid CSI + visual tracking for urban pursuit.
+
+### Key Specs
+- Device: EAP225-Outdoor (400g — fits DJI Mavic 3). CPE510 (1.1kg) rejected — too heavy
+- Range: 50m altitude, tile/concrete roof + 1-2 floors. Metal roof = accepted limitation
+- 4G required for cloud uplink
+
+### Build Phases: Phase 1 = heatmap + target lock (same code as Trace). Phase 2 = camera fusion. Phase 3 = autonomous visual follow + CSI backup when visual lost.
+
+### Kit: DJI Mavic 3 (R25k) + EAP225 (R1,200) + 4G modem (R500) + battery/wiring (R300) = ~R27k total.
+
+## Design Log — Key Decisions
+| Decision | Rationale | Products |
+|----------|-----------|----------|
+| Cloud not edge | IP protection — thin client has no algorithms | Trace, Drone |
+| EAP225 for portable, CPE510 for fixed | Weight (400g vs 1,100g) vs power (27dBm vs 30dBm) | All |
+| 600ms not lower | HR cycles 3-5s, diminishing returns below 600ms | All |
+| WS push not HTTP poll | Existing `/ws/{id}` reused | All |
+| Metal roofs = limitation | Physics — Faraday cage at 2.4/5 GHz | Drone |
+| Separate pipeline per product | Isolated infra, consumer unaffected | All |
+| Revocation webhook + manual | SAPS HR integration + admin fallback | Trace |
+| 10-clause ToS | Government contract protection | PrisonGuard |
+
+## Hardware Comparison
+- Mi Router 4A: 20dBm, 300g — Consumer
+- EAP225-Outdoor: 27dBm, 400g — Trace, Drone
+- CPE510: 30dBm, 13dBi directional, 1,100g — PrisonGuard
+- Where to buy (Durban): Incredible Connection, Rectron (031 303 1122), Tarsus (031 267 1600), Takealot
 - **POPIA compliance**:
   - **Data subject rights endpoints**: `routers/privacy.py` — `GET /privacy/my-data` (access), `DELETE /privacy/my-data` (deletion, keeps billing records), `POST /privacy/my-data/correction` (email/phone/name)
   - **POPIA notice banner**: Footer on dashboard with English/Afrikaans/Zulu i18n. Shows when logged in with link to `/privacy/my-data`
