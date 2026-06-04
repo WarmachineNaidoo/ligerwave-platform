@@ -23,6 +23,7 @@ jobs:
           host: 100.24.17.32
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          timeout: 60s
           script: |
             cd ~/ligerwave-platform
             git reset --hard origin/master
