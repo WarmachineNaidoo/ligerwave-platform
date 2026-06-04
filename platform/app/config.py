@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     whatsapp_api_key: str | None = None
     whatsapp_phone_number_id: str | None = None
     admin_email: str | None = None
+    dpo_name: str = "Ligerwave Data Protection Officer"
+    dpo_email: str = "dpo@ligerwave.tech"
+    dpo_phone: str | None = None
+    dpo_address: str | None = None
+    breach_webhook_url: str | None = None
     r2_access_key_id: str | None = None
     r2_secret_access_key: str | None = None
     r2_bucket: str = "csi-raw"

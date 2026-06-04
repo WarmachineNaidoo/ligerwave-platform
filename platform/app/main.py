@@ -10,6 +10,7 @@ from app.services.ws import manager
 from app.middleware.auth import get_current_user
 from app.services.log import logger
 from app.services.ratelimit import limiter, _get_client_ip
+from app.services.breach import detector
 import time, os, asyncio, uuid, json
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
@@ -114,6 +115,7 @@ if app_settings.environment == "production":
         async def dispatch(self, request, call_next):
             resp = limiter.check(request)
             if resp:
+                detector.record_rate_limit(request.url.path, _get_client_ip(request))
                 return resp
             return await call_next(request)
     app.add_middleware(PerEndpointRateLimitMiddleware)

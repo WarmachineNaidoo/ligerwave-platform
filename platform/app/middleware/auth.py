@@ -2,6 +2,8 @@ from fastapi import Request, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from httpx import AsyncClient
 from app.config import settings
+from app.services.breach import detector
+from app.services.ratelimit import _get_client_ip
 
 security = HTTPBearer()
 
@@ -13,6 +15,7 @@ async def get_current_user(
     async with AsyncClient() as client:
         resp = await client.get(url, headers={"Authorization": f"Bearer {token}", "apikey": settings.supabase_key})
         if resp.status_code != 200:
+            detector.record_auth_failure()
             raise HTTPException(status_code=401, detail="Invalid token")
         user = resp.json()
         role = user.get("user_metadata", {}).get("role", "consumer")
