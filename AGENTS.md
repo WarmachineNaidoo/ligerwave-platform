@@ -331,6 +331,34 @@ Drone-mounted CSI for building threat mapping. 30-40s hover above roof produces 
 - `C:\work\Software\New project 1\platform\SCALING.md` — detailed scaling plan through 100,000 homes with migration triggers
 
 ## Product 6 — Ligerwave ConstructionGuard
+### Also covers: Maritime/Offshore — same product, same kit
+
+### Maritime Vertical — CSI works on open deck, accommodation, catwalks, helideck, cargo hold (hatch open). Blind spots: engine room, sealed tanks (steel bulkheads = Faraday cage). Entry/exit tracking covers blind zones.
+
+### Maritime Scenarios: Man overboard (sudden absence at rail), engine room lone worker (entry/exit timer), confined space in tank (CSF timer), helideck operations (clear landing zone), fire evacuation (track to lifeboat stations), hot work monitoring (extra personnel tracking).
+
+### Kit same as construction. Offshore adds: marine weatherproofing, satellite backhaul, permit-to-work integration.
+
+## Macro Timeline — All Products
+
+### Phase 1 (Months 1-2): Core Enhancements
+- AR Premium: 600ms WS tier gating — 2 weeks
+- Trace: Phone app (thin client) + BT tones + target lock — 4 weeks
+- Consumer Suite: Migration 003, R2, consent flow — ✅ Done
+
+### Phase 2 (Months 3-4): First Verticals
+- PrisonGuard: Block HR aggregation, riot engine, control room dashboard, tamper detection — 6 weeks
+- EstateGuard: Perimeter mode, estate map, digging detect, patrol verify — 4 weeks
+
+### Phase 3 (Months 5-7): Industrial
+- MineGuard: Mine integrations (seismic, gas, ventilation, blast, dispatch, digital twin), fatigue index, heat stress, rescue dashboard — 10 weeks
+- ConstructionGuard: Battery/solar kit, 4G, fall detection, crane blind spot, trench collapse — 6 weeks
+
+### Phase 4 (Months 8-9): Specialized
+- ConstructionGuard Maritime: Marine weatherproofing, satcom, permit-to-work — 4 weeks
+- Drone Phase 2-3: Camera fusion, autonomous follow — 6 weeks
+
+### Total: ~9 months for all 6 products. Parallel tracks possible.
 ### Overview
 Construction site personnel safety adapted from MineGuard. Same CSI core — presence, HR, breathing, gait — but for open-air, dynamic, multi-contractor construction sites with no existing WiFi. Battery/solar APs with 4G backhaul. Deploy 30 min, pack-up 15 min.
 
