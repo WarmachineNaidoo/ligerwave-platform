@@ -117,6 +117,10 @@
     "recent_events": "Onlangse Gebeurtenisse",
     "failed": "Kon nie laai nie"
   },
+  "popia": {
+    "title": "POPIA Kennisgewing",
+    "body": "Hierdie eiendom gebruik Ligerwave WiFi-sensing vir indringingopsporing en opsionele welstandmonitering. CSI-data word op die toestel verwerk; slegs metadata en gebeure word gestoor. U het die reg om u data te bekyk, reg te stel en uit te vee via Instellings \u00bb Privaatheid."
+  },
   "errors": {
     "login_failed": "Aantekening het misluk",
     "network_error": "Netwerkfout"

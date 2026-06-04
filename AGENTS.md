@@ -143,15 +143,15 @@ Router (on-site) → HTTPS CSI stream → Cloud API (FastAPI)
 - **Gait identification with naming**: `GaitDetector` extracts step cadence + amplitude signature, builds a fingerprint per named person, matches live walking against known gaits. UI supports learning new gaits with a name.
 - **Admin router**: `routers/admin.py` — `GET /admin/features`, `POST /admin/features/stage`, `POST /admin/features/tester`, `DELETE /admin/features/tester`. Admin role required.
 
-## Latest Additions (2026-06-03)
-- **Sleep efficiency endpoint**: `GET /{home_id}/sleep-efficiency` — estimates sleep time, wake time, efficiency %, fragmentation index from motion + breathing events, grouped by night (8pm-8am)
-- **EDF export**: `GET /{home_id}/sleep/export/edf` — generates standard European Data Format file for import into professional sleep scoring software (RemLogic, Noxturnal, etc.) with resampled 1 Hz breathing rate channel
-- **SpO₂ UI section**: Greyed-out wellness card with "Coming Soon" badge — placeholder for future Bluetooth oximetry ring integration
-- **Apnea dashboard display**: AHI score, severity, and event count shown live in the wellness grid
-- **Unit tests**: 18 comprehensive tests for `BreathingDetector`, `ApneaDetector`, and `FallDetector` — covering synthetic breathing at known rates, apnea/hypopnea events, fall impulse detection, edge cases, and noise resilience. All pass.
-- **Test infra**: `pytest.ini` (asyncio_mode=auto), `conftest.py`. 35 total tests (17 API auth + 18 wellness unit). All pass.
-- **Per-endpoint rate limiting**: `services/ratelimit.py` — configurable limits per route prefix (auth: 5-10/min, device events: 120/min, export: 10/min, default: 100/min). Only active in production.
-- **Structured JSON logging**: `services/log.py` + `LoggingMiddleware` — every request logs JSON with request_id, method, path, status, duration_ms, ip, user_id. `X-Request-ID` header on every response. `AuthContextMiddleware` extracts user_id from JWT (no verification) for logging context.
+## Latest Additions (2026-06-04)
+- **POPIA compliance**:
+  - **Data subject rights endpoints**: `routers/privacy.py` — `GET /privacy/my-data` (access), `DELETE /privacy/my-data` (deletion, keeps billing records), `POST /privacy/my-data/correction` (email/phone/name)
+  - **POPIA notice banner**: Footer on dashboard with English/Afrikaans/Zulu i18n. Shows when logged in with link to `/privacy/my-data`
+  - **Audit log retention**: `services/retention.py` — `purge_old_audit_logs()` anonymizes user_id + clears details after 3 years. Docker retention container now calls `purge_all()`
+- **RF Tomography (passive radar live view)**:
+  - `services/tomography.py` — 20×20 perturbation grid per home. Zone-to-cell mapping, exponential decay, cluster-based person detection
+  - `routers/tomography.py` — `GET /tomography/{home_id}` returns grid heat + zone map + movement trails + detected persons
+  - `dashboard.html` — Canvas render with live passive radar view. Red heat overlay, amber trails, zone borders with legend, person confidence dots. Refreshes every 2 seconds
 
 ## GitHub Account
 - **Username**: WarmachineNaidoo

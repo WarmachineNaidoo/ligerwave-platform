@@ -82,6 +82,8 @@ h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px;color
 .schedule-bar .status-badge.armed{background:#fef2f2;color:#dc2626}
 .schedule-bar .status-badge.disarmed{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0}
 #heatmap-canvas{width:100%;height:200px;border-radius:6px;image-rendering:pixelated}.heatmap-axis-x{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:2px;padding:0 4px}.heatmap-axis-y{position:absolute;left:-28px;top:0;font-size:9px;color:#94a3b8;display:flex;flex-direction:column;justify-content:space-between;height:200px;padding:2px 0}
+/* Tomography */
+#tomography-canvas{width:100%;height:240px;border-radius:6px;image-rendering:pixelated;cursor:crosshair}
 /* Zone path pills */
 .zone-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px}
 .zone-pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff}
@@ -317,6 +319,31 @@ h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px;color
     <canvas id="heatmap-canvas"></canvas>
     <div class="heatmap-axis-x"><span>Frame 1</span><span>Frame 50</span><span>Frame 100</span></div>
   </div>
+</div>
+
+<!-- Tomography grid -->
+<div class="chart-box" style="margin-bottom:20px" id="tomography-box">
+  <h3 style="display:flex;align-items:center;gap:8px">
+    <span data-i18n="tomography.title">RF Tomography</span>
+    <span id="tomography-status" style="font-size:11px;font-weight:400;color:#64748b">waiting...</span>
+  </h3>
+  <div style="position:relative;padding-left:32px">
+    <div class="heatmap-axis-y" id="tomography-axis-y" style="left:0">
+      <span style="font-size:8px;color:#94a3b8">0</span>
+      <span style="font-size:8px;color:#94a3b8">50%</span>
+      <span style="font-size:8px;color:#94a3b8">100%</span>
+    </div>
+    <canvas id="tomography-canvas" style="width:100%;height:240px;border-radius:6px;image-rendering:pixelated"></canvas>
+  </div>
+  <div class="heatmap-axis-x">
+    <span>0</span>
+    <span>25%</span>
+    <span>50%</span>
+    <span>75%</span>
+    <span>100%</span>
+  </div>
+  <div id="tomography-legend" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;font-size:11px"></div>
+  <div id="tomography-persons" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;font-size:11px;color:#64748b"></div>
 </div>
 
 <div class="events-panel" id="events-panel">
@@ -1059,6 +1086,107 @@ function scrubTimeline(idx) {
   }
 }
 
+// Tomography
+var tomographyInterval = null;
+var tomographyData = null;
+
+function renderTomography() {
+  var canvas = document.getElementById('tomography-canvas');
+  var status = document.getElementById('tomography-status');
+  var legend = document.getElementById('tomography-legend');
+  var personsEl = document.getElementById('tomography-persons');
+  if (!canvas || !tomographyData) {
+    if (status) status.textContent = 'waiting...';
+    return;
+  }
+  if (status) status.textContent = 'live \u2022 ' + tomographyData.persons.length + ' person' + (tomographyData.persons.length !== 1 ? 's' : '');
+  var ctx = canvas.getContext('2d');
+  var rect = canvas.parentElement.getBoundingClientRect();
+  var W = canvas.parentElement.clientWidth - 4;
+  var H = 240;
+  canvas.width = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  var grid = tomographyData.grid_size || 20;
+  var cellW = W / grid;
+  var cellH = H / grid;
+  var heat = tomographyData.heat;
+  var trail = tomographyData.trail;
+  for (var y = 0; y < grid; y++) {
+    for (var x = 0; x < grid; x++) {
+      var h = heat[y] !== undefined ? (heat[y][x] || 0) : 0;
+      var t = trail[y] !== undefined ? (trail[y][x] || 0) : 0;
+      var intensity = Math.max(h, t * 0.5);
+      var r = 10, g = 20 + Math.round(200 * (1 - intensity)), b = 30 + Math.round(100 * (1 - intensity));
+      if (h > 0.3) { r = 220; g = Math.round(40 * (1 - h)); b = 30; }
+      else if (t > 0.3) { r = Math.round(200 * t); g = Math.round(180 * t); b = Math.round(80 * t); }
+      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+      ctx.fillRect(x * cellW, y * cellH, cellW + 0.5, cellH + 0.5);
+    }
+  }
+  // Draw zone borders
+  var zgrid = tomographyData.zone_grid;
+  var zoneColors = tomographyData.zone_colors || {};
+  if (zgrid) {
+    for (var y = 0; y < grid && y < zgrid.length; y++) {
+      for (var x = 0; x < grid && x < zgrid[y].length; x++) {
+        var zid = zgrid[y][x];
+        if (zid > 0) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+          ctx.lineWidth = 0.5;
+          ctx.strokeRect(x * cellW, y * cellH, cellW, cellH);
+        }
+      }
+    }
+  }
+  // Draw persons
+  var persons = tomographyData.persons || [];
+  for (var i = 0; i < persons.length; i++) {
+    var p = persons[i];
+    var px = p.x * cellW;
+    var py = p.y * cellH;
+    ctx.beginPath();
+    ctx.arc(px, py, Math.max(4, 8 * p.confidence), 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(239,68,68,' + (0.6 + 0.4 * p.confidence) + ')';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    ctx.fillStyle = '#fff';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(Math.round(p.confidence * 100) + '%', px, py - 12);
+  }
+  // Legend
+  legend.innerHTML = '';
+  var znames = Object.keys(tomographyData.zone_indices || {});
+  for (var i = 0; i < znames.length; i++) {
+    var z = znames[i];
+    var c = zoneColors[z] || '#888';
+    legend.innerHTML += '<span style="display:inline-flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:2px;background:' + c + '"></span>' + z.replace(/_/g, ' ') + '</span>';
+  }
+  // Persons list
+  personsEl.innerHTML = '';
+  if (persons.length > 0) {
+    personsEl.innerHTML = '<span style="font-weight:600;color:#dc2626">' + persons.length + (persons.length === 1 ? ' person' : ' persons') + ' detected</span>';
+    for (var i = 0; i < persons.length; i++) {
+      personsEl.innerHTML += '<span style="color:#64748b">\u2022 ' + persons[i].confidence * 100 + '% at (' + persons[i].x + ',' + persons[i].y + ')</span>';
+    }
+  }
+}
+
+async function fetchTomography() {
+  if (!homeId || !token) return;
+  try {
+    var r = await fetch(API + '/tomography/' + homeId, {headers: {'Authorization': 'Bearer ' + token}});
+    if (!r.ok) return;
+    tomographyData = await r.json();
+    renderTomography();
+  } catch(e) {}
+}
+
 // Override refresh to use paginated load
 var origRefresh = refresh;
 refresh = function() {
@@ -1067,7 +1195,17 @@ refresh = function() {
   renderStatus(allLoadedEvents.length ? allLoadedEvents : currentEvents, {});
   renderHourlyChart(allLoadedEvents.length ? allLoadedEvents : currentEvents);
   renderWellness();
+  fetchTomography();
 };
+
+// Start tomography polling (2s refresh)
+function startTomographyPolling() {
+  if (tomographyInterval) clearInterval(tomographyInterval);
+  tomographyInterval = setInterval(fetchTomography, 2000);
+}
+function stopTomographyPolling() {
+  if (tomographyInterval) { clearInterval(tomographyInterval); tomographyInterval = null; }
+}
 
 function renderHourlyChart(events) {
   var today = new Date().toISOString().slice(0,10);
@@ -1723,11 +1861,18 @@ async function exportJSON() {
   // Restore saved font size
   var savedScale = localStorage.getItem('fontScale');
   if (savedScale) setFontSize(parseFloat(savedScale));
-  if (token) { try { await init(); } catch(e) { showLogin(); } }
+  if (token) { try { await init(); fetchTomography(); startTomographyPolling(); } catch(e) { showLogin(); } }
   else { showLogin(); }
   // Background poll every 30s (WebSocket handles real-time)
   setInterval(refresh, 30000);
 })();
+</script>
+<div id="popia-notice" style="display:none;margin-top:20px;padding:16px;background:#f1f5f9;border-radius:8px;border:1px solid #e2e8f0;font-size:12px;color:#64748b;text-align:center;line-height:1.6">
+  <strong data-i18n="popia.title">POPIA Notice</strong>
+  <span data-i18n="popia.body">This property uses Ligerwave WiFi sensing for intrusion detection and optional wellness monitoring. CSI data is processed on-device; only metadata and events are stored. You have the right to access, correct, and delete your data via Settings &gt; Privacy. <a href="/privacy/my-data" style="color:#2563eb;text-decoration:underline" target="_blank">View my data</a></span>
+</div>
+<script>
+if (token) document.getElementById('popia-notice').style.display = 'block';
 </script>
 </body>
 </html>

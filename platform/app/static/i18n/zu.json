@@ -117,6 +117,10 @@
     "recent_events": "Izehlakalo Zakamuva",
     "failed": "Kwehlulekile ukulayisha"
   },
+  "popia": {
+    "title": "Isaziso se-POPIA",
+    "body": "Le ndawo isebenzisa i-Ligerwave WiFi sensing ukuze ithole abangenele kanye nokuqapha impilo. I-CSI data icutshungulwa kusisetshenziswa; imetadata nezehlakalo kuphela ezigciniwe. Unelungelo lokufinyelela, ukulungisa, nokususa idatha yakho nge Settings \u00bb Privacy."
+  },
   "errors": {
     "login_failed": "Ukungena kwehlulekile",
     "network_error": "Iphutha lenethiwekhi"
