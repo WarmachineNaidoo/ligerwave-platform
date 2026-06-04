@@ -387,7 +387,14 @@ Construction site personnel safety adapted from MineGuard. Same CSI core — pre
 
 ### Built: ~6-8 weeks. Mostly reuse from MineGuard.
 
-## Weekly Research Agent
+## Daily Research Agent — Morning Report
+Run daily before starting build work. Covers: build progress, competitors, legislation, cybersecurity, feature ideas, go-to-market.
+```
+task "Run morning research report. Use research/research_config.md. Append findings to research/daily-report.md." subagent_type:general
+```
+Report template at `research/daily-report-template.md`. Uses topics from `research/research_config.md`.
+
+## Weekly Research Agent (Legacy — superseded by daily)
 Run every Monday to gather intelligence. Use `task` tool with `subagent_type: general` and the prompt from `research\research_config.md`. Findings append to `research\findings.md`.
 
 ### Topics covered

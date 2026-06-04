@@ -46,4 +46,18 @@ class ConnectionManager:
                     rest = key.split(":", 1)[1] if ":" in key else ""
                     self.disconnect(ws, user_id, rest)
 
+    async def broadcast_priority(self, home_id: str, message: dict):
+        """Push event with priority flag — AR Premium dashboards handle immediately."""
+        message["_priority"] = True
+        for key, sockets in list(self.active.items()):
+            if key.endswith(f":{home_id}"):
+                dead = []
+                for ws in sockets:
+                    try:
+                        await ws.send_json(message)
+                    except Exception:
+                        dead.append(ws)
+                for ws in dead:
+                    self.disconnect(ws, key.split(":")[0], home_id)
+
 manager = ConnectionManager()

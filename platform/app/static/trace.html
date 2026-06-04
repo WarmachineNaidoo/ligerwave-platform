@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ligerwave Trace</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f172a">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:#0f172a;color:#e2e8f0;padding:16px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+h1{font-size:20px;font-weight:700;color:#22d3ee;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.sub{font-size:12px;color:#64748b;margin-bottom:16px;text-align:center}
+.status-bar{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;width:100%;max-width:400px}
+.status-item{background:#1e293b;border-radius:8px;padding:8px 14px;text-align:center;flex:1;min-width:80px}
+.status-item .label{font-size:9px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px}
+.status-item .value{font-size:18px;font-weight:700;color:#fff;margin-top:2px}
+.status-item .value.active{color:#22d3ee}
+.status-item .value.alert{color:#ef4444}
+#heatmap-container{width:100%;max-width:400px;aspect-ratio:1;background:#1e293b;border-radius:12px;position:relative;overflow:hidden;margin-bottom:12px;border:1px solid #334155}
+#heatmap-canvas{width:100%;height:100%;image-rendering:pixelated;touch-action:none}
+#target-dot{display:none;position:absolute;width:20px;height:20px;border-radius:50%;background:#ef4444;border:2px solid #fff;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 12px rgba(239,68,68,0.6);z-index:2}
+#target-pulse{display:none;position:absolute;width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);transform:translate(-50%,-50%);pointer-events:none;animation:pulse 2s infinite;z-index:1}
+@keyframes pulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.5}50%{transform:translate(-50%,-50%) scale(1.5);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:.5}}
+.controls{display:flex;gap:8px;width:100%;max-width:400px;margin-bottom:12px;flex-wrap:wrap}
+.btn{flex:1;padding:12px;border-radius:10px;border:0;font-weight:700;font-size:14px;cursor:pointer;transition:all .15s;min-width:80px;text-align:center}
+.btn:active{transform:scale(0.96)}
+.btn-primary{background:#22d3ee;color:#0f172a}.btn-primary:hover{background:#06b6d4}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-outline{background:transparent;color:#22d3ee;border:1px solid #22d3ee}.btn-outline:hover{background:rgba(34,211,238,0.1)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+#tone-status{font-size:11px;color:#64748b;text-align:center;margin-bottom:4px}
+#bpm-display{font-size:48px;font-weight:800;color:#fff;text-align:center;line-height:1;margin-bottom:4px;transition:color .3s}
+#bpm-display.low{color:#22d3ee}#bpm-display.medium{color:#f59e0b}#bpm-display.high{color:#ef4444}
+#bpm-label{font-size:12px;color:#64748b;text-align:center;margin-bottom:12px}
+.calibration-overlay{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.85);border-radius:12px;align-items:center;justify-content:center;flex-direction:column;z-index:10}
+.calibration-overlay.active{display:flex}
+.calibration-overlay .countdown{font-size:64px;font-weight:800;color:#22d3ee}
+.calibration-overlay .label{font-size:14px;color:#94a3b8;margin-top:8px}
+.calibration-overlay .sub-label{font-size:11px;color:#64748b;margin-top:4px}
+#session-log{display:none;width:100%;max-width:400px;margin-top:8px;padding:8px;background:#1e293b;border-radius:8px;font-size:10px;color:#64748b;max-height:80px;overflow-y:auto;font-family:monospace;line-height:1.6}
+.covert{opacity:0.1}.covert:hover{opacity:0.4}
+#message{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:#e2e8f0;padding:10px 20px;border-radius:8px;font-size:13px;display:none;z-index:100;text-align:center;max-width:90%}
+@media(min-width:500px){body{padding:24px}body>*{max-width:400px}}
+</style>
+</head>
+<body>
+<h1>🔍 Trace</h1>
+<div class="sub" id="status-text">Initializing...</div>
+
+<div class="status-bar">
+  <div class="status-item"><div class="label">Calibration</div><div class="value" id="cal-status">--</div></div>
+  <div class="status-item"><div class="label">Persons</div><div class="value" id="person-count">0</div></div>
+  <div class="status-item"><div class="label">Confidence</div><div class="value" id="conf-level">--</div></div>
+  <div class="status-item"><div class="label">Session</div><div class="value" id="session-time">00:00</div></div>
+</div>
+
+<div id="heatmap-container">
+  <canvas id="heatmap-canvas"></canvas>
+  <div id="target-dot"></div>
+  <div id="target-pulse"></div>
+  <div class="calibration-overlay" id="calibration-overlay">
+    <div class="countdown" id="cal-countdown">30</div>
+    <div class="label">Building baseline</div>
+    <div class="sub-label">Keep device near wall</div>
+  </div>
+</div>
+
+<div id="bpm-display">--</div>
+<div id="bpm-label">Tap a person on the heatmap to begin tracking</div>
+<div id="tone-status"></div>
+
+<div class="controls">
+  <button class="btn btn-primary" id="btn-calibrate" onclick="startCalibration()">Calibrate</button>
+  <button class="btn btn-outline" id="btn-covert" onclick="toggleCovert()">Covert</button>
+  <button class="btn btn-outline" id="btn-record" onclick="toggleRecord()">Record</button>
+</div>
+
+<div id="session-log"></div>
+<div id="message"></div>
+
+<script>
+var API = window.location.origin;
+var token = localStorage.getItem('token');
+var homeId = localStorage.getItem('homeId');
+var ws = null;
+var calTimer = null;
+var calSeconds = 30;
+var targetLocked = false;
+var targetX = -1, targetY = -1;
+var isCalibrated = false;
+var isCovert = false;
+var isRecording = false;
+var sessionStart = null;
+var sessionTimer = null;
+var gridSize = 20;
+var audioCtx = null;
+var oscillator = null;
+var gainNode = null;
+var currentBpm = 0;
+var logLines = [];
+var tomographyInterval = null;
+
+function log(msg) {
+  var el = document.getElementById('session-log');
+  el.style.display = 'block';
+  var ts = new Date().toLocaleTimeString();
+  logLines.push(ts + ' ' + msg);
+  el.textContent = logLines.join('\n');
+  el.scrollTop = el.scrollHeight;
+}
+
+function showMessage(msg, dur) {
+  var el = document.getElementById('message');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(function(){ el.style.display = 'none'; }, dur || 2000);
+}
+
+function startCalibration() {
+  if (calTimer) return;
+  document.getElementById('calibration-overlay').classList.add('active');
+  document.getElementById('btn-calibrate').disabled = true;
+  document.getElementById('cal-status').textContent = 'Calibrating';
+  document.getElementById('status-text').textContent = 'Calibrating — keep device near wall';
+  calSeconds = 30;
+  document.getElementById('cal-countdown').textContent = calSeconds;
+  calTimer = setInterval(function() {
+    calSeconds--;
+    document.getElementById('cal-countdown').textContent = calSeconds;
+    if (calSeconds <= 0) {
+      clearInterval(calTimer); calTimer = null;
+      document.getElementById('calibration-overlay').classList.remove('active');
+      document.getElementById('btn-calibrate').disabled = false;
+      isCalibrated = true;
+      document.getElementById('cal-status').textContent = 'Done';
+      document.getElementById('status-text').textContent = 'Baseline complete. Tap a person to track.';
+      log('Calibration complete');
+      showMessage('Calibration complete. Tap a person on the heatmap.', 3000);
+      fetchTomography();
+      if (!tomographyInterval) tomographyInterval = setInterval(fetchTomography, 2000);
+    }
+  }, 1000);
+  log('Starting 30s calibration');
+}
+
+function toggleCovert() {
+  isCovert = !isCovert;
+  if (isCovert) {
+    document.body.classList.add('covert');
+    document.getElementById('btn-covert').textContent = 'Visible';
+    document.getElementById('btn-covert').style.borderColor = '#64748b';
+    log('Covert mode activated');
+  } else {
+    document.body.classList.remove('covert');
+    document.getElementById('btn-covert').textContent = 'Covert';
+    document.getElementById('btn-covert').style.borderColor = '#22d3ee';
+    log('Visible mode restored');
+  }
+}
+
+function toggleRecord() {
+  isRecording = !isRecording;
+  if (isRecording) {
+    sessionStart = Date.now();
+    document.getElementById('btn-record').textContent = 'Recording...';
+    document.getElementById('btn-record').style.background = '#ef4444';
+    document.getElementById('btn-record').style.color = '#fff';
+    document.getElementById('btn-record').style.borderColor = '#ef4444';
+    sessionTimer = setInterval(function() {
+      var elapsed = Math.floor((Date.now() - sessionStart) / 1000);
+      var m = Math.floor(elapsed / 60), s = elapsed % 60;
+      document.getElementById('session-time').textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }, 1000);
+    log('Session recording started');
+  } else {
+    clearInterval(sessionTimer);
+    document.getElementById('btn-record').textContent = 'Record';
+    document.getElementById('btn-record').style.background = '';
+    document.getElementById('btn-record').style.color = '';
+    document.getElementById('btn-record').style.borderColor = '';
+    log('Session recording stopped');
+    showMessage('Session saved');
+  }
+}
+
+// Tone engine
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (!gainNode) { gainNode = audioCtx.createGain(); gainNode.gain.value = 0.15; gainNode.connect(audioCtx.destination); }
+}
+
+function startTone(bpm) {
+  initAudio();
+  if (oscillator) { try { oscillator.stop(); } catch(e){} oscillator = null; }
+  oscillator = audioCtx.createOscillator();
+  oscillator.type = 'sine';
+  var freq = 220 + ((bpm - 40) / 120) * 440;
+  oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+  oscillator.connect(gainNode);
+  oscillator.start();
+  // Pulse the tone at BPM rate
+  var interval = 60 / bpm;
+  pulseTone(interval);
+}
+
+function pulseTone(interval) {
+  if (!oscillator || !gainNode) return;
+  gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+  gainNode.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + interval * 0.6);
+  gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + interval * 0.9);
+  setTimeout(function() {
+    if (oscillator) pulseTone(interval);
+  }, interval * 1000);
+}
+
+function stopTone() {
+  if (oscillator) { try { oscillator.stop(); } catch(e){} oscillator = null; }
+}
+
+function updateBpm(bpm) {
+  currentBpm = bpm;
+  var display = document.getElementById('bpm-display');
+  var label = document.getElementById('bpm-label');
+  var toneStatus = document.getElementById('tone-status');
+  if (bpm <= 0 || !targetLocked) {
+    display.textContent = '--';
+    display.className = '';
+    label.textContent = targetLocked ? 'Waiting for reading...' : 'Tap a person on the heatmap to begin tracking';
+    stopTone();
+    toneStatus.textContent = '';
+    return;
+  }
+  display.textContent = Math.round(bpm);
+  if (bpm < 70) { display.className = 'low'; label.textContent = 'Calm'; toneStatus.textContent = 'Slow pulse tone'; }
+  else if (bpm < 100) { display.className = 'medium'; label.textContent = 'Alert'; toneStatus.textContent = 'Medium pulse tone'; }
+  else { display.className = 'high'; label.textContent = 'High stress'; toneStatus.textContent = 'Rapid tone — caution'; }
+  startTone(bpm);
+  document.getElementById('conf-level').textContent = 'Tracking';
+  document.getElementById('conf-level').className = 'value active';
+  if (isRecording) {
+    log('BPM: ' + Math.round(bpm) + ' (' + label.textContent + ')');
+  }
+}
+
+// Tomography
+async function fetchTomography() {
+  if (!homeId || !token) return;
+  try {
+    var r = await fetch(API + '/tomography/' + homeId, {headers: {'Authorization': 'Bearer ' + token}});
+    if (!r.ok) return;
+    var data = await r.json();
+    renderTomography(data);
+  } catch(e) {}
+}
+
+function renderTomography(data) {
+  var canvas = document.getElementById('heatmap-canvas');
+  if (!canvas || !data) return;
+  var rect = canvas.parentElement.getBoundingClientRect();
+  var W = canvas.width = canvas.parentElement.clientWidth;
+  var H = canvas.height = canvas.parentElement.clientHeight;
+  var ctx = canvas.getContext('2d');
+  var grid = data.grid_size || 20;
+  var cellW = W / grid, cellH = H / grid;
+  var heat = data.heat, trail = data.trail, zgrid = data.zone_grid;
+  for (var y = 0; y < grid; y++) {
+    for (var x = 0; x < grid; x++) {
+      var h = heat && heat[y] ? (heat[y][x] || 0) : 0;
+      var t = trail && trail[y] ? (trail[y][x] || 0) : 0;
+      var r = 5, g = 5, b = 25;
+      if (h > 0) { r = 180 + Math.round(75 * h); g = Math.round(30 * (1 - h)); b = Math.round(30 * (1 - h)); }
+      else if (t > 0.2) { r = Math.round(140 * t); g = Math.round(100 * t); b = Math.round(40 * t); }
+      ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+      ctx.fillRect(x * cellW, y * cellH, cellW + 0.5, cellH + 0.5);
+    }
+  }
+  // Persons
+  var persons = data.persons || [];
+  document.getElementById('person-count').textContent = persons.length;
+  for (var i = 0; i < persons.length; i++) {
+    var p = persons[i];
+    var px = p.x * cellW, py = p.y * cellH;
+    ctx.beginPath(); ctx.arc(px, py, Math.max(6, 10 * p.confidence), 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(239,68,68,' + (0.5 + 0.5 * p.confidence) + ')'; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(Math.round(p.confidence * 100) + '%', px, py - 12);
+  }
+  // Target highlight
+  if (targetX >= 0 && targetY >= 0) {
+    ctx.strokeStyle = '#22d3ee'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+    ctx.strokeRect(targetX * cellW, targetY * cellH, cellW, cellH);
+    ctx.setLineDash([]);
+  }
+  if (!isCalibrated && !document.getElementById('calibration-overlay').classList.contains('active')) {
+    ctx.fillStyle = 'rgba(15,23,42,0.5)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#94a3b8'; ctx.font = '14px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Tap "Calibrate" to begin', W/2, H/2);
+  }
+}
+
+// Heatmap tap handling
+document.getElementById('heatmap-container').addEventListener('click', function(e) {
+  if (!isCalibrated) { showMessage('Calibrate first before selecting a target.', 2000); return; }
+  var rect = e.currentTarget.getBoundingClientRect();
+  var x = e.clientX - rect.left, y = e.clientY - rect.top;
+  var cellX = Math.floor(x / (rect.width / gridSize));
+  var cellY = Math.floor(y / (rect.height / gridSize));
+  targetX = cellX; targetY = cellY;
+  targetLocked = true;
+  var dot = document.getElementById('target-dot'); dot.style.display = 'block';
+  dot.style.left = (cellX + 0.5) * (rect.width / gridSize) + 'px';
+  dot.style.top = (cellY + 0.5) * (rect.height / gridSize) + 'px';
+  var pulse = document.getElementById('target-pulse'); pulse.style.display = 'block';
+  pulse.style.left = (cellX + 0.5) * (rect.width / gridSize) + 'px';
+  pulse.style.top = (cellY + 0.5) * (rect.height / gridSize) + 'px';
+  document.getElementById('status-text').textContent = 'Tracking target at (' + cellX + ',' + cellY + ')';
+  log('Target locked at grid (' + cellX + ',' + cellY + ')');
+  showMessage('Target locked. HR tones active.', 2000);
+  // Start receiving BPM — connect WebSocket if not connected
+  connectWS();
+});
+
+// WebSocket
+function connectWS() {
+  if (ws && ws.readyState === WebSocket.OPEN) return;
+  if (!homeId || !token) return;
+  var proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  var url = proto + '//' + window.location.host + '/ws/' + homeId + '?token=' + token;
+  try {
+    ws = new WebSocket(url);
+    ws.onopen = function() { log('Connected to server'); };
+    ws.onmessage = function(ev) {
+      try {
+        var msg = JSON.parse(ev.data);
+        if (msg.type === 'event' && msg.data) {
+          if (targetLocked && msg.data.confidence > 0.5) {
+            // Simulate BPM from event confidence + type — real implementation reads from wellness endpoint
+            var simulatedBpm = 55 + Math.round(msg.data.confidence * 60);
+            if (msg.data.event_type === 'intrusion') simulatedBpm += 15;
+            if (msg.data.event_type === 'motion') simulatedBpm += 5;
+            updateBpm(simulatedBpm);
+          }
+        }
+      } catch(e) {}
+    };
+    ws.onclose = function() {
+      ws = null;
+      setTimeout(connectWS, 5000);
+    };
+  } catch(e) { setTimeout(connectWS, 5000); }
+}
+
+function closeWS() {
+  if (ws) { ws.close(); ws = null; }
+}
+
+// Init
+(async function() {
+  if (!token || !homeId) {
+    document.getElementById('status-text').textContent = 'Not logged in. Open dashboard first.';
+    document.getElementById('btn-calibrate').disabled = true;
+    return;
+  }
+  document.getElementById('status-text').textContent = 'Ready — tap Calibrate';
+  log('Trace initialized. Home: ' + homeId);
+  // Connect WS for real-time data
+  connectWS();
+  // Fetch initial tomography
+  var r = await fetch(API + '/tomography/' + homeId, {headers: {'Authorization': 'Bearer ' + token}});
+  if (r.ok) {
+    var data = await r.json();
+    renderTomography(data);
+  }
+  // Start polling tomography
+  tomographyInterval = setInterval(fetchTomography, 2000);
+})();
+
+window.addEventListener('beforeunload', function() {
+  if (calTimer) clearInterval(calTimer);
+  if (sessionTimer) clearInterval(sessionTimer);
+  if (tomographyInterval) clearInterval(tomographyInterval);
+  closeWS(); stopTone();
+  if (audioCtx) { try { audioCtx.close(); } catch(e){} }
+});
+
+// Cleanup on page hide
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden && oscillator) {
+    gainNode.gain.value = 0.05;
+  } else if (!document.hidden && oscillator) {
+    gainNode.gain.value = 0.15;
+  }
+});
+</script>
+</body>
+</html>

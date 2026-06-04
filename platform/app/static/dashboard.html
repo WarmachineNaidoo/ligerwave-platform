@@ -1333,8 +1333,18 @@ function connectWS() {
       try {
         var msg = JSON.parse(ev.data);
         if (msg.type === 'event') {
-          toast('New ' + (msg.data.event_type || 'event') + ' event (' + Math.round((msg.data.confidence||0)*100) + '%)', 'info');
-          refresh();
+          var eventLabel = msg.data.event_type || 'event';
+          var eventConf = Math.round((msg.confidence || msg.data.confidence || 0) * 100);
+          toast('New ' + eventLabel + ' event (' + eventConf + '%)', msg._priority ? 'warn' : 'info');
+          if (msg._priority) {
+            // AR Premium — immediate render, don't wait for poll
+            if (typeof renderEvents === 'function' && typeof currentEvents !== 'undefined') {
+              currentEvents.unshift(msg.data);
+              renderEvents(currentEvents);
+            }
+          } else {
+            refresh();
+          }
           if (msg.data && msg.data.csi_data_hex) {
             var amps = decodeCsiHex(msg.data.csi_data_hex);
             if (amps) pushHeatmapFrame(amps);

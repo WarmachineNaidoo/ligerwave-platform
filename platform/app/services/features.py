@@ -17,12 +17,21 @@ FEATURES = {
 }
 
 TIERS = {
-    "free":     {"label": "Free",        "monthly": 0,   "features": []},
-    "security": {"label": "Security+",   "monthly": 30,  "features": ["door_window", "vehicle", "fire_smoke"]},
-    "wellness": {"label": "Wellness+",   "monthly": 30,  "features": ["heart_rate"]},
-    "intel":    {"label": "Intelligence+", "monthly": 30, "features": ["gait_id", "routine_dev", "baby_cry", "room_occupancy", "smart_triggers", "water_leak", "structural"]},
-    "premium":  {"label": "Premium Bundle", "monthly": 80, "features": ["door_window", "vehicle", "fire_smoke", "heart_rate", "gait_id", "routine_dev", "baby_cry", "room_occupancy", "smart_triggers", "water_leak", "structural"]},
+    "free":       {"label": "Free",          "monthly": 0,   "features": [],                              "ws_priority": 0},
+    "security":   {"label": "Security+",     "monthly": 30,  "features": ["door_window", "vehicle", "fire_smoke"], "ws_priority": 1},
+    "wellness":   {"label": "Wellness+",     "monthly": 30,  "features": ["heart_rate"],                  "ws_priority": 1},
+    "intel":      {"label": "Intelligence+", "monthly": 30,  "features": ["gait_id", "routine_dev", "baby_cry", "room_occupancy", "smart_triggers", "water_leak", "structural"], "ws_priority": 1},
+    "premium":    {"label": "Premium Bundle", "monthly": 80,  "features": ["door_window", "vehicle", "fire_smoke", "heart_rate", "gait_id", "routine_dev", "baby_cry", "room_occupancy", "smart_triggers", "water_leak", "structural"], "ws_priority": 1},
+    "ar_premium": {"label": "AR Premium",     "monthly": 100, "features": ["door_window", "vehicle", "fire_smoke", "heart_rate", "gait_id", "routine_dev", "baby_cry", "room_occupancy", "smart_triggers", "water_leak", "structural"], "ws_priority": 3},
 }
+
+def get_ws_priority(home_id: str) -> int:
+    """Get WebSocket push priority for a home (higher = faster)."""
+    home = service.table("homes").select("tier").eq("id", home_id).execute()
+    if not home.data:
+        return 0
+    tier = home.data[0].get("tier", "free")
+    return TIERS.get(tier, TIERS["free"]).get("ws_priority", 0)
 
 def get_subscribed_features(home_id: str) -> List[str]:
     """Get the list of enabled feature keys for a home."""

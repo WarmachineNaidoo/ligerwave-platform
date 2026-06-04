@@ -1,62 +1,61 @@
-# Research Agent Configuration — AttnValue-v2
+# Ligerwave Research Agent — Morning Report
 
-Run research weekly (every Monday) or on-demand before major build decisions. Use the `task` tool with `subagent_type: general` to execute.
+Run every morning to generate a build progress + market intelligence report.
 
-## Research Topics
+## How to run
+```
+task "Run morning research report. Use research/research_config.md. Append to research/daily-report.md." subagent_type:general
+```
 
-### 1. Biometric Verification (InsightFace / MediaPipe)
-- New InsightFace releases, model updates (buffalo_l, buffalo_s, antelopev2)
-- MediaPipe FaceMesh updates, TensorFlow.js face-landmarks-detection changes
-- Browser-based gaze tracking libraries (WebGazer updates, alternatives)
-- Server-side face comparison alternatives (AWS Rekognition, Azure Face API pricing changes)
-- ONNX runtime updates, CPU inference performance benchmarks
+## Report Sections
 
-### 2. Crypto Wallet Blockchain APIs
-- Free tier limits and rate limiting for:
-  - Etherscan (ETH), BscScan (BNB), Solscan (SOL)
-  - Blockchain.com (BTC), chainz.cryptoid.info (LTC)
-  - data.ripple.com (XRP)
-- Paid plan pricing at scale (100k+ wallets)
-- Alternative APIs (Moralis, Alchemy, QuickNode — pricing comparison)
-- WalletConnect / MetaMask SDK updates
+### 1. Build Progress
+Run `git log --oneline -5` and check AGENTS.md product status table. Report:
+- What shipped yesterday
+- What's in progress today
+- Outstanding blockers
+- Estimated completion date
 
-### 3. Google OAuth & Social Login
-- Google Identity Services (GIS) updates, breaking changes
-- OAuth consent screen requirements, verification process
-- Authorized JavaScript origins best practices for multi-domain SPAs
-- Apple Sign-In setup requirements
-- Facebook/WhatsApp login options
+### 2. Competitor Activity
+Monitor:
+- **Origin AI / ADT** — any new patents, products, or price changes
+- **Olarm** — SA alarm market changes
+- **Blackline Safety** — mining lone worker updates
+- **MSA Safety** — new wearables
+- **Honeywell** — industrial safety portfolio
+- **Raveon** — mining GPS tracking
+- **TP-Link / Ubiquiti** — new OpenWrt-compatible hardware
 
-### 4. CloudFront SPA Deployment
-- S3 + CloudFront SPA routing patterns (custom error responses vs. Lambda@Edge)
-- Cache invalidation strategies for frequent frontend updates
-- CloudFront pricing (data transfer, request costs)
-- Alternative CDN costs (Cloudflare, Fastly)
+### 3. Legislation Changes
+Monitor:
+- **POPIA** — any new SA Information Regulator rulings on surveillance/sensing
+- **GDPR** — EU changes that affect future expansion
+- **DMR (Mining)** — new safety regulations, fatigue management requirements
+- **OHS Act (Construction)** — construction safety regulation changes
+- **SAPS procurement** — any new policies on surveillance tech procurement
+- **Prison regulations** — any new rules on inmate monitoring
+- **POPIA Section 6(1)(c)** — law enforcement exemption rulings
 
-### 5. Docker + pnpm Workspace Best Practices
-- Multi-stage build patterns for pnpm monorepos
-- pnpm deploy vs. node-linker=hoisted for Docker
-- ECS Fargate startup optimization (health checks, migration on boot)
-- TSX vs compiled JavaScript in production containers
+### 4. Cybersecurity
+Analyse the current platform for:
+- **Supabase access** — are RLS policies correctly scoped?
+- **API key exposure** — any keys in source code or git history?
+- **WebSocket security** — any unauthenticated WS connections?
+- **Dependency vulnerabilities** — check Python packages for CVEs
+- **Data encryption** — CSI data in transit + at rest
+- **Authentication** — JWT expiry, MFA enforcement, brute force protection
+- **Network exposure** — any ports/services exposed unnecessarily
 
-### 6. SA Fintech & Crypto Regulations
-- Crypto asset service provider licensing (FSCA) requirements
-- POPIA guidance on biometric data (face embeddings, consent requirements)
-- Cross-border payment regulations for marketplace platforms
-- Payment gateway options for SA (Yoco, PayFast, Peach Payments, Stripe)
+### 5. Feature Ideas
+Based on market research:
+- What new features could existing products benefit from?
+- What new product verticals make sense?
+- What do competitors do that we don't?
+- What do customers complain about in competitor reviews?
 
-### 7. React Native & Mobile
-- React Native biometric libraries (face detection, camera access)
-- Background geolocation in React Native (iOS/Android)
-- Push notification services (FCM vs OneSignal pricing)
-- Expo vs bare React Native for MVP
-
-### 8. Competitor Landscape (Attention Marketplaces)
-- Swagbucks, InboxDollars, PrizeRebel — payout models, traffic
-- UserTesting, Respondent.io — paid feedback platforms
-- Google Ads / Facebook Ads — cost per verified view benchmarks
-- Any new attention marketplace entrants
-- UBI/crypto-based attention platforms
-
-## Output Format
-Append findings to `research/findings.md` with date header and notes per topic. Include source URLs where applicable.
+### 6. Go-to-Market Intelligence
+- Which products should go to market first?
+- Recommended pricing vs competitor pricing
+- Distribution channels (direct, wholesale, government tender)
+- Ideal launch partners (e.g., pilot prison, pilot mine)
+- Regulatory approval needed before launch per product

@@ -5,6 +5,7 @@ from typing import Optional
 from app.database import supabase, service
 from app.middleware.auth import get_current_user
 from app.middleware.ownership import verify_home_ownership
+from app.services.features import get_ws_priority
 from app.services.simulator import simulators, CsiSimulator
 from app.services.storage import upload_csi
 from app.services.signal import processors, CsiProcessor
@@ -162,10 +163,14 @@ async def ingest_event(body: IngestedEvent, payload: dict = Depends(get_current_
     if should_alert:
         service.table("homes").update({"status": "armed"}).eq("id", home_id).execute()
 
-    # Broadcast via WebSocket
+    # Broadcast via WebSocket — AR Premium gets priority push
     try:
         import asyncio
-        asyncio.ensure_future(manager.broadcast_home(home_id, {"type": "event", "data": event.data[0]}))
+        priority = get_ws_priority(home_id)
+        if priority >= 3:
+            asyncio.ensure_future(manager.broadcast_priority(home_id, {"type": "event", "data": event.data[0], "confidence": confidence, "priority": priority}))
+        else:
+            asyncio.ensure_future(manager.broadcast_home(home_id, {"type": "event", "data": event.data[0]}))
     except Exception as e:
         logger.warning("ws_broadcast_failed", extra={"extra": {"action": "broadcast_event", "error": str(e)}})
 
