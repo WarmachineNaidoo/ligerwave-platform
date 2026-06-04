@@ -190,6 +190,14 @@ Through-wall wellness + riot prediction. One CPE510 per cell block (20-30 cells)
 
 ### 10-clause ToS: Operational support only, no warranty, indemnification, liability cap, training required, export restriction (SA only), tamper prohibition, deactivation right, government use only.
 
+## Product 4 — Ligerwave EstateGuard
+### Overview
+Perimeter + internal road monitoring for gated estates. CPE510 along fence for approach detection. EAP225 on roads for vehicle vs person classification. Guard patrol verification via gait.
+
+### Key Features: Perimeter mode (CPE510 directional), person vs vehicle (speed + amplitude + spectral signature, already built), gait-based patrol verification (GaitDetector), estate-scale heatmap, digging/tunnel detection.
+
+### Hardware (500-home estate): 6x CPE510 (R7,200) + 10x EAP225 (R12,000) + installation (R15,000) = ~R34,600 total. Monthly cloud: R200.
+
 ## Product 9 — Ligerwave Drone (Tactical Ops)
 ### Overview
 Drone-mounted CSI for building threat mapping. 30-40s hover above roof produces heatmap of persons inside. Hybrid CSI + visual tracking for urban pursuit.
