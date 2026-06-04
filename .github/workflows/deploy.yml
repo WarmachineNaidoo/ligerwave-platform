@@ -22,7 +22,7 @@ jobs:
         run: |
           git reset --hard origin/master
           git pull origin master
-          cp platform/app/static/dashboard.html platform/app/static/index.html
+          # dashboard.html accessible at /dashboard.html; landing page at / serves marketing site
           docker rm -f ligerwave-api ligerwave-nginx 2>/dev/null || true
           cd platform
           docker compose build api

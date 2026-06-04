@@ -178,11 +178,13 @@ async def websocket_endpoint(websocket: WebSocket, home_id: str):
 async def health():
     return {"status": "ok"}
 
-import shutil
 static_dir = os.path.join(os.path.dirname(__file__), "static")
-dashboard_path = os.path.join(static_dir, "dashboard.html")
-index_path = os.path.join(static_dir, "index.html")
-if os.path.isfile(dashboard_path) and not os.path.isfile(index_path):
-    shutil.copy2(dashboard_path, index_path)
+landing_path = os.path.join(static_dir, "landing.html")
+if os.path.isfile(landing_path):
+    from starlette.responses import HTMLResponse as HTMLResp
+    @app.get("/", include_in_schema=False)
+    async def serve_landing():
+        with open(landing_path) as f:
+            return HTMLResp(f.read())
 if os.path.isdir(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")

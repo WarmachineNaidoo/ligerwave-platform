@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ligerwave — WiFi Sensing Security</title>
+<meta name="description" content="Ligerwave: WiFi-based intrusion detection for South African homes and businesses. One box, whole property coverage. R500 + R30/mo.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0f172a;color:#e2e8f0;overflow-x:hidden}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%)}
+.hero h1{font-size:clamp(32px,6vw,64px);font-weight:800;color:#fff;line-height:1.1;margin-bottom:16px;letter-spacing:-1px}
+.hero h1 span{background:linear-gradient(135deg,#22d3ee,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{font-size:clamp(16px,2vw,22px);color:#94a3b8;max-width:600px;margin-bottom:32px;line-height:1.6}
+.pricing{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:40px}
+.pricing-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:32px;width:260px;text-align:center;transition:transform .2s}
+.pricing-card:hover{transform:translateY(-4px)}
+.pricing-card.featured{border-color:#22d3ee;background:#1a2a3a}
+.pricing-card .tier{font-size:14px;color:#22d3ee;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.pricing-card .price{font-size:40px;font-weight:800;color:#fff}
+.pricing-card .price span{font-size:16px;color:#64748b;font-weight:400}
+.pricing-card .desc{font-size:13px;color:#94a3b8;margin:16px 0;line-height:1.5;min-height:60px}
+.pricing-card .features{list-style:none;text-align:left;font-size:13px;color:#cbd5e1;margin-bottom:24px}
+.pricing-card .features li{padding:6px 0;display:flex;align-items:center;gap:8px}
+.pricing-card .features li::before{content:"\2713";color:#22d3ee;font-weight:700}
+.btn{display:inline-block;padding:14px 32px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;transition:all .2s;cursor:pointer;border:0}
+.btn-primary{background:#22d3ee;color:#0f172a}.btn-primary:hover{background:#06b6d4;transform:scale(1.02)}
+.btn-outline{background:transparent;color:#22d3ee;border:1px solid #22d3ee}.btn-outline:hover{background:rgba(34,211,238,0.1)}
+.features-section{padding:80px 20px;max-width:1100px;margin:0 auto}
+.features-section h2{font-size:28px;font-weight:700;color:#fff;margin-bottom:40px;text-align:center}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feature-card{background:#1e293b;border:1px solid #334155;border-radius:12px;padding:24px;transition:border-color .2s}
+.feature-card:hover{border-color:#22d3ee}
+.feature-card .icon{font-size:28px;margin-bottom:12px}
+.feature-card h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:8px}
+.feature-card p{font-size:13px;color:#94a3b8;line-height:1.6}
+.how-section{padding:80px 20px;max-width:800px;margin:0 auto;text-align:center}
+.how-section h2{font-size:28px;font-weight:700;color:#fff;margin-bottom:40px}
+.steps{display:flex;flex-direction:column;gap:24px;text-align:left}
+.step{display:flex;gap:20px;align-items:start}
+.step .num{font-size:14px;font-weight:700;color:#22d3ee;background:rgba(34,211,238,0.1);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step h3{font-size:16px;font-weight:600;color:#fff;margin-bottom:4px}
+.step p{font-size:13px;color:#94a3b8;line-height:1.5}
+.cta-section{text-align:center;padding:80px 20px;background:linear-gradient(135deg,#1e293b,#0f172a)}
+.cta-section h2{font-size:28px;font-weight:700;color:#fff;margin-bottom:12px}
+.cta-section p{color:#94a3b8;margin-bottom:32px;font-size:15px}
+.footer{text-align:center;padding:32px;color:#64748b;font-size:12px;border-top:1px solid #1e293b}
+.footer a{color:#22d3ee;text-decoration:none}
+@media(max-width:600px){.pricing-card{width:100%;max-width:320px}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>See through walls.<br><span>Your WiFi knows.</span></h1>
+  <p class="sub">Ligerwave turns your existing WiFi router into an intrusion detection system. No cameras, no PIR sensors. One box covers your entire property.</p>
+  <div class="pricing">
+    <div class="pricing-card">
+      <div class="tier">Security+</div>
+      <div class="price">R30<span>/mo</span></div>
+      <div class="desc">Intrusion detection with WhatsApp alerts</div>
+      <ul class="features">
+        <li>Whole property coverage</li>
+        <li>Through-wall detection</li>
+        <li>WhatsApp alerts when armed</li>
+        <li>30-day CSI forensics</li>
+        <li>AR company API keys</li>
+      </ul>
+      <a class="btn btn-primary" href="/">Get Started</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="tier">Premium Bundle</div>
+      <div class="price">R80<span>/mo</span></div>
+      <div class="desc">Security + Wellness + AI Intelligence</div>
+      <ul class="features">
+        <li>Everything in Security+</li>
+        <li>Breathing &amp; heart rate monitoring</li>
+        <li>Sleep apnea detection</li>
+        <li>Fall detection</li>
+        <li>AI agent for CSI queries</li>
+        <li>365-day storage</li>
+      </ul>
+      <a class="btn btn-primary" href="/">Get Started</a>
+    </div>
+    <div class="pricing-card">
+      <div class="tier">Wholesale</div>
+      <div class="price">R15<span>/mo</span></div>
+      <div class="desc">For AR companies reselling to their customers</div>
+      <ul class="features">
+        <li>White-label dispatch dashboard</li>
+        <li>CSI verification before dispatch</li>
+        <li>Bulk customer management</li>
+        <li>REST API feed</li>
+        <li>Set your own retail price</li>
+      </ul>
+      <a class="btn btn-outline" href="/">Contact Sales</a>
+    </div>
+  </div>
+  <a class="btn btn-outline" href="/dashboard">Existing user? Sign in →</a>
+</div>
+
+<div class="features-section">
+  <h2>Why Ligerwave?</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon">📡</div>
+      <h3>One box, no install</h3>
+      <p>Plug into your existing WiFi router. No sensors to place, no cameras to mount, no wires to run.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🧱</div>
+      <h3>Through walls</h3>
+      <p>PIR sensors need line of sight. Ligerwave's radio waves go through walls, ceilings, and furniture.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">👤</div>
+      <h3>Privacy first</h3>
+      <p>No cameras, no faces, no audio. Only radio signal metadata. Your privacy is our design principle.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📱</div>
+      <h3>WhatsApp alerts</h3>
+      <p>Get instant alerts when an intruder is detected. Only when the system is armed — zero noise.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🫁</div>
+      <h3>Wellness monitoring</h3>
+      <p>Breathing rate, heart rate, sleep apnea, and fall detection. Same sensor, no extra hardware.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔐</div>
+      <h3>AR company ready</h3>
+      <p>Generate API keys for your armed response company. They get CSI verification before dispatching.</p>
+    </div>
+  </div>
+</div>
+
+<div class="how-section">
+  <h2>How it works</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <h3>Buy the box</h3>
+        <p>Get a Ligerwave-ready router (R500) at any major retailer or order online. No contracts.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <h3>Scan &amp; subscribe</h3>
+        <p>Scan the QR code with your phone. Sign in with Google or Apple. Add your payment (R30/mo).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <h3>Plug in</h3>
+        <p>Replace your existing router with the Ligerwave box. It auto-pairs with your account.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <div>
+        <h3>Done</h3>
+        <p>Your property is monitored. The system learns your baseline over 7 days, then starts alerting.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <h2>Ready to secure your property?</h2>
+  <p>R500 device + R30/mo. No contract. Cancel anytime.</p>
+  <a class="btn btn-primary" href="/">Get Started →</a>
+</div>
+
+<div class="footer">
+  <p>Ligerwave (Pty) Ltd — South Africa</p>
+  <p style="margin-top:4px"><a href="/">Dashboard</a> · <a href="mailto:dpo@ligerwave.tech">dpo@ligerwave.tech</a> · POPIA compliant</p>
+  <p style="margin-top:8px">POPIA compliance: This service processes CSI radio data for intrusion detection. Full details at /privacy/my-data.</p>
+</div>
+</body>
+</html>

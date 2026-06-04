@@ -144,12 +144,17 @@ Router (on-site) → HTTPS CSI stream → Cloud API (FastAPI)
 - **Admin router**: `routers/admin.py` — `GET /admin/features`, `POST /admin/features/stage`, `POST /admin/features/tester`, `DELETE /admin/features/tester`. Admin role required.
 
 ## Latest Additions (2026-06-04)
-- **GDPR future-proofing (4 items)**:
-  - **Consent records**: `POST /privacy/consent` — logs consent_type, version, IP, user-agent, timestamp to audit_logs. GDPR Art 7 requires proof of consent
-  - **Data portability**: `GET /privacy/my-data/export?format=json|csv` — GDPR Art 20 right to machine-readable export
-  - **DPO contact**: `GET /privacy/dpo` — returns DPO name, email, phone, address from config. GDPR Art 37
-  - **Breach detection**: `services/breach.py` — monitors auth failures (20+ in 5min) and rate limit spikes (50+ in 5min), writes breach records to audit_logs, fires webhook to DPO. GDPR Art 33 72-hour notification
-  - Wired into `middleware/auth.py` (auth fails) and `main.py` (rate limit 429s)
+- **POPIA compliance**: Data subject rights (`routers/privacy.py`), audit retention 3yr (`retention.py`), dashboard POPIA notice (en/af/zu)
+- **GDPR future-proofing**:
+  - Consent records: `POST /privacy/consent` — logs consent_type, version, IP, UA to audit_logs (Art 7)
+  - Data portability: `GET /privacy/my-data/export?format=json|csv` (Art 20)
+  - DPO contact: `GET /privacy/dpo` (Art 37)
+  - Breach detection: `services/breach.py` — monitors auth fails + rate limit spikes, alerts DPO (Art 33)
+- **Consent flow**: First-load modal with 3 checkboxes (security, wellness, signage). Records to audit_logs.
+- **RF Tomography**: `GET /tomography/{home_id}` — 20×20 perturbation grid, zone mapping, person detection. Canvas dashboard refreshes every 2s.
+- **R2 bucket**: `csi-raw` bucket verified — read/write/delete working
+- **Marketing site**: `landing.html` with pricing tiers, feature cards, how-it-works. Served at `/`
+- **Migration 003**: Updated with consent_logs table + tier fix. Needs manual run in Supabase SQL Editor.
 - **POPIA compliance**:
   - **Data subject rights endpoints**: `routers/privacy.py` — `GET /privacy/my-data` (access), `DELETE /privacy/my-data` (deletion, keeps billing records), `POST /privacy/my-data/correction` (email/phone/name)
   - **POPIA notice banner**: Footer on dashboard with English/Afrikaans/Zulu i18n. Shows when logged in with link to `/privacy/my-data`
