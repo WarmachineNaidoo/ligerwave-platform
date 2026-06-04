@@ -190,7 +190,45 @@ Through-wall wellness + riot prediction. One CPE510 per cell block (20-30 cells)
 
 ### 10-clause ToS: Operational support only, no warranty, indemnification, liability cap, training required, export restriction (SA only), tamper prohibition, deactivation right, government use only.
 
-## Product 4 — Ligerwave EstateGuard
+## Product 5 — Ligerwave MineGuard (Mining / Industrial)
+### Overview
+Mine personnel safety without wearables. Uses mine's existing underground WiFi mesh. CSI APs detect every person through rock — presence, HR, breathing, gait, movement. No device for miner to wear.
+
+### Stakeholders & What We Deliver
+| Stakeholder | Key Value |
+|------------|-----------|
+| **Miner** | Zero wearable = zero compliance failure. Detected even if trapped, unconscious, or forgot badge. HR + breathing tells rescuers if alive. |
+| **Shift Supervisor** | Live headcount. Never wonder if everyone is out before blast. Auto end-of-shift report: "47 of 47 accounted for." |
+| **Safety Officer** | Automated SHEQ reports. HR anomaly tracking for heat stress. Gait filtering ignores machinery vibration. |
+| **Mine Manager** | Incident replay: timeline of every person pre-incident. Tamper-evident audit trail for DMR. |
+| **Blasting Engineer** | Zone occupancy check: "Zone 5 — 0 persons. Zone 6 — 1 person. Cannot blast." Override requires supervisor. |
+| **Rescue Team** | Sees through dust/smoke. HR confirms alive vs deceased. Gait identifies who is who in zero visibility. |
+| **Rock Engineer** | Lone worker auto-detection in high-seismic-risk zones. |
+| **Ventilation Officer** | Detects turbulence patterns in CSI — predicts smoke path relative to personnel locations. |
+| **Equipment Operator** | Person detection around blind spots. Auto-brake if ignored + distance <3m. Works around corners (CSI diffracts). |
+| **DMR Regulator** | Tamper-evident log. Signed PDF export for legal proceedings. |
+| **Union** | Objective data resolves disputes: "Was member sent into unsafe zone? Show CSI log." |
+| **Families** | Read-only delayed portal: "Last seen 30 min ago — mobile, HR normal." |
+| **Mine Owner** | ESG reporting, zero-fatality proof, R0 wearable cost per employee. |
+
+### CSI Edge Over Competitors
+- Person behind rock: ❌ GPS/RFID fails — ✅ CSI works
+- Unconscious miner: ❌ Wearable tracks but can't confirm life — ✅ HR + breathing detects alive vs dead
+- Zero visibility (dust/smoke): ❌ Thermal fails — ✅ CSI works
+- Miner forgot device: ❌ No tracking — ✅ Still detected
+- Equipment vs person: ❌ Can't distinguish — ✅ Gait = walking distinguishable from machinery
+
+### Fringe Cases
+| Case | How Handled |
+|------|-------------|
+| Miner sleeping | Still breathing, HR normal → not an alert unless HR abnormal |
+| Machinery vibration masking person | Human gait aperiodic vs engine harmonic → separate by frequency band |
+| Heat stress | Sustained HR >100 for 30+ min + reduced movement → flag |
+| Water ingress (flooding) | CSI amplitude drops simultaneously across multiple APs → "Possible flooding" |
+| Power outage | AP offline → 5-min timeout → "Zone lost. Last known: 3 persons." |
+| Rockfall traps miner | Seismic spike correlation + HR detected after event → "Possible burial" |
+| Rescue chaos | Multiple persons, system tags each by gait. "Rescuer A at 30m. Victim no movement 20min, HR 52." |
+| Person on conveyor belt | Movement speed matches belt, not walking → "Possible stowaway/accident" |
 ### Overview
 Perimeter + internal road monitoring for gated estates. CPE510 along fence for approach detection. EAP225 on roads for vehicle vs person classification. Guard patrol verification via gait.
 
