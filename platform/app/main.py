@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 from app.config import settings as app_settings
-from app.routers import auth, homes, devices, events, api_keys, arming, subscriptions, export, webhooks, agent, wellness, ar, settings, zones, push, health, premium, admin, privacy, tomography, prison, estate
+from app.routers import auth, homes, devices, events, api_keys, arming, subscriptions, export, webhooks, agent, wellness, ar, settings, zones, push, health, premium, admin, privacy, tomography, prison, estate, mine
 from app.services.ws import manager
 from app.middleware.auth import get_current_user
 from app.services.log import logger
@@ -142,6 +142,7 @@ app.include_router(privacy.router)
 app.include_router(tomography.router)
 app.include_router(prison.router)
 app.include_router(estate.router)
+app.include_router(mine.router)
 
 @app.websocket("/ws/{home_id}")
 async def websocket_endpoint(websocket: WebSocket, home_id: str):
