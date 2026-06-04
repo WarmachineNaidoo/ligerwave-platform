@@ -194,41 +194,85 @@ Through-wall wellness + riot prediction. One CPE510 per cell block (20-30 cells)
 ### Overview
 Mine personnel safety without wearables. Uses mine's existing underground WiFi mesh. CSI APs detect every person through rock — presence, HR, breathing, gait, movement. No device for miner to wear.
 
-### Stakeholders & What We Deliver
-| Stakeholder | Key Value |
-|------------|-----------|
-| **Miner** | Zero wearable = zero compliance failure. Detected even if trapped, unconscious, or forgot badge. HR + breathing tells rescuers if alive. |
-| **Shift Supervisor** | Live headcount. Never wonder if everyone is out before blast. Auto end-of-shift report: "47 of 47 accounted for." |
-| **Safety Officer** | Automated SHEQ reports. HR anomaly tracking for heat stress. Gait filtering ignores machinery vibration. |
-| **Mine Manager** | Incident replay: timeline of every person pre-incident. Tamper-evident audit trail for DMR. |
-| **Blasting Engineer** | Zone occupancy check: "Zone 5 — 0 persons. Zone 6 — 1 person. Cannot blast." Override requires supervisor. |
-| **Rescue Team** | Sees through dust/smoke. HR confirms alive vs deceased. Gait identifies who is who in zero visibility. |
-| **Rock Engineer** | Lone worker auto-detection in high-seismic-risk zones. |
-| **Ventilation Officer** | Detects turbulence patterns in CSI — predicts smoke path relative to personnel locations. |
-| **Equipment Operator** | Person detection around blind spots. Auto-brake if ignored + distance <3m. Works around corners (CSI diffracts). |
-| **DMR Regulator** | Tamper-evident log. Signed PDF export for legal proceedings. |
-| **Union** | Objective data resolves disputes: "Was member sent into unsafe zone? Show CSI log." |
-| **Families** | Read-only delayed portal: "Last seen 30 min ago — mobile, HR normal." |
-| **Mine Owner** | ESG reporting, zero-fatality proof, R0 wearable cost per employee. |
+### The Miner's Day — Journey Map
+| Time | Activity | Current Problem | MineGuard Fix |
+|------|----------|----------------|--------------|
+| 05:30 | Arrive at mine, change into PPE | Manual sign-in queue | Auto-detected entering mine. Lamp room screen: "Good morning, Sipho — Shift B, Zone 4." |
+| 06:00 | Cage descent | Supervisor counts heads manually | Live count: "12 of 12 present." |
+| 06:15 | Travel to work area | No progress visibility | Real-time location. Travel time tracked per miner → identify fatigue/injury delays. |
+| 06:30 | Pre-shift meeting | No proof it happened | 12 persons stationary 12 min in Zone 4 → logged as "safety meeting completed." |
+| 06:45 | Inspect area (lone worker) | Nobody knows if too long in remote zone | Lone worker timer: >30 min reduced movement in isolated zone → alert. |
+| 07:00-12:00 | Drilling, charging, support | Hard to track team spread across zone | Heatmap: "3 at face, 2 installing support, 1 at vent raise." HR + gait monitored through shift. |
+| 09:00 | Tea break | No heat stress monitoring | HR recovery tracked. If someone's HR stays >90 during rest → "Not recovering — possible heat stress developing." |
+| 12:30 | Blast clearance | Manual headcount takes 15-20 min | Instant: "Zone 4: 0 persons. All clear to blast." |
+| 13:00 | Post-blast | Scramble to confirm everyone accounted | "All 12 persons detected, all HR normal. No injuries." |
+| 13:30 | Surface | End-of-shift headcount | Automatic: "12 of 12 accounted for. Shift complete." |
+| 14:00 | Home | Family worries | Family portal (30 min delay): "Sipho — Shift complete. Surfaced 13:45." |
 
-### CSI Edge Over Competitors
-- Person behind rock: ❌ GPS/RFID fails — ✅ CSI works
-- Unconscious miner: ❌ Wearable tracks but can't confirm life — ✅ HR + breathing detects alive vs dead
-- Zero visibility (dust/smoke): ❌ Thermal fails — ✅ CSI works
-- Miner forgot device: ❌ No tracking — ✅ Still detected
-- Equipment vs person: ❌ Can't distinguish — ✅ Gait = walking distinguishable from machinery
+### Normal Ops Features
+- Auto shift reconciliation — system compares expected vs detected. Discrepancies alerted instantly.
+- Hot zone monitoring — tagged high-risk areas. >30 min occupancy → alert.
+- Productivity analytics — time per zone per role. Anomalies flagged to mine manager.
+- Conveyor proximity alert — person within 5m of moving conveyor → operator alerted + auto-stop if ignored.
+- Refuge bay occupancy — during emergency, track who has reached safe havens.
+- Rest adequacy tracking — HR recovery during breaks. Slow recovery = heat stress flag.
+- Gait fatigue index — walking speed + stride vs baseline. >20% deviation = fatigue marker.
+- Rapid deployment mode — supervisor walks new tunnel once, system maps it. No IT needed.
 
-### Fringe Cases
-| Case | How Handled |
-|------|-------------|
-| Miner sleeping | Still breathing, HR normal → not an alert unless HR abnormal |
-| Machinery vibration masking person | Human gait aperiodic vs engine harmonic → separate by frequency band |
-| Heat stress | Sustained HR >100 for 30+ min + reduced movement → flag |
-| Water ingress (flooding) | CSI amplitude drops simultaneously across multiple APs → "Possible flooding" |
-| Power outage | AP offline → 5-min timeout → "Zone lost. Last known: 3 persons." |
-| Rockfall traps miner | Seismic spike correlation + HR detected after event → "Possible burial" |
-| Rescue chaos | Multiple persons, system tags each by gait. "Rescuer A at 30m. Victim no movement 20min, HR 52." |
-| Person on conveyor belt | Movement speed matches belt, not walking → "Possible stowaway/accident" |
+### Extreme Events — Second-by-Second
+| Event | Detection | 0-10s | 10s-5min | 5min+ |
+|-------|-----------|-------|----------|-------|
+| Rockfall | CSI noise spike + AP signal drop | "Seismic event Zone 4" | "3 persons in zone. 2 with HR. 1 no signal." | Rescue to coordinates of remaining 1. |
+| Fire | CSI phase turbulence (hot air currents) | "Abnormal airflow Zone 7" | "Zone 7: 0 persons. Adjacent: 4 persons, HR elevated." | Evacuation path: "Zone 7 smoke-logged. Route through Zone 5." |
+| Flood | CSI amplitude drop across APs | "Water detected Zone 9" | "2 persons Zone 9. 5 persons Zone 10." | "Estimated time to Zone 10: 12 min. Evacuate now." |
+| Gas explosion | Broadband noise spike + signal loss | "Explosion Zone 6" | "4 persons pre-event. 2 post-event (HR). 2 no signal." | Rescue map: "Survivors at 30m/45m. Deceased at 15m/22m." |
+| Power failure | APs going offline sequentially | "Power propagating from Zone 5" | "Last known: 8 persons in Zone 5-6 corridor." | Battery-backed APs in critical zones maintain tracking. |
+| Toxic gas (H2S/CO) | Integration with gas sensors | "H2S alarm Zone 8. CSI: 5 persons there." | "Move to Zone 11 immediately." | Track evacuation: "3 of 5 moved. 2 still in Zone 8." |
+| Trapped behind fall | AP on bystander side still works | "6 persons behind fall. All HR normal." | "All stable 5min post-event." | Borehole rescue: "Personnel 20m from AP. Drill within 3m." |
+| Hostage/barricade | Unusual clustering + abnormal movement | "15 persons in Zone 3 (cap: 4)." | "Zone 3: 15 in one area. 1 isolated in Zone 5 with agitated gait." | Negotiation intel: "14 hostages, HR elevated. 1 agitator pacing." |
+
+### System Integrations
+- Seismic monitoring → CSI + seismic: "Seismic event + 3 persons in Zone 6 confirmed."
+- Gas monitoring → Gas + CSI: "H2S alarm Zone 8. 2 persons there — evacuate."
+- Ventilation → CSI + ventilation: "Smoke toward Zone 5. 12 persons there — redirect airflow."
+- Blasting → CSI + blast: "Zone clearance — 0 persons. Permit to blast."
+- Dispatch → CSI + fleet: "Person 5m behind reversing truck. Auto-brake."
+- Mine plan → CSI + digital twin: "3 person-days tracked vs schedule in Zone 4."
+- HR/shift → CSI + roster: "Expected 47. Detected 44. 3 unaccounted."
+- Emergency response → CSI + protocol: "Zone 6 incident. 5 rescued. Auto-call to team."
+- Refuge bays → CSI + refuge: "Bay 1: 23. Bay 2: 18. 5 en route, ETA 2 min."
+- Lighting → CSI + lights: "Zone unoccupied 2h → dim. Person detected → restore."
+
+### Advanced Features
+| Feature | What It Does | Feasibility |
+|---------|-------------|-------------|
+| Fatigue Index | Gait degradation over shift vs baseline. Cross threshold → rotate. | ✅ GaitDetector exists |
+| Heat Stress Prediction | HR trends + zone temp + crew rotation data | ✅ HR + movement tracked |
+| Hydration Alert | HR recovery slope during rest breaks (soft alert only) | 🟡 Indirect marker |
+| Confined Space Timer | Single person in small zone >60 min → alert | ✅ Zone mapping exists |
+| Productivity vs Safety Dashboard | Man-hours vs incident flags per zone | ✅ Aggregate data |
+| Automated DMR Reporting | Shift attendance, fatigue monitoring, incident log | ✅ All data captured |
+| Family Portal | Read-only 30-min delay view: "Alive, mobile, shift ends 14:00." | ✅ Simple API |
+
+### Stakeholder Dashboards
+
+**Mine Manager:** Site summary — 234/236 personnel, zone-by-zone HR status, today's incidents, heat stress flags, fatigue interventions, productivity %, downloadable DMR reports.
+
+**Safety Officer:** Active alerts (2), watch list (3 heat/fatigue/confined space), shift statistics (incidents 0, near-misses 2, fatigue interventions 3, heat stress 2), auto-generated DMR-ready PDFs.
+
+**Shift Supervisor (phone):** Per-zone headcount, blast clearance status, lone worker timers. "31/31 ✅ All accounted." Quick alert + end shift buttons.
+
+**Mine Rescue (emergency tablet):** Incident type + magnitude. Survivors: P1 (20m, HR 72), P2 (30m, HR 65), P3 (45m, NO HR). Blocked entry point + alternative route + team ETA.
+
+### Summary — What Makes MineGuard Unique
+1. Zero wearable — no badge, no battery, no charge. The miner just exists.
+2. Through-rock detection — GPS/UWB/RFID all fail behind rock. CSI doesn't.
+3. Alive vs dead confirmation — HR + breathing tells rescuers who to prioritize.
+4. Gait-based identification — knows who is who, not just "someone is there."
+5. 10+ extreme events mapped with second-by-second response.
+6. Useful in normal ops too — productivity, fatigue, heat stress.
+7. Uses existing mine WiFi — no new infrastructure.
+8. No compliance failure point — works even when the system is forgotten or broken.
 ### Overview
 Perimeter + internal road monitoring for gated estates. CPE510 along fence for approach detection. EAP225 on roads for vehicle vs person classification. Guard patrol verification via gait.
 
