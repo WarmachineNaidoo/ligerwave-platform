@@ -14,23 +14,17 @@ env:
 jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'master' || github.event.workflow_run.head_branch == 'main') }}
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 100.24.17.32
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          timeout: 60s
-          script: |
-            cd ~/ligerwave-platform
-            git reset --hard origin/master
-            git pull origin master
-            cp platform/app/static/dashboard.html platform/app/static/index.html
-            docker rm -f ligerwave-api 2>/dev/null || true
-            cd platform
-            docker compose build api
-            docker compose up -d api
-            docker system prune -f
+      - name: Deploy
+        working-directory: /home/ubuntu/ligerwave-platform
+        run: |
+          git reset --hard origin/master
+          git pull origin master
+          cp platform/app/static/dashboard.html platform/app/static/index.html
+          docker rm -f ligerwave-api 2>/dev/null || true
+          cd platform
+          docker compose build api
+          docker compose up -d api
+          docker system prune -f
