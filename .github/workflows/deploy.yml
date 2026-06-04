@@ -25,6 +25,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ~/ligerwave-platform
+            git reset --hard origin/master
             git pull origin master
             cp platform/app/static/dashboard.html platform/app/static/index.html
             cd platform
