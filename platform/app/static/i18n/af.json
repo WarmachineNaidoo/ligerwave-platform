@@ -121,6 +121,22 @@
     "title": "POPIA Kennisgewing",
     "body": "Hierdie eiendom gebruik Ligerwave WiFi-sensing vir indringingopsporing en opsionele welstandmonitering. CSI-data word op die toestel verwerk; slegs metadata en gebeure word gestoor. U het die reg om u data te bekyk, reg te stel en uit te vee via Instellings \u00bb Privaatheid."
   },
+  "consent": {
+    "title": "Toestemming Vereis",
+    "subtitle": "Ligerwave gebruik WiFi-sensing om jou eiendom te monitor. Hersien en bevestig asseblief hieronder.",
+    "security": "Sekuriteitsmonitering",
+    "security_desc": "Ek gee toestemming vir WiFi CSI-sensing vir indringingopsporing, bewegingnasporing en sekuriteitswaarskuwings via hierdie stelsel.",
+    "wellness": "Welstandmonitering (Opsioneel)",
+    "wellness_desc": "Ek gee toestemming vir asemhalingstempo, harttempo, slaapapnee en valopsporingsanalise van WiFi-seine.",
+    "signage": "POPIA Kennisgewing Ge\u00efnstalleer",
+    "signage_desc": "Ek bevestig dat ek POPIA- voldoenende kennisgewings by elke ingang van die gemoniteerde eiendom ge\u00efnstalleer het, wat besoekers inlig dat WiFi-sensing gebruik word.",
+    "confirm": "Bevestig & Gaan Voort",
+    "saving": "Stoor...",
+    "withdraw": "U kan toestemming enige tyd onttrek via Instellings \u2192 Privaatheid. Datasubjekregte word onder POPIA / GDPR hanteer.",
+    "required_security": "U moet toestemming gee vir sekuriteitsmonitering om hierdie diens te gebruik.",
+    "required_signage": "U moet bevestig dat POPIA-kennisgewings ge\u00efnstalleer is.",
+    "save_error": "Kon nie toestemming stoor nie. Probeer asseblief weer."
+  },
   "errors": {
     "login_failed": "Aantekening het misluk",
     "network_error": "Netwerkfout"

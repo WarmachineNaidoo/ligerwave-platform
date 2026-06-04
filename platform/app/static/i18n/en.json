@@ -121,6 +121,22 @@
     "title": "POPIA Notice",
     "body": "This property uses Ligerwave WiFi sensing for intrusion detection and optional wellness monitoring. CSI data is processed on-device; only metadata and events are stored. You have the right to access, correct, and delete your data via Settings \u00bb Privacy."
   },
+  "consent": {
+    "title": "Consent Required",
+    "subtitle": "Ligerwave uses WiFi sensing to monitor your property. Please review and confirm below.",
+    "security": "Security Monitoring",
+    "security_desc": "I consent to WiFi CSI sensing for intrusion detection, motion tracking, and security alerts via this system.",
+    "wellness": "Wellness Monitoring (Optional)",
+    "wellness_desc": "I consent to breathing rate, heart rate, sleep apnea, and fall detection analysis from WiFi signals.",
+    "signage": "POPIA Signage Installed",
+    "signage_desc": "I confirm that I have installed POPIA-compliant notice signage at each entrance to the monitored property, informing visitors that WiFi sensing is in use.",
+    "confirm": "Confirm & Continue",
+    "saving": "Saving...",
+    "withdraw": "You can withdraw consent at any time via Settings \u2192 Privacy. Data subject rights are handled under POPIA / GDPR.",
+    "required_security": "You must consent to security monitoring to use this service.",
+    "required_signage": "You must confirm that POPIA signage has been installed.",
+    "save_error": "Failed to save consent. Please try again."
+  },
   "errors": {
     "login_failed": "Login failed",
     "network_error": "Network error"

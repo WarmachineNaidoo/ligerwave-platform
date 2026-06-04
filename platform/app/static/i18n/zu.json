@@ -121,6 +121,22 @@
     "title": "Isaziso se-POPIA",
     "body": "Le ndawo isebenzisa i-Ligerwave WiFi sensing ukuze ithole abangenele kanye nokuqapha impilo. I-CSI data icutshungulwa kusisetshenziswa; imetadata nezehlakalo kuphela ezigciniwe. Unelungelo lokufinyelela, ukulungisa, nokususa idatha yakho nge Settings \u00bb Privacy."
   },
+  "consent": {
+    "title": "Imvume Iyadingeka",
+    "subtitle": "I-Ligerwave isebenzisa i-WiFi sensing ukuqapha indawo yakho. Sicela ubuyekeze futhi uqinisekise ngezansi.",
+    "security": "Ukuqapha Ukuphepha",
+    "security_desc": "Ngiyavuma ukusebenzisa i-WiFi CSI sensing ukuze kutholwe abangenele, ukulandelela ukunyakaza, nezikhiye zokuphepha ngale sistimu.",
+    "wellness": "Ukuqapha Impilo (Ngokuzithandela)",
+    "wellness_desc": "Ngiyavuma ukuhlaziywa kwezinga lokuphefumula, izinga lokushaya kwenhliziyo, i-apnea yokulala, nokutholwa kokuwa ngamasignali e-WiFi.",
+    "signage": "Isaziso se-POPIA Sifakiwe",
+    "signage_desc": "Ngiyaqinisekisa ukuthi ngifake izaziso ezihambisana ne-POPIA emnyango ngamunye wendawo eqashiwe, ukwazisa izivakashi ukuthi i-WiFi sensing iyasebenza.",
+    "confirm": "Qinisekisa & Qhubeka",
+    "saving": "Iyalondoloza...",
+    "withdraw": "Ungahoxisa imvume noma inini nge Settings \u2192 Privacy. Amalungelo ezihloko zedatha aphathwa ngaphansi kwe-POPIA / GDPR.",
+    "required_security": "Kumele uvume ukuqapha ukuphepha ukuze usebenzise le sevisi.",
+    "required_signage": "Kumele uqinisekise ukuthi izaziso ze-POPIA zifakiwe.",
+    "save_error": "Ukulondoloza imvume kwehlulekile. Sicela uzame futhi."
+  },
   "errors": {
     "login_failed": "Ukungena kwehlulekile",
     "network_error": "Iphutha lenethiwekhi"
