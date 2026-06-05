@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EstateGuard — Security Control</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0b1120;color:#e2e8f0;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;color:#22d3ee;display:flex;align-items:center;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:#1a2332;border-radius:12px;padding:16px;border:1px solid #1e293b;border-left:3px solid #22d3ee}
+.stat-card .label{font-size:10px;color:#64748b;text-transform:uppercase}
+.stat-card .value{font-size:28px;font-weight:700;margin-top:4px}
+.stat-card.warning{border-left-color:#f59e0b}
+.stat-card.danger{border-left-color:#ef4444}.stat-card.danger .value{color:#ef4444}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.zone-card{background:#1a2332;border-radius:12px;padding:16px;border:1px solid #1e293b}
+.zone-card .zone-name{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;display:flex;justify-content:space-between}
+.zone-card .zone-name .type{padding:2px 8px;border-radius:4px;font-size:9px;font-weight:600;background:#1e293b;color:#64748b}
+.zone-card .event{font-size:12px;color:#cbd5e1;padding:6px 0;border-bottom:1px solid #1e293b;display:flex;justify-content:space-between}
+.zone-card .event:last-child{border:0}
+.zone-card .event .conf{font-weight:600}
+.zone-card .event .time{color:#64748b;font-size:10px}
+.zone-card .empty{color:#475569;font-size:12px;padding:12px 0;text-align:center}
+.map-placeholder{background:#1a2332;border-radius:12px;border:1px solid #1e293b;padding:40px;text-align:center;margin-bottom:20px;color:#475569;font-size:13px;min-height:200px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.map-placeholder .icon{font-size:48px;opacity:.3}
+.patrol-card{background:#1a2332;border-radius:12px;padding:16px;border:1px solid #1e293b;margin-bottom:20px}
+.patrol-card h3{font-size:14px;font-weight:600;color:#fff;margin-bottom:8px}
+.patrol-card .guard{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b;font-size:13px}
+.patrol-card .guard:last-child{border:0}
+.patrol-card .guard .name{color:#e2e8f0}
+.patrol-card .guard .route{color:#64748b;font-size:11px}
+.patrol-card .guard .status{font-size:11px;font-weight:600}
+.patrol-card .guard .status.on{color:#6ee7b7}
+.patrol-card .guard .status.off{color:#fca5a5}
+.btn{padding:8px 18px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s}
+.btn-primary{background:#22d3ee;color:#0f172a}.btn-primary:active{transform:scale(.96)}
+.btn-outline{background:transparent;color:#22d3ee;border:1px solid #22d3ee}
+.footer{font-size:11px;color:#475569;text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #1e293b}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🏘️ EstateGuard — Security Control</h1>
+  <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="refreshAll()">⟳ Refresh</button></div>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat-card"><div class="label">Perimeter Alerts (24h)</div><div class="value" id="perimeter-alerts">--</div></div>
+  <div class="stat-card"><div class="label">Guards On Duty</div><div class="value" id="guards-on-duty">--</div></div>
+  <div class="stat-card danger"><div class="label">Active Intrusions</div><div class="value" id="active-intrusions">0</div></div>
+  <div class="stat-card"><div class="label">Patrols Completed</div><div class="value" id="patrols-today">--</div></div>
+</div>
+
+<div class="map-placeholder" id="estate-map">
+  <div class="icon">🗺️</div>
+  <div>Estate Map</div>
+  <div style="font-size:11px;color:#475569">Connect estate layout API to render perimeter zones</div>
+</div>
+
+<div id="patrol-section" style="margin-bottom:20px"></div>
+<div class="zone-grid" id="zone-grid"></div>
+<div class="footer">Auto-refresh every 10s • Last update: <span id="last-update">--</span></div>
+
+<script>
+var API=window.location.origin,token=localStorage.getItem('token');
+if(!token)document.body.innerHTML='<div style="padding:40px;text-align:center;color:#64748b">Please <a href="/" style="color:#22d3ee">sign in</a> first.</div>';
+async function refreshAll(){
+  if(!token)return;
+  try{
+    var r=await fetch(API+'/estate/perimeter/default',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok)return;var data=await r.json();
+    renderDashboard(data)
+  }catch(e){}
+}
+function renderDashboard(data){
+  document.getElementById('perimeter-alerts').textContent=data.active_alerts||0;
+  document.getElementById('last-update').textContent=new Date().toLocaleTimeString();
+  var grid=document.getElementById('zone-grid');grid.innerHTML='';
+  var alerts=data.alerts||[];
+  if(alerts.length===0){
+    grid.innerHTML='<div style="color:#475569;font-size:13px;text-align:center;padding:40px;grid-column:1/-1">All zones clear • No perimeter alerts</div>'
+  }
+  for(var i=0;i<alerts.length;i++){
+    var a=alerts[i];
+    var card=document.createElement('div');card.className='zone-card';
+    var html='<div class="zone-name">Zone '+a.zone+'<span class="type">'+a.zone_type+'</span></div>';
+    var events=a.alerts||[];
+    if(events.length===0)html+='<div class="empty">No recent events</div>';
+    else for(var j=0;j<Math.min(events.length,3);j++){
+      var e=events[j];
+      html+='<div class="event"><span>'+e.event_type+' <span class="conf">'+Math.round((e.confidence||0)*100)+'%</span></span><span class="time">'+new Date(e.timestamp).toLocaleTimeString()+'</span></div>'
+    }
+    card.innerHTML=html;grid.appendChild(card)
+  }
+}
+setInterval(refreshAll,10000);refreshAll();
+</script>
+</body>
+</html>

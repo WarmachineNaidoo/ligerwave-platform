@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MineGuard — Control Room</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0b1120;color:#e2e8f0;padding:20px;min-height:100vh}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;color:#22d3ee;display:flex;align-items:center;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:#1a2332;border-radius:12px;padding:16px;border:1px solid #1e293b;border-left:3px solid #22d3ee}
+.stat-card .label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.5px}
+.stat-card .value{font-size:28px;font-weight:700;color:#fff;margin-top:4px}
+.stat-card.danger{border-left-color:#ef4444}.stat-card.danger .value{color:#ef4444}
+.stat-card.warning{border-left-color:#f59e0b}.stat-card.warning .value{color:#f59e0b}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-bottom:20px}
+.zone-card{background:#1a2332;border-radius:12px;padding:20px;border:1px solid #1e293b}
+.zone-card .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;margin-top:0}
+.zone-card .name{font-size:15px;font-weight:600;color:#fff}
+.zone-card .badge{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600}
+.zone-card .badge.safe{background:#065f46;color:#6ee7b7}
+.zone-card .badge.caution{background:#78350f;color:#fcd34d}
+.zone-card .badge.danger{background:#7f1d1d;color:#fca5a5}
+.zone-card .metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.zone-card .metric{text-align:center;padding:8px;background:#0b1120;border-radius:8px}
+.zone-card .metric .val{font-size:20px;font-weight:700}
+.zone-card .metric .lbl{font-size:9px;color:#64748b;text-transform:uppercase;margin-top:2px}
+.zone-card .alert-banner{display:none;padding:10px;border-radius:8px;font-size:12px;font-weight:600;text-align:center}
+.zone-card .alert-banner.active{display:block}
+.zone-card .alert-banner.danger{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.zone-card .alert-banner.caution{background:#78350f;color:#fcd34d;border:1px solid #92400e}
+.integration-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.integration{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600}
+.integration.on{background:#065f46;color:#6ee7b7;border:1px solid #059669}
+.integration.off{background:#7f1d1d;color:#fca5a5;border:1px solid #dc2626}
+.btn{padding:8px 18px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:#22d3ee;color:#0f172a}
+.btn-outline{background:transparent;color:#22d3ee;border:1px solid #22d3ee}
+.btn-danger{background:#ef4444;color:#fff}
+.footer{font-size:11px;color:#475569;text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #1e293b}
+@media(max-width:600px){.zone-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>⛏️ MineGuard — Control Room</h1>
+  <div style="display:flex;gap:8px"><button class="btn btn-primary" onclick="refreshAll()">⟳ Refresh</button></div>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat-card"><div class="label">Personnel Online</div><div class="value" id="personnel-total">--</div></div>
+  <div class="stat-card danger"><div class="label">Active Alerts</div><div class="value" id="alert-total">0</div></div>
+  <div class="stat-card"><div class="label">Confined Spaces</div><div class="value" id="confined-total">0</div></div>
+  <div class="stat-card warning"><div class="label">Hazard Zones</div><div class="value" id="hazard-zones">0</div></div>
+</div>
+
+<div class="integration-bar" id="integration-bar">
+  <div class="integration on" id="int-seismic">📊 Seismic</div>
+  <div class="integration on" id="int-gas">☣️ Gas</div>
+  <div class="integration on" id="int-vent">💨 Ventilation</div>
+  <div class="integration on" id="int-blast">💥 Blasting</div>
+  <div class="integration off" id="int-dispatch">🚛 Dispatch</div>
+</div>
+
+<div class="zone-grid" id="zone-grid"></div>
+<div class="footer">Auto-refresh every 15s • Last update: <span id="last-update">--</span></div>
+
+<script>
+var API=window.location.origin,token=localStorage.getItem('token');
+if(!token)document.body.innerHTML='<div style="padding:40px;text-align:center;color:#64748b;font-size:14px">Please <a href="/" style="color:#22d3ee">sign in</a> first.</div>';
+async function refreshAll(){
+  if(!token)return;
+  try{
+    var r=await fetch(API+'/mine/summary',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok)return;var data=await r.json();
+    renderDashboard(data)
+  }catch(e){}
+}
+function renderDashboard(data){
+  var zones=Object.keys(data.zones||{}).length;
+  document.getElementById('personnel-total').textContent=data.total_personnel||0;
+  document.getElementById('confined-total').textContent=data.active_confined_spaces||0;
+  document.getElementById('hazard-zones').textContent=(data.hazard_zones||[]).length;
+  var grid=document.getElementById('zone-grid');grid.innerHTML='';
+  var alerts=0;
+  for(var z in data.zones||{}){
+    var zone=data.zones[z];
+    var card=document.createElement('div');card.className='zone-card';
+    var status='safe',statusLabel='Safe';
+    if(zone.hazard){status='danger';statusLabel='HAZARD';alerts++;}
+    var cs=zone.confined_space?'<div class="alert-banner caution active">⏱ Confined space: '+zone.confined_space.worker+' ('+zone.confined_space.duration_minutes+'min) '+ (zone.confined_space.overdue?'🔴 OVERDUE':'') +'</div>':'';
+    card.innerHTML=
+      '<div class="header"><span class="name">'+z+'</span><span class="badge '+status+'">'+statusLabel+'</span></div>'+
+      '<div class="metrics">'+
+        '<div class="metric"><div class="val">'+zone.occupancy+'</div><div class="lbl">Personnel</div></div>'+
+        '<div class="metric"><div class="val">'+zone.temp_c+'°</div><div class="lbl">Temp</div></div>'+
+      '</div>'+cs;
+    grid.appendChild(card);
+  }
+  document.getElementById('alert-total').textContent=alerts;
+  document.getElementById('last-update').textContent=new Date().toLocaleTimeString();
+}
+setInterval(refreshAll,15000);refreshAll();
+</script>
+</body>
+</html>

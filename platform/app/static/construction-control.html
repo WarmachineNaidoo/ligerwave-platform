@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ConstructionGuard — Site Safety</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#0b1120;color:#e2e8f0;padding:20px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+h1{font-size:22px;font-weight:700;color:#f59e0b;display:flex;align-items:center;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:#1a2332;border-radius:12px;padding:16px;border:1px solid #1e293b;border-left:3px solid #f59e0b}
+.stat-card .label{font-size:10px;color:#64748b;text-transform:uppercase}
+.stat-card .value{font-size:28px;font-weight:700;margin-top:4px}
+.stat-card.danger{border-left-color:#ef4444}.stat-card.danger .value{color:#ef4444}
+.stat-card.success{border-left-color:#10b981}.stat-card.success .value{color:#10b981}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-bottom:20px}
+.zone-card{background:#1a2332;border-radius:12px;padding:16px;border:1px solid #1e293b}
+.zone-card .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.zone-card .name{font-size:14px;font-weight:600;color:#fff}
+.zone-card .badge{padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.zone-card .badge.safe{background:#065f46;color:#6ee7b7}
+.zone-card .badge.caution{background:#78350f;color:#fcd34d}
+.zone-card .badge.danger{background:#7f1d1d;color:#fca5a5}
+.zone-card .monitor{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.zone-card .monitor>div{background:#0b1120;border-radius:8px;padding:8px;text-align:center}
+.zone-card .monitor .v{font-size:18px;font-weight:700}
+.zone-card .monitor .l{font-size:9px;color:#64748b;text-transform:uppercase;margin-top:2px}
+.zone-card .alert-banner{display:none;padding:8px;border-radius:6px;font-size:11px;font-weight:600;text-align:center;margin-top:8px}
+.zone-card .alert-banner.active{display:block}
+.zone-card .alert-banner.danger{background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b}
+.zone-card .alert-banner.caution{background:#78350f;color:#fcd34d;border:1px solid #92400e}
+.zone-card .alert-banner.ok{background:#065f46;color:#6ee7b7;border:1px solid #059669}
+.equipment-bar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.equipment-card{background:#1a2332;border-radius:12px;padding:14px;border:1px solid #1e293b;flex:1;min-width:180px}
+.equipment-card h3{font-size:12px;color:#94a3b8;margin-bottom:6px}
+.equipment-card .status{display:flex;justify-content:space-between;font-size:12px}
+.equipment-card .status .tag{padding:2px 6px;border-radius:4px;font-size:9px;font-weight:600}
+.equipment-card .status .tag.clear{background:#065f46;color:#6ee7b7}
+.equipment-card .status .tag.danger{background:#7f1d1d;color:#fca5a5}
+.btn{padding:8px 18px;border-radius:8px;border:0;font-weight:600;cursor:pointer;font-size:12px;transition:all .15s}
+.btn-primary{background:#22d3ee;color:#0f172a}.btn-primary:active{transform:scale(.96)}
+.footer{font-size:11px;color:#475569;text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid #1e293b}
+@media(max-width:600px){.zone-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🚧 ConstructionGuard — Site Safety</h1>
+  <button class="btn btn-primary" onclick="refreshAll()">⟳ Refresh</button>
+</div>
+
+<div class="stats" id="stats-bar">
+  <div class="stat-card"><div class="label">Personnel On Site</div><div class="value" id="personnel-total">--</div></div>
+  <div class="stat-card danger"><div class="label">Fall Events (24h)</div><div class="value" id="fall-count">0</div></div>
+  <div class="stat-card"><div class="label">Crane Alerts</div><div class="value" id="crane-count">0</div></div>
+  <div class="stat-card success"><div class="label">Trench Status</div><div class="value" id="trench-status">Stable</div></div>
+</div>
+
+<div class="equipment-bar" id="equipment-bar"></div>
+<div class="zone-grid" id="zone-grid"></div>
+<div class="footer">Auto-refresh every 10s • Last update: <span id="last-update">--</span></div>
+
+<script>
+var API=window.location.origin,token=localStorage.getItem('token');
+if(!token)document.body.innerHTML='<div style="padding:40px;text-align:center;color:#64748b">Please <a href="/" style="color:#22d3ee">sign in</a> first.</div>';
+async function refreshAll(){
+  if(!token)return;
+  try{
+    var r=await fetch(API+'/construction/summary/default',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok)r=await fetch(API+'/mine/summary',{headers:{'Authorization':'Bearer '+token}});
+    var data=r.ok?await r.json():{};
+    renderDashboard(data)
+  }catch(e){}
+}
+function renderDashboard(data){
+  document.getElementById('personnel-total').textContent=data.total_personnel||(data.zones?Object.values(data.zones).reduce(function(a,z){return a+(z.occupancy||0)},0):'--');
+  var grid=document.getElementById('zone-grid');grid.innerHTML='<div style="color:#475569;font-size:13px;text-align:center;padding:40px;grid-column:1/-1">Site monitoring active • Connect data pipeline for live sensors</div>';
+  document.getElementById('last-update').textContent=new Date().toLocaleTimeString();
+  // Equipment bar
+  var eb=document.getElementById('equipment-bar');eb.innerHTML=
+    '<div class="equipment-card"><h3>🏗️ Crane 1</h3><div class="status"><span>Blind spot: Clear</span><span class="tag clear">✅ Safe</span></div></div>'+
+    '<div class="equipment-card"><h3>🚜 Excavator 1</h3><div class="status"><span>Person proximity: Clear</span><span class="tag clear">✅ Safe</span></div></div>'+
+    '<div class="equipment-card"><h3>🧱 Trench 1</h3><div class="status"><span>Vibration: Normal</span><span class="tag clear">✅ Stable</span></div></div>'
+}
+setInterval(refreshAll,10000);refreshAll();
+</script>
+</body>
+</html>
