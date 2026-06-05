@@ -1,7 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /static/
+Allow: /blog/
 Disallow: /api/
 Disallow: /admin/
-Disallow: /dashboard/
+Disallow: /privacy/
+Disallow: /trace.html
 Sitemap: https://ligerwave.tech/sitemap.xml
