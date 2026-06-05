@@ -387,6 +387,34 @@ Construction site personnel safety adapted from MineGuard. Same CSI core — pre
 
 ### Built: ~6-8 weeks. Mostly reuse from MineGuard.
 
+## Security Audit (2026-06-05)
+- Fixed 8 critical/high vulnerabilities (cross-tenant access, WebSocket bypass, XSS, R2 credentials in source, rate limiting, SSRF via webhooks, error exposure, CSP hardening)
+- 45 medium/low items remaining (documented in security report)
+- Full security architecture: HTTPS/WSS enforced, JWT auth via Supabase, RLS database policies, immutable audit logs, encrypted CSI storage (R2 at rest), rate limiting per endpoint, input validation via Pydantic
+- Customers: SAPS, Military, Corrections, Mining — all require SOC 2 equivalent controls
+- Next step: SOC 2 Type 1 audit (R30-50k one-time, opens enterprise/government sales)
+
+## VC Due Diligence — Scalability Summary
+| Metric | Current | Target (10k homes) | CapEx |
+|--------|---------|-------------------|-------|
+| Compute | 1× EC2 (free) | ECS Fargate (~R1,500/mo) | R0 → R1,500/mo |
+| Database | Supabase Free | Supabase Pro (R200/mo) | R0 → R200/mo |
+| Storage | R2 (verified) | R2 (~R2/ home/mo) | Pay-as-you-go |
+| Workers | 1 | 4+ Uvicorn | Included |
+| Monitoring | None | Datadog (free tier) | R0 |
+| **Total** | **R0-200/mo** | **~R6-8k/mo** | **Scales with revenue** |
+
+### Low-Hanging Fruit (4 hours, R0 cost): Datadog monitoring, Cloudflare caching, HSTS preload, Lighthouse audit, Stripe test mode, Sentry error tracking, robots.txt, sitemap.xml, rate limiting headers.
+
+## Legal — ToS Per Product
+Standard ToS (10 clauses) + product appendices for Trace (5), PrisonGuard (6), MineGuard (5), ConstructionGuard (5), EstateGuard (3), Consumer (3). Key protections: liability cap (12 months fees), indemnity, operational support only (not medical/evidence), export restriction (SA), remote deactivation right, consent audit trail.
+
+## Payment Fraud Protection
+- 12-field transaction record (IP, device fingerprint, CSI session, consent audit, 3DS, Paystack ID) — retained 5 years
+- 8-step chargeback dispute package — generated via GET /payments/dispute-package/{txn_id}
+- Paystack integration: webhooks for charge.success + chargeback.create, 3DS authentication, KYC verification, fraud monitoring
+- CSI behavioural fraud check: does the paying user's gait match their account's known gait?
+
 ## Daily Research Agent — Morning Report
 Run daily before starting build work. Covers: build progress, competitors, legislation, cybersecurity, feature ideas, go-to-market.
 ```
