@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Terms of Service — Ligerwave</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f8fafc;color:#1e293b;padding:0;line-height:1.7}
+.topbar{background:#0f172a;color:#fff;padding:20px 24px;position:sticky;top:0;z-index:10}
+.topbar h1{font-size:20px;font-weight:700}
+.topbar .sub{font-size:12px;color:#64748b;margin-top:2px}
+.tabs{display:flex;gap:4px;padding:0 24px;background:#fff;border-bottom:1px solid #e2e8f0;overflow-x:auto;position:sticky;top:68px;z-index:9}
+.tab{padding:12px 18px;font-size:13px;font-weight:600;cursor:pointer;color:#64748b;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:#1e293b;background:#f8fafc}
+.tab.active{color:#2563eb;border-bottom-color:#2563eb}
+.content{max-width:800px;margin:0 auto;padding:32px 24px 80px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+h2{font-size:18px;font-weight:700;color:#0f172a;margin:28px 0 12px;padding-bottom:8px;border-bottom:1px solid #e2e8f0}
+h3{font-size:15px;font-weight:600;color:#1e293b;margin:20px 0 8px}
+p{margin-bottom:12px;font-size:14px;color:#475569}
+.clause{margin-bottom:8px;padding:12px 16px;background:#fff;border:1px solid #e2e8f0;border-radius:8px}
+.clause .num{font-weight:700;color:#2563eb;font-size:13px;display:block;margin-bottom:2px}
+.clause .txt{font-size:13px;color:#475569}
+.tag{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;margin-left:8px}
+.tag.consumer{background:#dbeafe;color:#1e40af}
+.tag.military{background:#fef2f2;color:#991b1b}
+.tag.corrections{background:#f0fdf4;color:#166534}
+.tag.mining{background:#fff7ed;color:#9a3412}
+.tag.construction{background:#f5f3ff;color:#5b21b6}
+.tag.ar{background:#f0fdf4;color:#166534}
+.tag.estate{background:#e0f2fe;color:#075985}
+.meta{font-size:12px;color:#94a3b8;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
+@media(max-width:600px){.tabs{padding:0 12px}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Ligerwave Terms of Service</h1>
+  <div class="sub">Last updated: June 2026 • All amounts in ZAR • Governing law: South Africa</div>
+</div>
+<div class="tabs" id="tabs">
+  <div class="tab active" onclick="switchTab('standard')">📋 Standard</div>
+  <div class="tab" onclick="switchTab('trace')">🕵️ Trace</div>
+  <div class="tab" onclick="switchTab('prison')">🏛️ PrisonGuard</div>
+  <div class="tab" onclick="switchTab('mine')">⛏️ MineGuard</div>
+  <div class="tab" onclick="switchTab('construction')">🚧 ConstructionGuard</div>
+  <div class="tab" onclick="switchTab('estate')">🏘️ EstateGuard</div>
+  <div class="tab" onclick="switchTab('consumer')">🏠 Consumer</div>
+</div>
+<div class="content">
+
+<div class="tab-content active" id="tab-standard">
+<div class="meta">These Standard Terms apply to all Ligerwave products. Each product also has its own appendix below.</div>
+
+<h2>Standard Terms of Service</h2>
+
+<div class="clause"><span class="num">1. Service Description</span><span class="txt">Ligerwave provides WiFi Channel State Information (CSI) sensing services for intrusion detection, environmental monitoring, wellness assessment, and related applications. <strong>The Service is NOT certified for:</strong> medical diagnosis or treatment, evidentiary use in legal proceedings, life-safety systems, or applications where failure could cause bodily harm or property damage. Accuracy depends on environmental conditions including building materials, WiFi interference, and atmospheric conditions.</span></div>
+
+<div class="clause"><span class="num">2. Account Registration</span><span class="txt">You must be at least 18 years old. One account per property. Multiple properties require separate subscriptions. You are responsible for all activity under your account. API keys are non-transferable and must be kept confidential. You must notify us immediately of any unauthorized use.</span></div>
+
+<div class="clause"><span class="num">3. Subscription and Payment</span><span class="txt">Subscriptions are billed monthly in advance. No refunds for partial months. Prices exclude VAT (15% for South African customers). You may cancel at any time — service continues until the end of the current billing period. Late payments may result in suspension after 7 days and termination after 30 days. We may change pricing with 30 days' written notice.</span></div>
+
+<div class="clause"><span class="num">4. Intellectual Property and Data</span><span class="txt">You retain ownership of your event data. Ligerwave retains all rights to the software, algorithms, signal processing methods, and proprietary analytics. We may use anonymized, aggregated data for service improvement. Raw CSI data is retained for 90 days (standard) or 365 days (premium) and then permanently deleted.</span></div>
+
+<div class="clause"><span class="num">5. Privacy and Consent</span><span class="txt">We process personal information in accordance with POPIA and, where applicable, GDPR. You must install POPIA-compliant signage at each entrance to the monitored property. You must obtain consent from all residents and regular occupants. Individuals have the right to access, correct, and delete their data via Settings → Privacy in the dashboard. Your consent record is logged immutably.</span></div>
+
+<div class="clause"><span class="num">6. Limitation of Liability</span><span class="txt">Ligerwave's total liability for any claim is limited to the subscription fees paid by you in the 12 months preceding the claim. We are not liable for: false positives or false negatives, failure to detect intrusion or medical events, damage from delayed alerts, third-party service disruptions, or consequential, incidental, or punitive damages.</span></div>
+
+<div class="clause"><span class="num">7. Indemnification</span><span class="txt">You indemnify Ligerwave from claims arising from: your use of the service, operational decisions made based on service output, your failure to comply with signage or consent requirements, your violation of applicable law, or any third-party claim that your use of the service infringes their rights.</span></div>
+
+<div class="clause"><span class="num">8. Warranty Disclaimer</span><span class="txt">THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT ANY WARRANTY. We do not warrant that the service will meet your requirements, be uninterrupted, timely, secure, or error-free, or that detection accuracy will be sufficient for any particular purpose.</span></div>
+
+<div class="clause"><span class="num">9. Governing Law and Disputes</span><span class="txt">These terms are governed by the laws of the Republic of South Africa. Disputes shall be resolved in the KwaZulu-Natal Division of the High Court, Durban. Before legal action, the parties agree to attempt mediation through AFSA (Arbitration Foundation of Southern Africa) for 30 days.</span></div>
+
+<div class="clause"><span class="num">10. Force Majeure</span><span class="txt">Ligerwave is not liable for delays or failures caused by loadshedding, fibre optic cable cuts, Internet service provider outages, extreme weather, strikes, civil unrest, acts of government, or any event beyond our reasonable control.</span></div>
+
+<div class="clause"><span class="num">11. Termination</span><span class="txt">Either party may terminate for material breach not cured within 30 days of written notice. We may terminate immediately for breach of payment terms or applicable law. Upon termination, your data is retained for 90 days then permanently deleted.</span></div>
+</div>
+
+<div class="tab-content" id="tab-trace">
+<h2>Trace Appendix <span class="tag military">SAPS / Military</span></h2>
+<div class="clause"><span class="num">A1. Operational Tool Only</span><span class="txt">The Trace system provides heart rate intelligence for tactical purposes. It is NOT admissible as evidence and does not satisfy the Frye or Daubert standards for scientific evidence admissibility in any jurisdiction.</span></div>
+<div class="clause"><span class="num">A2. Officer Training</span><span class="txt">The purchasing authority warrants that all operators have completed Ligerwave-approved training and that training records are maintained for audit. Refresher training must be completed every 12 months.</span></div>
+<div class="clause"><span class="num">A3. HR Revocation Webhook</span><span class="txt">The purchasing authority must maintain a live HR feed to POST /admin/revoke within 1 hour of any officer status change, designate a secondary admin for independent key revocation, and acknowledge that failure to revoke creates operational risk.</span></div>
+<div class="clause"><span class="num">A4. Export Restriction</span><span class="txt">The system may not be transferred, resold, or deployed outside the Republic of South Africa without written approval from Ligerwave.</span></div>
+<div class="clause"><span class="num">A5. Session Audit</span><span class="txt">Every Trace session records officer ID, GPS coordinates, session timestamps, all HR readings (encrypted at rest), and creates immutable, tamper-evident audit logs.</span></div>
+<div class="clause"><span class="num">A6. Declassification</span><span class="txt">Session data may be declassified for internal investigations only upon joint approval of the commanding officer and Ligerwave DPO.</span></div>
+</div>
+
+<div class="tab-content" id="tab-prison">
+<h2>PrisonGuard Appendix <span class="tag corrections">Corrections</span></h2>
+<div class="clause"><span class="num">A1. Not for Disciplinary Action</span><span class="txt">HR and occupancy data is aggregated per block. Individual inmate HR readings may NOT be used as evidence in disciplinary proceedings. Any violation results in immediate termination of service.</span></div>
+<div class="clause"><span class="num">A2. Riot Prediction</span><span class="txt">The riot probability score is a statistical indicator, not a prediction. No operational decision (deployment of force, lockdown orders, redirection of staff) shall rely solely on system output.</span></div>
+<div class="clause"><span class="num">A3. Training</span><span class="txt">Control room operators must complete a 3-day PrisonGuard certification course, pass a practical assessment, and complete annual recertification.</span></div>
+<div class="clause"><span class="num">A4. CCTV Backup</span><span class="txt">PrisonGuard augments, and does not replace, the requirement for CCTV coverage and physical observation under the Correctional Services Act 111 of 1998.</span></div>
+<div class="clause"><span class="num">A5. Device Tamper</span><span class="txt">The purchasing authority must report device tamper, theft, or loss within 24 hours, cooperate with remote deactivation, and maintain a device inventory with chain of custody.</span></div>
+<div class="clause"><span class="num">A6. Data Retention</span><span class="txt">90 days for standard events. 365 days for security incidents. Extended retention at additional cost of R500/block/year.</span></div>
+</div>
+
+<div class="tab-content" id="tab-mine">
+<h2>MineGuard Appendix <span class="tag mining">Mining</span></h2>
+<div class="clause"><span class="num">A1. Not Medical</span><span class="txt">Fatigue and heat stress indicators are screening tools based on statistical correlations. They are not clinical diagnoses. A qualified occupational health practitioner must validate any intervention.</span></div>
+<div class="clause"><span class="num">A2. Not a Replacement</span><span class="txt">MineGuard does not replace statutory gas detectors, personal protective equipment (PPE) requirements under MHSA, mandatory safety procedures, or lone worker check-in procedures.</span></div>
+<div class="clause"><span class="num">A3. Training</span><span class="txt">All mine safety personnel must complete MineGuard training before system use.</span></div>
+<div class="clause"><span class="num">A4. Integration Accuracy</span><span class="txt">The purchasing authority warrants that all integrated systems provide accurate and timely data. Ligerwave is not liable for inaccuracies in third-party data.</span></div>
+<div class="clause"><span class="num">A5. Lone Worker</span><span class="txt">Automated detection via CSI enhances, does not replace, mandatory check-in procedures under the Mine Health and Safety Act 29 of 1996.</span></div>
+</div>
+
+<div class="tab-content" id="tab-construction">
+<h2>ConstructionGuard Appendix <span class="tag construction">Construction / Maritime</span></h2>
+<div class="clause"><span class="num">A1. Fall Detection</span><span class="txt">CSI-based fall detection supplements, and does not replace, physical fall arrest systems (harnesses, safety nets, guardrails) required under the Construction Regulations of the OHS Act 85 of 1993.</span></div>
+<div class="clause"><span class="num">A2. Crane Blind Spot</span><span class="txt">In-cab proximity alerts supplement, and do not replace, the requirement for a dedicated banksman or spotter under OHS Act Construction Regulations.</span></div>
+<div class="clause"><span class="num">A3. Trench Collapse</span><span class="txt">Vibration-based collapse risk detection is predictive, not diagnostic. It does not replace physical shoring inspection by a competent person.</span></div>
+<div class="clause"><span class="num">A4. Man Overboard</span><span class="txt">Maritime version supplements, and does not replace, man-overboard drills, lifebuoys, and rescue procedures under SOLAS and SAMSA requirements.</span></div>
+</div>
+
+<div class="tab-content" id="tab-estate">
+<h2>EstateGuard Appendix <span class="tag estate">Gated Estates</span></h2>
+<div class="clause"><span class="num">A1. Perimeter Limitation</span><span class="txt">CSI detects through walls, doors, and windows. It does NOT detect through solid metal barriers, underground bunkers, or Faraday-cage constructions.</span></div>
+<div class="clause"><span class="num">A2. Guard Patrol</span><span class="txt">Gait-based patrol verification logs that a person walked the patrol route. It does not assess the quality, attentiveness, or thoroughness of the patrol.</span></div>
+<div class="clause"><span class="num">A3. Vehicle</span><span class="txt">The system distinguishes vehicle from person by signal signature. It cannot identify vehicle make, model, colour, or registration number.</span></div>
+</div>
+
+<div class="tab-content" id="tab-consumer">
+<h2>Consumer / AR Premium Appendix <span class="tag consumer">Consumer</span><span class="tag ar">AR</span></h2>
+<div class="clause"><span class="num">A1. Self-Monitored</span><span class="txt">This is a self-monitored system. Ligerwave does not operate a central monitoring station and does not guarantee emergency response.</span></div>
+<div class="clause"><span class="num">A2. AR Integration</span><span class="txt">The consumer controls API key access for AR companies. Permission levels are read_only, dispatch, and admin. The consumer may revoke keys at any time.</span></div>
+<div class="clause"><span class="num">A3. No Emergency Response Guarantee</span><span class="txt">Ligerwave does not guarantee emergency services response times. Users must maintain their own emergency response plan.</span></div>
+</div>
+
+</div>
+<script>
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active')});
+  document.querySelector('.tab[onclick*="'+id+'"]').classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  history.replaceState(null,'','#terms-'+id);
+}
+(function(){
+  var hash=window.location.hash.replace('#terms-','');
+  if(hash)switchTab(hash);
+})();
+</script>
+</body>
+</html>

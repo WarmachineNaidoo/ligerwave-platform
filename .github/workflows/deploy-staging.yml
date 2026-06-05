@@ -1,0 +1,18 @@
+name: Deploy Staging
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy-staging:
+    runs-on: self-hosted
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy to staging
+        working-directory: /home/ubuntu/ligerwave-platform
+        run: |
+          git reset --hard origin/develop
+          git pull origin develop
+          docker compose -f docker-compose.staging.yml up -d --build
+          echo "Staging deployed at: https://staging.ligerwave.tech"
