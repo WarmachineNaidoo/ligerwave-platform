@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SEO Quick Setup — 3 Steps</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+body{background:#f8fafc;color:#1e293b;padding:16px;line-height:1.7}
+h1{font-size:22px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.sub{font-size:13px;color:#64748b;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #e2e8f0}
+.step{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px}
+.step .num{display:inline-block;background:#2563eb;color:#fff;font-weight:700;font-size:14px;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;margin-bottom:8px}
+.step h2{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:8px}
+.step p{font-size:14px;color:#475569;margin-bottom:8px}
+.step ul{margin:8px 0 8px 20px;font-size:14px;color:#475569}
+.step li{margin-bottom:6px}
+.step .link{display:block;background:#f1f5f9;border-radius:8px;padding:12px 16px;font-size:14px;margin:8px 0;word-break:break-all}
+.step .link a{color:#2563eb;font-weight:600;text-decoration:none}
+.step .link a:hover{text-decoration:underline}
+.copied{background:#f0fdf4;color:#166534;padding:16px;border-radius:8px;font-size:13px;border:1px solid #bbf7d0;margin-top:16px}
+.check{display:flex;align-items:start;gap:10px;padding:10px 0;font-size:14px;color:#475569}
+.check input{margin-top:3px;width:18px;height:18px;accent-color:#2563eb}
+</style>
+</head>
+<body>
+
+<h1>🔍 SEO Quick Setup</h1>
+<div class="sub">3 steps to get Ligerwave indexed and measured. About 1.5 hours total. Tick each box as you go — progress saves automatically in your browser.</div>
+
+<div class="step">
+  <div class="num">1</div>
+  <h2>Google Search Console</h2>
+  <p><strong>What it does:</strong> Tells Google your site exists. Shows you which keywords people search to find you, how many clicks you get, and whether Google can crawl your pages properly.</p>
+  <p><strong>Time:</strong> ~30 minutes</p>
+  <p><strong>Cost:</strong> Free</p>
+  
+  <p style="font-weight:600;margin-top:12px">Steps:</p>
+  <ul>
+    <li>Go to <a href="https://search.google.com/search-console" target="_blank" style="color:#2563eb">search.google.com/search-console</a></li>
+    <li>Sign in with your Google account (Gmail)</li>
+    <li>Click <strong>"Add property"</strong> → choose <strong>"Domain"</strong> (not URL prefix)</li>
+    <li>Enter: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">ligerwave.tech</code></li>
+    <li>Click <strong>"Continue"</strong></li>
+    <li>Copy the TXT record value Google gives you</li>
+    <li>Log into <a href="https://dash.cloudflare.com" target="_blank" style="color:#2563eb">Cloudflare dashboard</a> → select ligerwave.tech → DNS → Add record</li>
+    <li>Type: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">TXT</code>, Name: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">@</code>, Value: <em>paste what Google gave you</em></li>
+    <li>Click Save, then back in Search Console click <strong>"Verify"</strong></li>
+    <li>Once verified, go to <strong>"Sitemaps"</strong> in the left menu</li>
+    <li>Enter: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">sitemap.xml</code> and click Submit</li>
+    <li>After 24-48 hours, check the "Performance" tab to see your first search data</li>
+  </ul>
+
+  <div class="link">📎 <a href="https://search.google.com/search-console">https://search.google.com/search-console</a></div>
+  <div class="link">📎 <a href="https://dash.cloudflare.com">https://dash.cloudflare.com</a></div>
+  <div class="link">📎 <a href="https://support.google.com/webmasters/answer/9008080">Google's official setup guide</a></div>
+</div>
+
+<div class="step">
+  <div class="num">2</div>
+  <h2>Google Analytics (GA4)</h2>
+  <p><strong>What it does:</strong> Shows you who visits your site, where they come from, what pages they look at, and how long they stay. Essential for understanding if your marketing is working.</p>
+  <p><strong>Time:</strong> ~30 minutes</p>
+  <p><strong>Cost:</strong> Free</p>
+  
+  <p style="font-weight:600;margin-top:12px">Steps:</p>
+  <ul>
+    <li>Go to <a href="https://analytics.google.com" target="_blank" style="color:#2563eb">analytics.google.com</a></li>
+    <li>Sign in with the same Google account</li>
+    <li>Click <strong>"Start measuring"</strong></li>
+    <li>Account name: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">Ligerwave</code></li>
+    <li>Property name: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">Ligerwave Website</code></li>
+    <li>Reporting time zone: <strong>South Africa</strong></li>
+    <li>Currency: <strong>South African Rand (ZAR)</strong></li>
+    <li>Click <strong>"Create"</strong></li>
+    <li>Choose <strong>"Web"</strong> as your platform</li>
+    <li>Website URL: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">https://ligerwave.tech</code></li>
+    <li>Stream name: <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">Ligerwave Web</code></li>
+    <li>Copy the <strong>"Measurement ID"</strong> — it looks like <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:13px">G-XXXXXXXX</code></li>
+    <li>Now we need to add this to the website. Message me "<em>GA4 ID: G-XXXXXX</em>" and I'll add it to the landing page for you.</li>
+  </ul>
+
+  <div class="link">📎 <a href="https://analytics.google.com">https://analytics.google.com</a></div>
+  <div class="link">📎 <a href="https://support.google.com/analytics/answer/9304153">Google's official GA4 setup guide</a></div>
+</div>
+
+<div class="step">
+  <div class="num">3</div>
+  <h2>Lighthouse Audit</h2>
+  <p><strong>What it does:</strong> Tests your site speed, accessibility, SEO, and best practices — and gives you a score out of 100. Investors and customers judge your company by this number. A score above 90 signals quality.</p>
+  <p><strong>Time:</strong> ~30 minutes</p>
+  <p><strong>Cost:</strong> Free — built into Chrome</p>
+  
+  <p style="font-weight:600;margin-top:12px">Steps:</p>
+  <ul>
+    <li>Open <strong>Google Chrome</strong> on your computer</li>
+    <li>Go to <a href="https://ligerwave.tech" target="_blank" style="color:#2563eb">https://ligerwave.tech</a></li>
+    <li>Press <strong>F12</strong> (or right-click anywhere → Inspect)</li>
+    <li>Click the <strong>"Lighthouse"</strong> tab (may be in the ">>" menu)</li>
+    <li>Check these boxes:
+      <br>☑ Performance
+      <br>☑ Accessibility
+      <br>☑ Best Practices
+      <br>☑ SEO
+    </li>
+    <li>Device: <strong>"Mobile"</strong> (important — test on mobile, not desktop)</li>
+    <li>Click <strong>"Analyze page load"</strong></li>
+    <li>Wait ~30 seconds for the report</li>
+    <li><strong>Take a screenshot</strong> of the score card for your pitch deck</li>
+    <li>If any score is below 90, message me the specific issues and I'll fix them</li>
+  </ul>
+  
+  <p style="font-weight:600;margin-top:12px">Target scores for VC-ready:</p>
+  <ul>
+    <li>Performance: <strong>>90</strong> (fast loading)</li>
+    <li>Accessibility: <strong>>95</strong> (works for everyone)</li>
+    <li>Best Practices: <strong>>95</strong> (secure and modern)</li>
+    <li>SEO: <strong>>95</strong> (Google-friendly)</li>
+  </ul>
+
+  <div class="link">📎 <a href="https://developer.chrome.com/docs/lighthouse/overview/">Chrome Lighthouse docs</a></div>
+  <div class="link">📎 <a href="https://web.dev/measure/">Web.dev Measure (alternative tool)</a></div>
+</div>
+
+<div class="step" style="background:#f0fdf4;border-color:#86efac">
+  <h2 style="color:#166534">✅ Done with all 3?</h2>
+  <p>Once you've completed these steps:</p>
+  <ol style="margin:8px 0 8px 20px;font-size:14px;color:#475569">
+    <li>Message me your <strong>GA4 Measurement ID</strong> (G-XXXXXX) to add Analytics to the site</li>
+    <li>Send me your <strong>Lighthouse scores</strong> — if anything is below 90, I'll fix it</li>
+    <li>After 48 hours, check Google Search Console → Performance to see your first search impressions</li>
+  </ol>
+  <div style="margin-top:12px;font-size:13px;color:#166534;background:#dcfce7;padding:12px;border-radius:8px">
+    <strong>Need help?</strong> I can walk through any of these steps with you — just ask.
+  </div>
+</div>
+
+<script>
+// Checkbox persistence using localStorage
+document.querySelectorAll('.check input').forEach(function(cb){
+  var key = 'seo-'+cb.id;
+  if(localStorage.getItem(key) === 'true') cb.checked = true;
+  cb.addEventListener('change', function(){
+    localStorage.setItem(key, this.checked);
+  });
+});
+</script>
+</body>
+</html>
