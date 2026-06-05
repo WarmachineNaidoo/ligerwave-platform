@@ -677,6 +677,36 @@ h1{font-size:22px;font-weight:600;display:flex;align-items:center;gap:10px;color
         <div class="desc" style="margin-top:4px" data-i18n="settings.delete_account_desc">Permanently delete all data (POPIA)</div>
       </div>
     </div>
+    <div class="settings-card">
+      <h3 data-i18n="settings.branding">Branding</h3>
+      <div class="field">
+        <label data-i18n="settings.org_name">Organization Name</label>
+        <input type="text" id="brand-org-name" value="" onchange="saveBrand()">
+      </div>
+      <div class="field">
+        <label data-i18n="settings.dashboard_title">Dashboard Title</label>
+        <input type="text" id="brand-title" value="CSI Security Dashboard" onchange="saveBrand()">
+      </div>
+      <div class="field">
+        <label data-i18n="settings.primary_color">Primary Color</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="color" id="brand-color" value="#22d3ee" onchange="document.getElementById('brand-color-text').textContent=this.value;saveBrand()" style="width:50px;height:40px;padding:2px;cursor:pointer">
+          <span id="brand-color-text" style="font-size:12px;color:#64748b">#22d3ee</span>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="settings.logo_url">Logo URL (optional)</label>
+        <input type="url" id="brand-logo" value="" placeholder="https://example.com/logo.png" onchange="saveBrand()">
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="label" data-i18n="settings.hide_branding">Hide Ligerwave Branding</div>
+          <div class="desc" data-i18n="settings.hide_branding_desc">Remove all Ligerwave references from the dashboard</div>
+        </div>
+        <div class="toggle-switch" id="brand-hide-toggle" onclick="this.classList.toggle('active');saveBrand()"></div>
+      </div>
+      <div class="setting-saved" id="brand-saved" data-i18n="settings.saved">Saved</div>
+    </div>
   </div>
 </div>
 
@@ -1597,6 +1627,7 @@ async function loadSettings() {
     document.getElementById('settings-email').value = profile.email || '';
     document.getElementById('settings-name').value = profile.name || '';
   } catch(e) { console.error(e); }
+  loadBrandSettings();
   var homes = await api('GET', '/homes');
   if (homes.length > 0) {
     var h = homes[0];
@@ -1900,6 +1931,79 @@ async function exportJSON() {
   window.open(API + '/export/' + homeId + '/json?limit=5000', '_blank');
 }
 
+// White-label branding
+var brandConfig = null;
+
+async function loadBrand() {
+  if (!token) return;
+  try {
+    var r = await fetch(API + '/settings/brand', {headers: {'Authorization': 'Bearer ' + token}});
+    if (!r.ok) return;
+    brandConfig = await r.json();
+    applyBrand(brandConfig);
+  } catch(e) {}
+}
+
+function applyBrand(config) {
+  if (!config) return;
+  var root = document.documentElement;
+  root.style.setProperty('--primary', config.primary_color || '#22d3ee');
+  root.style.setProperty('--primary-hover', config.primary_color ? config.primary_color + 'cc' : '#06b6d4');
+  if (config.dashboard_title) {
+    document.title = config.dashboard_title;
+    var h1 = document.querySelector('h1');
+    if (h1) h1.textContent = config.dashboard_title;
+  }
+  if (config.logo_url) {
+    var logo = document.querySelector('.logo, [class*=logo]');
+    if (logo) logo.innerHTML = '<img src="' + config.logo_url + '" style="height:28px;vertical-align:middle">';
+  }
+  if (config.hide_branding) {
+    document.querySelectorAll('[data-i18n*="app.title"]').forEach(function(el) {
+      el.textContent = config.dashboard_title || 'Security Dashboard';
+    });
+    document.querySelectorAll('.popia-notice, #popia-notice, [class*=popia], #popia-notice').forEach(function(el) {
+      if (el) el.style.display = 'none';
+    });
+  }
+}
+
+async function saveBrand() {
+  if (!token) return;
+  var body = {
+    org_name: document.getElementById('brand-org-name').value,
+    dashboard_title: document.getElementById('brand-title').value,
+    primary_color: document.getElementById('brand-color').value,
+    logo_url: document.getElementById('brand-logo').value,
+    hide_branding: document.getElementById('brand-hide-toggle').classList.contains('active'),
+  };
+  try {
+    var r = await fetch(API + '/settings/brand', {
+      method: 'PUT',
+      headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    if (r.ok) {
+      brandConfig = body;
+      applyBrand(body);
+      document.getElementById('brand-saved').style.display = 'block';
+      setTimeout(function(){ document.getElementById('brand-saved').style.display = 'none'; }, 2000);
+    }
+  } catch(e) {}
+}
+
+async function loadBrandSettings() {
+  if (!token || !brandConfig) return;
+  document.getElementById('brand-org-name').value = brandConfig.org_name || '';
+  document.getElementById('brand-title').value = brandConfig.dashboard_title || 'CSI Security Dashboard';
+  document.getElementById('brand-color').value = brandConfig.primary_color || '#22d3ee';
+  document.getElementById('brand-color-text').textContent = brandConfig.primary_color || '#22d3ee';
+  document.getElementById('brand-logo').value = brandConfig.logo_url || '';
+  var toggle = document.getElementById('brand-hide-toggle');
+  if (brandConfig.hide_branding) toggle.classList.add('active');
+  else toggle.classList.remove('active');
+}
+
 // Consent flow
 var consentGiven = false;
 
@@ -1974,6 +2078,7 @@ async function checkConsent() {
   if (savedScale) setFontSize(parseFloat(savedScale));
   if (token) {
     try {
+      await loadBrand();
       await init();
       fetchTomography();
       startTomographyPolling();
