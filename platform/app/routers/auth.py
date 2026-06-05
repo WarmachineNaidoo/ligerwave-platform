@@ -7,6 +7,7 @@ from app.models.schemas import UserCreate
 from app.middleware.auth import get_current_user, require_role
 from app.config import settings
 from app.services.log import logger
+import html
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -49,7 +50,7 @@ async def register(body: UserCreate):
         return {"id": user.id, "email": user.email}
     except Exception as e:
         logger.error("registration_failed", extra={"extra": {"error": str(e)}})
-        raise HTTPException(status_code=400, detail="Registration failed")
+        raise HTTPException(status_code=400, detail="Registration failed. Please try again.")
 
 class LoginRequest(BaseModel):
     email: str = Field(..., max_length=255)
@@ -62,7 +63,7 @@ async def login(body: LoginRequest):
         return {"access_token": result.session.access_token, "token_type": "bearer"}
     except Exception as e:
         logger.error("login_failed", extra={"extra": {"error": str(e)}})
-        raise HTTPException(status_code=401, detail="Authentication failed")
+        raise HTTPException(status_code=401, detail="Invalid email or password")
 
 class ForgotPasswordRequest(BaseModel):
     email: str = Field(..., max_length=255)
@@ -89,7 +90,8 @@ async def oauth_login(provider: str):
 @router.get("/callback")
 async def oauth_callback(error: str = Query(None)):
     if error:
-        return HTMLResponse(f"<script>alert('OAuth error: {error}');window.location.href='/';</script>")
+        safe_error = html.escape(str(error))
+        return HTMLResponse(f"<script>alert('OAuth error: {safe_error}');window.location.href='/';</script>")
     return HTMLResponse(f"""
     <!DOCTYPE html>
     <html><head><meta charset="utf-8"><title>Signing in...</title>

@@ -68,5 +68,5 @@ async def get_event_csi(
         packets = data.size // n
         trimmed = data[:packets * n].reshape(packets, n).tolist()
         return JSONResponse(content={"amplitude": trimmed, "subcarriers": n, "packets": packets})
-    except Exception as e:
-        return JSONResponse(content={"amplitude": [], "subcarriers": 52, "packets": 0, "error": str(e)})
+    except Exception:
+        return JSONResponse(content={"amplitude": [], "subcarriers": 52, "packets": 0})

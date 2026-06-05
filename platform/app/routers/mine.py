@@ -92,8 +92,20 @@ async def gas_alarm(body: GasAlarm, payload: dict = Depends(get_current_user)):
     return result
 
 @router.post("/zone")
-async def configure_zone(body: ZoneConfig, payload: dict = Depends(get_current_user)):
-    zone = mine_engine.get_zone(body.zone_id, body.name)
+async def _verify_org_access(payload: dict) -> str:
+    user_id = payload.get("sub")
+    user = service.table("users").select("organization_id").eq("id", user_id).execute()
+    if not user.data or not user.data[0].get("organization_id"):
+        raise HTTPException(status_code=403, detail="Access denied")
+    return user.data[0]["organization_id"]
+
+def _namespace_key(org_id: str, zone_id: str) -> str:
+    return f"{org_id}:{zone_id}"
+
+def configure_zone(body: ZoneConfig, payload: dict = Depends(get_current_user)):
+    org_id = _verify_org_access(payload)
+    nskey = _namespace_key(org_id, body.zone_id)
+    zone = mine_engine.get_zone(nskey, body.name)
     if body.temperature is not None:
         zone.temp_c = body.temperature
     if body.occupancy is not None:
@@ -104,4 +116,5 @@ async def configure_zone(body: ZoneConfig, payload: dict = Depends(get_current_u
 
 @router.get("/summary")
 async def get_summary(payload: dict = Depends(get_current_user)):
+    org_id = _verify_org_access(payload)
     return mine_engine.get_summary()

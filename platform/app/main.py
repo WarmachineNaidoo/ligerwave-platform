@@ -18,7 +18,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
-        response.headers["Content-Security-Policy"] = "default-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://zchqctktwkimfecmjnon.supabase.co wss://ligerwave.tech https://api.supabase.com; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; worker-src 'self'; manifest-src 'self'"
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://zchqctktwkimfecmjnon.supabase.co wss://ligerwave.tech https://api.supabase.com; img-src 'self' data: https:; worker-src 'self'; manifest-src 'self'; form-action 'self'; base-uri 'self'; frame-ancestors 'none'"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         response.headers["X-XSS-Protection"] = "0"
         response.headers["Referrer-Policy"] = "same-origin"
@@ -109,16 +109,14 @@ limiter.set_limit("/export", 10)
 limiter.set_limit("/agent", 20)
 limiter.set_limit("/webhooks", 20)
 # Default for all others: 100
-if app_settings.environment == "production":
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=app_settings.cors_origins.split(","))
-    class PerEndpointRateLimitMiddleware(BaseHTTPMiddleware):
-        async def dispatch(self, request, call_next):
-            resp = limiter.check(request)
-            if resp:
-                detector.record_rate_limit(request.url.path, _get_client_ip(request))
-                return resp
-            return await call_next(request)
-    app.add_middleware(PerEndpointRateLimitMiddleware)
+class PerEndpointRateLimitMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        resp = limiter.check(request)
+        if resp:
+            detector.record_rate_limit(request.url.path, _get_client_ip(request))
+            return resp
+        return await call_next(request)
+app.add_middleware(PerEndpointRateLimitMiddleware)
 
 app.include_router(auth.router)
 app.include_router(homes.router)
@@ -155,10 +153,23 @@ async def websocket_endpoint(websocket: WebSocket, home_id: str):
             await websocket.close(code=4001)
             return
         import httpx
-        r = httpx.get(f"{app_settings.supabase_url}/auth/v1/user", headers={"Authorization": f"Bearer {msg['token']}"})
+        async with httpx.AsyncClient() as client:
+            r = await client.get(f"{app_settings.supabase_url}/auth/v1/user", headers={"Authorization": f"Bearer {msg['token']}", "apikey": app_settings.supabase_key})
         if r.status_code != 200:
             await websocket.close(code=4001)
             return
+        user_id = r.json().get("id")
+        if not user_id:
+            await websocket.close(code=4001)
+            return
+        # Verify user has access to this home
+        user_org = service.table("users").select("organization_id").eq("id", user_id).execute()
+        if user_org.data:
+            org_id = user_org.data[0].get("organization_id")
+            home_check = service.table("homes").select("id").eq("id", home_id).eq("organization_id", org_id).execute()
+            if not home_check.data:
+                await websocket.close(code=4001)
+                return
         user_id = r.json().get("id")
         if not user_id:
             await websocket.close(code=4001)
