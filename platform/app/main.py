@@ -195,7 +195,11 @@ async def websocket_endpoint(websocket: WebSocket, home_id: str):
 async def health():
     return {"status": "ok"}
 
+import shutil
+from fastapi.responses import FileResponse
 static_dir = os.path.join(os.path.dirname(__file__), "static")
+
+# Serve landing.html at root for marketing site
 landing_path = os.path.join(static_dir, "landing.html")
 if os.path.isfile(landing_path):
     from starlette.responses import HTMLResponse as HTMLResp
@@ -203,5 +207,20 @@ if os.path.isfile(landing_path):
     async def serve_landing():
         with open(landing_path) as f:
             return HTMLResp(f.read())
+
+# Clean URL routes for SPA pages
+dashboard_path = os.path.join(static_dir, "dashboard.html")
+index_path = os.path.join(static_dir, "index.html")
+if os.path.isfile(dashboard_path) and not os.path.isfile(index_path):
+    shutil.copy2(dashboard_path, index_path)
+
+@app.get("/dashboard")
+async def serve_dashboard():
+    return FileResponse(os.path.join(static_dir, "index.html"))
+
+@app.get("/admin")
+async def serve_admin():
+    return FileResponse(os.path.join(static_dir, "dashboard.html"))
+
 if os.path.isdir(static_dir):
     app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
